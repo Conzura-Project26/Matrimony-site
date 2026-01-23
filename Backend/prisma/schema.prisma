@@ -1,0 +1,57 @@
+// Prisma schema for Phase 1 (User Management & Authentication)
+// Database: PostgreSQL (Supabase)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  role_name   String   @unique
+  description String?
+  users       User[]
+  role_permissions RolePermission[]
+}
+
+model Permission {
+  id              Int      @id @default(autoincrement())
+  permission_name String   @unique
+  role_permissions RolePermission[]
+}
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+  role          Role      @relation(fields: [role_id], references: [id])
+  permission    Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+}
+
+model User {
+  id                String   @id @default(uuid())
+  role_id           Int
+  full_name         String
+  gender            String
+  date_of_birth     DateTime
+  mobile_number     String   @unique
+  email             String?  @unique
+  password_hash     String
+  profile_created_by String
+  is_mobile_verified Boolean  @default(false)
+  is_email_verified  Boolean  @default(false)
+  is_profile_verified Boolean @default(false)
+  is_active          Boolean  @default(true)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  role               Role     @relation(fields: [role_id], references: [id])
+}
