@@ -217,4 +217,3 @@ CREATE TABLE subscriptions (
     end_date DATE,
     is_active BOOLEAN DEFAULT TRUE
 );
-
