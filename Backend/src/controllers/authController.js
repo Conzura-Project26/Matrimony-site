@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma.js';
 import otpService from '../services/otpService.js';
 import {
@@ -6,6 +7,7 @@ import {
   verifyOtpSchema,
   signupSchema,
   createAdminSchema,
+  loginSchema,
 } from '../utils/validation.js';
 import { Gender, ProfileCreatedBy } from '../types/enums.js';
 
@@ -246,8 +248,113 @@ class AuthController {
   }
 
   /**
+   * Login user with email or mobile number
+   * POST /auth/login
+   */
+  async login(req, res) {
+    try {
+      // Validate request body
+      const { identifier, password } = loginSchema.parse(req.body);
+
+      // Determine if identifier is email or mobile number
+      const isEmail = identifier.includes('@');
+      const whereClause = isEmail
+        ? { email: identifier }
+        : { mobile_number: identifier };
+
+      // Find user by email or mobile number
+      const user = await prisma.user.findUnique({
+        where: whereClause,
+        select: {
+          id: true,
+          full_name: true,
+          mobile_number: true,
+          email: true,
+          password_hash: true,
+          gender: true,
+          date_of_birth: true,
+          profile_created_by: true,
+          is_mobile_verified: true,
+          is_email_verified: true,
+          is_active: true,
+          created_at: true,
+          role: {
+            select: {
+              role_name: true,
+            },
+          },
+        },
+      });
+
+      // Check if user exists
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Account does not exist. Please sign up first.',
+        });
+      }
+
+      // Check if account is active
+      if (!user.is_active) {
+        return res.status(403).json({
+          success: false,
+          message: 'Your account has been deactivated. Please contact support.',
+        });
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid credentials. Please check your password and try again.',
+        });
+      }
+
+      // Generate JWT token 
+      const token = jwt.sign(
+        {
+          user_id: user.id,
+          mobile_number: user.mobile_number,
+          role: user.role.role_name,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRATION || '24h',
+        }
+      );
+
+      // Remove password_hash from response
+      const { password_hash, ...userWithoutPassword } = user;
+
+      res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        data: {
+          token,
+          user: userWithoutPassword,
+        },
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Login Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred during login. Please try again.',
+      });
+    }
+  }
+
+  /**
    * Create Admin or Moderator account (Protected)
-   * POST /auth/create-admin
+   * POST /auth/create-admin 
    */
   async createAdmin(req, res) {
     try {

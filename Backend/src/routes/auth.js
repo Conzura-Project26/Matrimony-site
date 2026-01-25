@@ -25,6 +25,13 @@ router.post('/verify-otp', (req, res) => authController.verifyOtp(req, res));
 router.post('/signup', (req, res) => authController.signup(req, res));
 
 /**
+ * @route   POST /auth/login
+ * @desc    Login user with email or mobile number and password
+ * @access  Public
+ */
+router.post('/login', (req, res) => authController.login(req, res));
+
+/**
  * @route   POST /auth/create-admin
  * @desc    Create admin or moderator account (Protected with secret)
  * @access  Protected (requires admin secret)
