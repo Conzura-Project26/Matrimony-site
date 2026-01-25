@@ -1,0 +1,309 @@
+// Prisma schema for SARVVIVAH Matrimony Platform
+// Database: PostgreSQL (Supabase)
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Role {
+  id               Int              @id @default(autoincrement())
+  role_name        String           @unique @db.VarChar(50)
+  description      String?          @db.Text
+  users            User[]
+  role_permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id               Int              @id @default(autoincrement())
+  permission_name  String           @unique @db.VarChar(100)
+  role_permissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+  role          Role       @relation(fields: [role_id], references: [id])
+  permission    Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model User {
+  id                  String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role_id             Int
+  full_name           String                   @db.VarChar(150)
+  gender              String                   @db.VarChar(10)
+  date_of_birth       DateTime                 @db.Date
+  mobile_number       String                   @unique @db.VarChar(15)
+  email               String?                  @unique @db.VarChar(150)
+  password_hash       String                   @db.Text
+  profile_created_by  String                   @db.VarChar(20)
+  is_mobile_verified  Boolean                  @default(false)
+  is_email_verified   Boolean                  @default(false)
+  is_profile_verified Boolean                  @default(false)
+  is_active           Boolean                  @default(true)
+  created_at          DateTime                 @default(now())
+  updated_at          DateTime                 @default(now()) @updatedAt
+  role                Role                     @relation(fields: [role_id], references: [id])
+  otp_logs            OtpLog[]
+  personal_details    UserPersonalDetails?
+  caste_details       UserCasteDetails?
+  education_details   UserEducationDetails[]
+  professional_details UserProfessionalDetails?
+  family_details      UserFamilyDetails?
+  horoscope_details   UserHoroscopeDetails?
+  photos              UserPhoto[]
+  partner_preferences PartnerPreferences?
+  shortlisted         ShortlistedProfile[]     @relation("ShortlistedBy")
+  shortlisted_by      ShortlistedProfile[]     @relation("Shortlisted")
+  search_logs         SearchLog[]
+  interests_sent      Interest[]               @relation("InterestSender")
+  interests_received  Interest[]               @relation("InterestReceiver")
+  messages_sent       Message[]                @relation("MessageSender")
+  messages_received   Message[]                @relation("MessageReceiver")
+  reports_made        UserReport[]             @relation("Reporter")
+  reports_received    UserReport[]             @relation("Reported")
+  audit_logs          AuditLog[]
+  subscriptions       Subscription[]
+  approved_photos     UserPhoto[]              @relation("PhotoApprover")
+
+  @@map("users")
+}
+
+model OtpLog {
+  id         Int       @id @default(autoincrement())
+  user_id    String?   @db.Uuid
+  otp_code   String?   @db.VarChar(10)
+  purpose    String?   @db.VarChar(30)
+  expires_at DateTime?
+  verified   Boolean   @default(false)
+  user       User?     @relation(fields: [user_id], references: [id])
+
+  @@map("otp_logs")
+}
+
+model Religion {
+  id            Int                @id @default(autoincrement())
+  religion_name String             @unique @db.VarChar(100)
+  is_active     Boolean            @default(true)
+  castes        Caste[]
+  caste_details UserCasteDetails[]
+
+  @@map("religions")
+}
+
+model Caste {
+  id            Int                @id @default(autoincrement())
+  religion_id   Int
+  caste_name    String             @db.VarChar(150)
+  is_active     Boolean            @default(true)
+  religion      Religion           @relation(fields: [religion_id], references: [id])
+  sub_castes    SubCaste[]
+  caste_details UserCasteDetails[]
+
+  @@map("castes")
+}
+
+model SubCaste {
+  id             Int                @id @default(autoincrement())
+  caste_id       Int
+  sub_caste_name String?            @db.VarChar(150)
+  is_active      Boolean            @default(true)
+  caste          Caste              @relation(fields: [caste_id], references: [id])
+  caste_details  UserCasteDetails[]
+
+  @@map("sub_castes")
+}
+
+model UserPersonalDetails {
+  user_id         String  @id @db.Uuid
+  height_cm       Int?
+  weight_kg       Int?
+  marital_status  String? @db.VarChar(30)
+  physical_status String? @db.VarChar(50)
+  mother_tongue   String? @db.VarChar(50)
+  user            User    @relation(fields: [user_id], references: [id])
+
+  @@map("user_personal_details")
+}
+
+model UserCasteDetails {
+  user_id           String    @id @db.Uuid
+  religion_id       Int?
+  caste_id          Int?
+  sub_caste_id      Int?
+  community_details String?   @db.Text
+  user              User      @relation(fields: [user_id], references: [id])
+  religion          Religion? @relation(fields: [religion_id], references: [id])
+  caste             Caste?    @relation(fields: [caste_id], references: [id])
+  sub_caste         SubCaste? @relation(fields: [sub_caste_id], references: [id])
+
+  @@map("user_caste_details")
+}
+
+model UserEducationDetails {
+  id                    Int     @id @default(autoincrement())
+  user_id               String  @db.Uuid
+  highest_qualification String? @db.VarChar(150)
+  institution_name      String? @db.VarChar(200)
+  year_of_passing       Int?
+  user                  User    @relation(fields: [user_id], references: [id])
+
+  @@map("user_education_details")
+}
+
+model UserProfessionalDetails {
+  user_id             String  @id @db.Uuid
+  occupation          String? @db.VarChar(150)
+  employment_type     String? @db.VarChar(100)
+  company_name        String? @db.VarChar(200)
+  annual_income_range String? @db.VarChar(50)
+  work_location       String? @db.VarChar(150)
+  user                User    @relation(fields: [user_id], references: [id])
+
+  @@map("user_professional_details")
+}
+
+model UserFamilyDetails {
+  user_id           String  @id @db.Uuid
+  father_occupation String? @db.VarChar(150)
+  mother_occupation String? @db.VarChar(150)
+  siblings_details  String? @db.Text
+  family_values     String? @db.VarChar(100)
+  user              User    @relation(fields: [user_id], references: [id])
+
+  @@map("user_family_details")
+}
+
+model UserHoroscopeDetails {
+  user_id        String    @id @db.Uuid
+  rasi           String?   @db.VarChar(50)
+  nakshatra      String?   @db.VarChar(50)
+  time_of_birth  DateTime? @db.Time()
+  place_of_birth String?   @db.VarChar(150)
+  user           User      @relation(fields: [user_id], references: [id])
+
+  @@map("user_horoscope_details")
+}
+
+model UserPhoto {
+  id          Int       @id @default(autoincrement())
+  user_id     String    @db.Uuid
+  photo_url   String    @db.Text
+  visibility  String?   @default("PUBLIC") @db.VarChar(20)
+  is_approved Boolean   @default(false)
+  approved_by String?   @db.Uuid
+  uploaded_at DateTime  @default(now())
+  user        User      @relation(fields: [user_id], references: [id])
+  approver    User?     @relation("PhotoApprover", fields: [approved_by], references: [id])
+
+  @@map("user_photos")
+}
+
+model PartnerPreferences {
+  user_id               String  @id @db.Uuid
+  min_age               Int?
+  max_age               Int?
+  min_height            Int?
+  max_height            Int?
+  religion_preference   String? @db.Text
+  caste_preference      String? @db.Text
+  education_preference  String? @db.Text
+  profession_preference String? @db.Text
+  location_preference   String? @db.Text
+  user                  User    @relation(fields: [user_id], references: [id])
+
+  @@map("partner_preferences")
+}
+
+model ShortlistedProfile {
+  user_id             String   @db.Uuid
+  shortlisted_user_id String   @db.Uuid
+  created_at          DateTime @default(now())
+  user                User     @relation("ShortlistedBy", fields: [user_id], references: [id])
+  shortlisted_user    User     @relation("Shortlisted", fields: [shortlisted_user_id], references: [id])
+
+  @@id([user_id, shortlisted_user_id])
+  @@map("shortlisted_profiles")
+}
+
+model SearchLog {
+  id             Int      @id @default(autoincrement())
+  user_id        String?  @db.Uuid
+  search_filters Json?    @db.JsonB
+  searched_at    DateTime @default(now())
+  user           User?    @relation(fields: [user_id], references: [id])
+
+  @@map("search_logs")
+}
+
+model Interest {
+  id          Int      @id @default(autoincrement())
+  sender_id   String   @db.Uuid
+  receiver_id String   @db.Uuid
+  status      String   @db.VarChar(20)
+  sent_at     DateTime @default(now())
+  sender      User     @relation("InterestSender", fields: [sender_id], references: [id])
+  receiver    User     @relation("InterestReceiver", fields: [receiver_id], references: [id])
+
+  @@map("interests")
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  sender_id   String   @db.Uuid
+  receiver_id String   @db.Uuid
+  message     String?  @db.Text
+  sent_at     DateTime @default(now())
+  sender      User     @relation("MessageSender", fields: [sender_id], references: [id])
+  receiver    User     @relation("MessageReceiver", fields: [receiver_id], references: [id])
+
+  @@map("messages")
+}
+
+model UserReport {
+  id            Int      @id @default(autoincrement())
+  reported_by   String   @db.Uuid
+  reported_user String   @db.Uuid
+  reason        String?  @db.Text
+  status        String?  @default("OPEN") @db.VarChar(20)
+  created_at    DateTime @default(now())
+  reporter      User     @relation("Reporter", fields: [reported_by], references: [id])
+  reported      User     @relation("Reported", fields: [reported_user], references: [id])
+
+  @@map("user_reports")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  actor_id   String?  @db.Uuid
+  action     String?  @db.Text
+  ip_address String?  @db.VarChar(45)
+  created_at DateTime @default(now())
+  actor      User?    @relation(fields: [actor_id], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Subscription {
+  id         Int      @id @default(autoincrement())
+  user_id    String   @db.Uuid
+  plan_name  String?  @db.VarChar(50)
+  start_date DateTime? @db.Date
+  end_date   DateTime? @db.Date
+  is_active  Boolean  @default(true)
+  user       User     @relation(fields: [user_id], references: [id])
+
+  @@map("subscriptions")
+}
