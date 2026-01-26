@@ -62,9 +62,16 @@ const createAdminSchema = z.object({
   admin_secret: z.string().min(1, 'Admin secret is required'),
 });
 
+// Login validation
+const loginSchema = z.object({
+  identifier: z.string().min(1, 'Email or mobile number is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
   signupSchema,
   createAdminSchema,
+  loginSchema,
 };
