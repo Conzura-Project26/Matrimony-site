@@ -6,17 +6,17 @@
 export const roles = [
   {
     id: 1,
-    role_name: 'User',
+    role_name: 'USER',
     description: 'Regular user with access to profile management, search, and communication features'
   },
   {
     id: 2,
-    role_name: 'Moderator',
+    role_name: 'MODERATOR',
     description: 'Moderator with content moderation and report management capabilities'
   },
   {
     id: 3,
-    role_name: 'Admin',
+    role_name: 'ADMIN',
     description: 'Administrator with full system access and management capabilities'
   }
 ];
@@ -26,7 +26,7 @@ export const roles = [
  * Maps which permissions belong to which roles
  */
 export const rolePermissions = {
-  User: [
+  USER: [
     'view_profiles',
     'edit_own_profile',
     'upload_photo',
@@ -43,7 +43,7 @@ export const rolePermissions = {
     'view_notifications'
   ],
   
-  Moderator: [
+  MODERATOR: [
     // All User permissions
     'view_profiles',
     'edit_own_profile',
@@ -71,7 +71,7 @@ export const rolePermissions = {
     'view_all_photos_pending'
   ],
   
-  Admin: [
+  ADMIN: [
     // All User permissions
     'view_profiles',
     'edit_own_profile',

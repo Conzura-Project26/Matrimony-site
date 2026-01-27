@@ -69,24 +69,29 @@ class OtpService {
   }
 
   /**
-   * Send OTP via SMS using Twilio Verify API
+   * Send OTP via SMS using Twilio SMS API
    * @param {string} mobileNumber - Recipient's mobile number (10 digits)
-   * @param {string} otpCode - OTP to send
+   * @param {string} otpCodeOrMessage - OTP code OR custom message
    * @param {number} retryCount - Current retry attempt (default: 0)
+   * @param {boolean} isCustomMessage - If true, uses otpCodeOrMessage as-is; if false, formats as OTP message
    * @returns {Promise<boolean>} - Success status
    */
-  async sendOtpSms(mobileNumber, otpCode, retryCount = 0) {
+  async sendOtpSms(mobileNumber, otpCodeOrMessage, retryCount = 0, isCustomMessage = false) {
     const MAX_RETRIES = 2; // Will try 3 times total (initial + 2 retries)
     const isTestMode = process.env.SMS_TEST_MODE === 'true';
 
     // Test mode - mock SMS sending
     if (isTestMode) {
       console.log('\n═══════════════════════════════════════════════');
-      console.log('📱 [SMS TEST MODE] OTP Message');
+      console.log(`📱 [SMS TEST MODE] ${isCustomMessage ? 'Notification' : 'OTP'} Message`);
       console.log('═══════════════════════════════════════════════');
       console.log(`📞 To: +91${mobileNumber}`);
-      console.log(`🔐 OTP: ${otpCode}`);
-      console.log(`📝 Message: "Your SARVVIVAH OTP is ${otpCode}. Valid for 10 minutes. Do not share with anyone."`);
+      if (isCustomMessage) {
+        console.log(`📝 Message: "${otpCodeOrMessage}"`);
+      } else {
+        console.log(`🔐 OTP: ${otpCodeOrMessage}`);
+        console.log(`📝 Message: "Your SARVVIVAH OTP is ${otpCodeOrMessage}. Valid for 10 minutes. Do not share with anyone."`);
+      }
       console.log('═══════════════════════════════════════════════\n');
       return true;
     }
@@ -107,8 +112,10 @@ class OtpService {
       // Format phone number with country code
       const phoneNumber = `+91${mobileNumber}`;
 
-      // Prepare OTP message
-      const message = `Your SARVVIVAH OTP is ${otpCode}. Valid for 10 minutes. Do not share with anyone.`;
+      // Prepare message
+      const message = isCustomMessage
+        ? otpCodeOrMessage
+        : `Your SARVVIVAH OTP is ${otpCodeOrMessage}. Valid for 10 minutes. Do not share with anyone.`;
 
       // Twilio SMS API endpoint
       const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;

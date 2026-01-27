@@ -2,18 +2,31 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma.js';
 import otpService from '../services/otpService.js';
+import tokenService from '../services/tokenService.js';
 import {
   sendOtpSchema,
   verifyOtpSchema,
   signupSchema,
   createAdminSchema,
   loginSchema,
+  forgotPasswordSchema,
+  verifyForgotOtpSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+  refreshTokenSchema,
 } from '../utils/validation.js';
 import { Gender, ProfileCreatedBy } from '../types/enums.js';
 
 // In-memory store for verified mobile numbers (valid for 30 minutes)
 // In production, use Redis for this
 const verifiedMobiles = new Map();
+
+// Rate limiting for OTP requests (3 per 15 minutes)
+// In production, use Redis for this
+const otpRateLimits = new Map();
+
+// Store for verified forgot-password sessions (valid for 30 minutes)
+const verifiedForgotPassword = new Map();
 
 class AuthController {
   /**
@@ -175,6 +188,19 @@ class AuthController {
       const saltRounds = 10;
       const password_hash = await bcrypt.hash(password, saltRounds);
 
+      // Parse date_of_birth (supports DD-MM-YYYY and YYYY-MM-DD)
+      const parseDateOfBirth = (dateStr) => {
+        // Try DD-MM-YYYY format
+        const ddmmyyyyPattern = /^(\d{2})-(\d{2})-(\d{4})$/;
+        const match = dateStr.match(ddmmyyyyPattern);
+        if (match) {
+          const [, day, month, year] = match;
+          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+        // Fallback to ISO format
+        return new Date(dateStr);
+      };
+
       // Create user in transaction
       const newUser = await prisma.$transaction(async (tx) => {
         // Create user
@@ -185,7 +211,7 @@ class AuthController {
             password_hash,
             full_name: userData.full_name,
             gender: userData.gender,
-            date_of_birth: new Date(userData.date_of_birth),
+            date_of_birth: parseDateOfBirth(userData.date_of_birth),
             email: userData.email || null,
             profile_created_by: userData.profile_created_by,
             is_mobile_verified: true,
@@ -216,10 +242,20 @@ class AuthController {
       // Remove from verified mobiles map
       verifiedMobiles.delete(mobile_number);
 
+      // Generate access token and refresh token
+      const tokens = await tokenService.generateTokenPair({
+        id: newUser.id,
+        mobile_number: newUser.mobile_number,
+        role: newUser.role.role_name,
+      });
+
       res.status(201).json({
         success: true,
-        message: 'Account created successfully. You can now login.',
+        message: 'Account created successfully. You are now logged in.',
         data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: 900, // 15 minutes in seconds
           user: newUser,
         },
       });
@@ -311,18 +347,12 @@ class AuthController {
         });
       }
 
-      // Generate JWT token 
-      const token = jwt.sign(
-        {
-          user_id: user.id,
-          mobile_number: user.mobile_number,
-          role: user.role.role_name,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: process.env.JWT_EXPIRATION || '24h',
-        }
-      );
+      // Generate access token and refresh token
+      const tokens = await tokenService.generateTokenPair({
+        id: user.id,
+        mobile_number: user.mobile_number,
+        role: user.role.role_name,
+      });
 
       // Remove password_hash from response
       const { password_hash, ...userWithoutPassword } = user;
@@ -331,7 +361,9 @@ class AuthController {
         success: true,
         message: 'Login successful',
         data: {
-          token,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: 900, // 15 minutes in seconds
           user: userWithoutPassword,
         },
       });
@@ -398,6 +430,17 @@ class AuthController {
       const saltRounds = 10;
       const password_hash = await bcrypt.hash(password, saltRounds);
 
+      // Parse date_of_birth (supports DD-MM-YYYY and YYYY-MM-DD)
+      const parseDateOfBirth = (dateStr) => {
+        const ddmmyyyyPattern = /^(\d{2})-(\d{2})-(\d{4})$/;
+        const match = dateStr.match(ddmmyyyyPattern);
+        if (match) {
+          const [, day, month, year] = match;
+          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+        return new Date(dateStr);
+      };
+
       // Create admin/moderator
       const newAdmin = await prisma.$transaction(async (tx) => {
         const user = await tx.user.create({
@@ -407,7 +450,7 @@ class AuthController {
             password_hash,
             full_name: userData.full_name,
             gender: userData.gender,
-            date_of_birth: new Date(userData.date_of_birth),
+            date_of_birth: parseDateOfBirth(userData.date_of_birth),
             email: userData.email || null,
             profile_created_by: userData.profile_created_by,
             is_mobile_verified: true, // Auto-verified for admin creation
@@ -431,10 +474,20 @@ class AuthController {
         return user;
       });
 
+      // Generate access token and refresh token
+      const tokens = await tokenService.generateTokenPair({
+        id: newAdmin.id,
+        mobile_number: newAdmin.mobile_number,
+        role: newAdmin.role.role_name,
+      });
+
       res.status(201).json({
         success: true,
         message: `${role} account created successfully`,
         data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: 900, // 15 minutes in seconds
           user: newAdmin,
         },
       });
@@ -473,6 +526,465 @@ class AuthController {
       if (now - data.timestamp > thirtyMinutes) {
         verifiedMobiles.delete(mobile);
       }
+    }
+  }
+
+  /**
+   * Check OTP rate limit (3 requests per 15 minutes)
+   * @param {string} mobile_number - Mobile number to check
+   * @returns {Object} - { allowed: boolean, remainingTime: number }
+   */
+  checkOtpRateLimit(mobile_number) {
+    const now = Date.now();
+    const fifteenMinutes = 15 * 60 * 1000;
+    const rateLimit = otpRateLimits.get(mobile_number);
+
+    if (!rateLimit) {
+      // First request
+      otpRateLimits.set(mobile_number, {
+        count: 1,
+        firstRequest: now,
+      });
+      return { allowed: true };
+    }
+
+    // Check if 15 minutes have passed
+    if (now - rateLimit.firstRequest > fifteenMinutes) {
+      // Reset counter
+      otpRateLimits.set(mobile_number, {
+        count: 1,
+        firstRequest: now,
+      });
+      return { allowed: true };
+    }
+
+    // Within 15-minute window
+    if (rateLimit.count >= 3) {
+      const remainingTime = Math.ceil((fifteenMinutes - (now - rateLimit.firstRequest)) / 1000 / 60);
+      return {
+        allowed: false,
+        remainingTime,
+      };
+    }
+
+    // Increment counter
+    rateLimit.count += 1;
+    return { allowed: true };
+  }
+
+  /**
+   * Forgot Password - Step 1: Send OTP
+   * POST /auth/forgot-password
+   */
+  async forgotPassword(req, res) {
+    try {
+      // Validate request body
+      const { mobile_number } = forgotPasswordSchema.parse(req.body);
+
+      // Check rate limit
+      const rateLimitCheck = this.checkOtpRateLimit(mobile_number);
+      if (!rateLimitCheck.allowed) {
+        return res.status(429).json({
+          success: false,
+          message: `Too many OTP requests. Please try again in ${rateLimitCheck.remainingTime} minutes.`,
+        });
+      }
+
+      // Check if user exists
+      const user = await prisma.user.findUnique({
+        where: { mobile_number },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'No account found with this mobile number.',
+        });
+      }
+
+      // Invalidate any previous OTPs for this mobile number
+      await prisma.otpLog.updateMany({
+        where: {
+          purpose: 'FORGOT_PASSWORD',
+          verified: false,
+        },
+        data: {
+          verified: true, // Mark as used to invalidate
+        },
+      });
+
+      // Generate and store OTP
+      const otpCode = await otpService.createOtp(mobile_number, 'FORGOT_PASSWORD');
+
+      // Send OTP via SMS
+      await otpService.sendOtpSms(mobile_number, otpCode);
+
+      res.status(200).json({
+        success: true,
+        message: 'OTP sent successfully to your mobile number',
+        data: {
+          mobile_number,
+          expires_in: '10 minutes',
+        },
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Forgot Password Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Forgot Password - Step 2: Verify OTP
+   * POST /auth/verify-forgot-otp
+   */
+  async verifyForgotOtp(req, res) {
+    try {
+      // Validate request body
+      const { mobile_number, otp_code } = verifyForgotOtpSchema.parse(req.body);
+
+      // Verify OTP
+      const isValid = await otpService.verifyOtp(mobile_number, otp_code, 'FORGOT_PASSWORD');
+
+      if (!isValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or expired OTP',
+        });
+      }
+
+      // Store verified session (valid for 30 minutes)
+      verifiedForgotPassword.set(mobile_number, {
+        verified: true,
+        timestamp: Date.now(),
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'OTP verified successfully. You can now reset your password.',
+        data: {
+          mobile_number,
+          verified: true,
+        },
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Verify Forgot OTP Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to verify OTP. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Forgot Password - Step 3: Reset Password
+   * POST /auth/reset-password
+   */
+  async resetPassword(req, res) {
+    try {
+      // Validate request body
+      const { mobile_number, new_password } = resetPasswordSchema.parse(req.body);
+
+      // Check if OTP was verified
+      const verification = verifiedForgotPassword.get(mobile_number);
+      if (!verification || !verification.verified) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please verify OTP first before resetting password.',
+        });
+      }
+
+      // Check if verification is still valid (30 minutes)
+      const timeDiff = Date.now() - verification.timestamp;
+      if (timeDiff > 30 * 60 * 1000) {
+        verifiedForgotPassword.delete(mobile_number);
+        return res.status(400).json({
+          success: false,
+          message: 'OTP verification expired. Please request a new OTP.',
+        });
+      }
+
+      // Find user
+      const user = await prisma.user.findUnique({
+        where: { mobile_number },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found.',
+        });
+      }
+
+      // Hash new password
+      const saltRounds = 10;
+      const password_hash = await bcrypt.hash(new_password, saltRounds);
+
+      // Update password
+      await prisma.user.update({
+        where: { mobile_number },
+        data: { password_hash },
+      });
+
+      // Revoke all refresh tokens for this user (force re-login on all devices)
+      await tokenService.revokeAllUserTokens(user.id);
+
+      // Remove from verified forgot password map
+      verifiedForgotPassword.delete(mobile_number);
+
+      // Send notification SMS
+      try {
+        const notificationMessage = `Your SARVVIVAH account password has been changed successfully. If you did not make this change, please contact support immediately.`;
+        await otpService.sendOtpSms(mobile_number, notificationMessage, 0, true);
+      } catch (smsError) {
+        console.error('Failed to send password reset notification:', smsError);
+        // Don't fail the request if SMS fails
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Password reset successfully. Please login with your new password.',
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Reset Password Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to reset password. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Change Password (for logged-in users)
+   * POST /auth/change-password
+   * Requires JWT authentication
+   */
+  async changePassword(req, res) {
+    try {
+      // User ID comes from JWT middleware (req.user)
+      const userId = req.user.user_id;
+
+      // Validate request body
+      const { current_password, new_password } = changePasswordSchema.parse(req.body);
+
+      // Find user
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          mobile_number: true,
+          password_hash: true,
+          is_active: true,
+        },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found.',
+        });
+      }
+
+      if (!user.is_active) {
+        return res.status(403).json({
+          success: false,
+          message: 'Account is deactivated.',
+        });
+      }
+
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(current_password, user.password_hash);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: 'Current password is incorrect.',
+        });
+      }
+
+      // Hash new password
+      const saltRounds = 10;
+      const password_hash = await bcrypt.hash(new_password, saltRounds);
+
+      // Update password
+      await prisma.user.update({
+        where: { id: userId },
+        data: { password_hash },
+      });
+
+      // Revoke all refresh tokens for this user (force re-login on all devices)
+      await tokenService.revokeAllUserTokens(userId);
+
+      // Send notification SMS
+      try {
+        const notificationMessage = `Your SARVVIVAH account password has been changed successfully. If you did not make this change, please contact support immediately.`;
+        await otpService.sendOtpSms(user.mobile_number, notificationMessage, 0, true);
+      } catch (smsError) {
+        console.error('Failed to send password change notification:', smsError);
+        // Don't fail the request if SMS fails
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Password changed successfully. Please login again with your new password.',
+        data: {
+          note: 'All existing sessions have been invalidated. Please login again.',
+        },
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Change Password Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to change password. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Refresh access token using refresh token
+   * POST /auth/refresh-token
+   */
+  async refreshToken(req, res) {
+    try {
+      // Validate request body
+      const { refresh_token } = refreshTokenSchema.parse(req.body);
+
+      // Verify refresh token and get user data
+      const tokenRecord = await tokenService.verifyRefreshToken(refresh_token);
+      
+      if (!tokenRecord) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid or expired refresh token. Please login again.',
+        });
+      }
+
+      // Generate new token pair
+      const tokens = await tokenService.generateTokenPair({
+        id: tokenRecord.user.id,
+        mobile_number: tokenRecord.user.mobile_number,
+        role: tokenRecord.user.role?.role_name,
+      });
+
+      // Revoke old refresh token (token rotation for security)
+      await tokenService.revokeToken(refresh_token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Token refreshed successfully',
+        data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: 900, // 15 minutes in seconds
+        },
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Refresh Token Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to refresh token. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Logout from current device
+   * POST /auth/logout
+   */
+  async logout(req, res) {
+    try {
+      // Validate request body
+      const { refresh_token } = refreshTokenSchema.parse(req.body);
+
+      // Revoke the refresh token
+      await tokenService.revokeToken(refresh_token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Logged out successfully',
+      });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.errors,
+        });
+      }
+
+      console.error('Logout Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to logout. Please try again.',
+      });
+    }
+  }
+
+  /**
+   * Logout from all devices (Protected)
+   * POST /auth/logout-all
+   */
+  async logoutAllDevices(req, res) {
+    try {
+      const userId = req.user.user_id;
+
+      // Revoke all refresh tokens for this user
+      const count = await tokenService.revokeAllUserTokens(userId);
+
+      res.status(200).json({
+        success: true,
+        message: `Successfully logged out from ${count} device(s)`,
+        data: {
+          devicesLoggedOut: count,
+        },
+      });
+    } catch (error) {
+      console.error('Logout All Devices Error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to logout from all devices. Please try again.',
+      });
     }
   }
 }

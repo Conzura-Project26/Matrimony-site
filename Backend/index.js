@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import authRoutes from './src/routes/auth.js';
 import masterDataRoutes from './src/routes/masterData.js';
 import prisma from './src/config/prisma.js';
+import swaggerSpec from './src/config/swagger.js';
 
 dotenv.config();
 
@@ -10,6 +12,16 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
+// Swagger Documentation (only in development/staging)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'SarvVivah API Docs',
+  }));
+  console.log('📚 Swagger documentation available at /api-docs');
+}
 
 // Routes
 app.use('/auth', authRoutes);
