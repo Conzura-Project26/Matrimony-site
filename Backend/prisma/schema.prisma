@@ -57,6 +57,7 @@ model User {
   updated_at          DateTime                 @default(now()) @updatedAt
   role                Role                     @relation(fields: [role_id], references: [id])
   otp_logs            OtpLog[]
+  refresh_tokens      RefreshToken[]
   personal_details    UserPersonalDetails?
   caste_details       UserCasteDetails?
   education_details   UserEducationDetails[]
@@ -91,6 +92,20 @@ model OtpLog {
   user       User?     @relation(fields: [user_id], references: [id])
 
   @@map("otp_logs")
+}
+
+model RefreshToken {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  token      String    @unique @db.Text
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  is_revoked Boolean   @default(false)
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([token])
+  @@map("refresh_tokens")
 }
 
 model Religion {

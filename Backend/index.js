@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import authRoutes from './src/routes/auth.js';
 import masterDataRoutes from './src/routes/masterData.js';
 import testErrorRoutes from './src/routes/testErrors.js';
@@ -12,6 +13,7 @@ import corsOptions from './src/config/corsConfig.js';
 import helmetConfig from './src/config/helmetConfig.js';
 import { globalRateLimiter, authRateLimiter } from './src/middleware/rateLimiter.js';
 import { sanitizeInput } from './src/middleware/sanitization.js';
+import swaggerSpec from './src/config/swagger.js';
 
 dotenv.config();
 
@@ -41,6 +43,16 @@ app.use(sanitizeInput);
 app.use(requestLogger);
 
 // ============================
+// Swagger Documentation (only in development/staging)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'SarvVivah API Docs',
+  }));
+  console.log('📚 Swagger documentation available at /api-docs');
+}
+
 // Routes
 // ============================
 
