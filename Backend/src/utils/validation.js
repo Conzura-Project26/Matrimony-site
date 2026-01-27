@@ -58,7 +58,7 @@ const createAdminSchema = z.object({
     ProfileCreatedBy.PARENT,
     ProfileCreatedBy.GUARDIAN,
   ]),
-  role: z.enum(['ADMIN', 'MODERATOR']),
+  role: z.enum(['Admin', 'Moderator']), // Match database role names
   admin_secret: z.string().min(1, 'Admin secret is required'),
 });
 

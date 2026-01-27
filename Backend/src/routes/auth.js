@@ -1,5 +1,6 @@
 import express from 'express';
 import authController from '../controllers/authController.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
 const router = express.Router();
 
@@ -8,34 +9,34 @@ const router = express.Router();
  * @desc    Send OTP to mobile number for signup
  * @access  Public
  */
-router.post('/send-otp', (req, res) => authController.sendOtp(req, res));
+router.post('/send-otp', asyncHandler((req, res) => authController.sendOtp(req, res)));
 
 /**
  * @route   POST /auth/verify-otp
  * @desc    Verify OTP sent to mobile number
  * @access  Public
  */
-router.post('/verify-otp', (req, res) => authController.verifyOtp(req, res));
+router.post('/verify-otp', asyncHandler((req, res) => authController.verifyOtp(req, res)));
 
 /**
  * @route   POST /auth/signup
  * @desc    Complete user signup after OTP verification
  * @access  Public (requires verified mobile)
  */
-router.post('/signup', (req, res) => authController.signup(req, res));
+router.post('/signup', asyncHandler((req, res) => authController.signup(req, res)));
 
 /**
  * @route   POST /auth/login
  * @desc    Login user with email or mobile number and password
  * @access  Public
  */
-router.post('/login', (req, res) => authController.login(req, res));
+router.post('/login', asyncHandler((req, res) => authController.login(req, res)));
 
 /**
  * @route   POST /auth/create-admin
  * @desc    Create admin or moderator account (Protected with secret)
  * @access  Protected (requires admin secret)
  */
-router.post('/create-admin', (req, res) => authController.createAdmin(req, res));
+router.post('/create-admin', asyncHandler((req, res) => authController.createAdmin(req, res)));
 
 export default router;

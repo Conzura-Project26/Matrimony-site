@@ -130,11 +130,11 @@
 ## Developer 2 - Database Seeding & Enums
 
 ### ⬜ TODO - Task 1.9: Master Data Seeding
-- [ ] Create seed script for religions
-- [ ] Create seed script for castes (by religion)
-- [ ] Create seed script for sub-castes
-- [ ] Create seed script for permissions
-- [ ] Create seed script for role_permissions
+- [x] Create seed script for religions
+- [x] Create seed script for castes (by religion)
+- [x] Create seed script for sub-castes
+- [x] Create seed script for permissions
+- [x] Create seed script for role_permissions
 
 ### ✅ DONE - Task 1.10: Basic Enums
 - [x] Gender enum (Male, Female, Other)
@@ -144,12 +144,12 @@
 - **File:** `src/types/enums.js` (26 lines)
 
 ### ⬜ TODO - Task 1.11: Enum Extensions
-- [ ] Add MaritalStatus enum (Never Married, Divorced, Widowed, etc.)
-- [ ] Add PhysicalStatus enum (Normal, Differently Abled)
-- [ ] Add EmploymentType enum (Salaried, Business, Self-Employed, etc.)
-- [ ] Add FamilyValues enum (Traditional, Moderate, Liberal)
-- [ ] Add IncomeRange enum (ranges)
-- [ ] Add PhotoVisibility enum (Public, Private, On Request)
+- [x] Add MaritalStatus enum (Never Married, Divorced, Widowed, etc.)
+- [x] Add PhysicalStatus enum (Normal, Differently Abled)
+- [x] Add EmploymentType enum (Salaried, Business, Self-Employed, etc.)
+- [x] Add FamilyValues enum (Traditional, Moderate, Liberal)
+- [x] Add IncomeRange enum (ranges)
+- [x] Add PhotoVisibility enum (Public, Private, On Request)
 
 ### 🧪 TESTING - Developer 2 (Phase 1)
 | Test ID | Test Case | Type | Priority |
