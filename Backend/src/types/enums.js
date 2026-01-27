@@ -1,6 +1,10 @@
 // TypeScript-style enums for application-level type safety
 // These match the CHECK constraints in the database
 
+// ============================================
+// BASIC ENUMS (Phase 1 - Task 1.10) ✅
+// ============================================
+
 export const Gender = {
   MALE: 'Male',
   FEMALE: 'Female',
@@ -19,7 +23,166 @@ export const InterestStatus = {
   REJECTED: 'REJECTED'
 };
 
-// Validation helpers
+// ============================================
+// EXTENDED ENUMS (Phase 1 - Task 1.11) ✅
+// ============================================
+
+/**
+ * Marital Status options
+ */
+export const MaritalStatus = {
+  NEVER_MARRIED: 'Never Married',
+  DIVORCED: 'Divorced',
+  WIDOWED: 'Widowed',
+  AWAITING_DIVORCE: 'Awaiting Divorce',
+  SEPARATED: 'Separated',
+  ANNULLED: 'Annulled'
+};
+
+/**
+ * Physical Status options
+ */
+export const PhysicalStatus = {
+  NORMAL: 'Normal',
+  VISUALLY_IMPAIRED: 'Visually Impaired',
+  HEARING_IMPAIRED: 'Hearing Impaired',
+  MOBILITY_IMPAIRED: 'Mobility Impaired',
+  OTHER: 'Other'
+};
+
+/**
+ * Employment Type options
+ */
+export const EmploymentType = {
+  GOVERNMENT_JOB: 'Government Job',
+  PRIVATE_JOB: 'Private Job',
+  BUSINESS: 'Business',
+  SELF_EMPLOYED: 'Self-Employed',
+  RETIRED: 'Retired',
+  NOT_WORKING: 'Not Working',
+  STUDENT: 'Student'
+};
+
+/**
+ * Family Values options
+ */
+export const FamilyValues = {
+  ORTHODOX: 'Orthodox',
+  TRADITIONAL: 'Traditional',
+  MODERATE: 'Moderate',
+  LIBERAL: 'Liberal',
+  PROGRESSIVE: 'Progressive'
+};
+
+/**
+ * Income Range options (in Lakhs per annum)
+ */
+export const IncomeRange = {
+  BELOW_2L: 'Below 2 Lakhs',
+  L2_TO_5L: '2 - 5 Lakhs',
+  L5_TO_10L: '5 - 10 Lakhs',
+  L10_TO_15L: '10 - 15 Lakhs',
+  L15_TO_20L: '15 - 20 Lakhs',
+  L20_TO_30L: '20 - 30 Lakhs',
+  L30_TO_50L: '30 - 50 Lakhs',
+  ABOVE_50L: 'Above 50 Lakhs'
+};
+
+/**
+ * Photo Visibility options
+ */
+export const PhotoVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
+  ON_REQUEST: 'ON_REQUEST',
+  PROTECTED: 'PROTECTED' // Visible after interest accepted
+};
+
+/**
+ * Education Level options
+ */
+export const EducationLevel = {
+  HIGH_SCHOOL: 'High School',
+  DIPLOMA: 'Diploma',
+  BACHELORS: "Bachelor's Degree",
+  MASTERS: "Master's Degree",
+  DOCTORATE: 'Doctorate/PhD',
+  PROFESSIONAL_DEGREE: 'Professional Degree'
+};
+
+/**
+ * Diet Preference options
+ */
+export const DietPreference = {
+  VEGETARIAN: 'Vegetarian',
+  NON_VEGETARIAN: 'Non-Vegetarian',
+  EGGETARIAN: 'Eggetarian',
+  VEGAN: 'Vegan'
+};
+
+/**
+ * Drinking Habit options
+ */
+export const DrinkingHabit = {
+  NEVER: 'Never',
+  OCCASIONALLY: 'Occasionally',
+  SOCIALLY: 'Socially',
+  REGULARLY: 'Regularly'
+};
+
+/**
+ * Smoking Habit options
+ */
+export const SmokingHabit = {
+  NEVER: 'Never',
+  OCCASIONALLY: 'Occasionally',
+  SOCIALLY: 'Socially',
+  REGULARLY: 'Regularly'
+};
+
+// ============================================
+// VALIDATION HELPERS
+// ============================================
+
+// Basic Enums Validators
 export const isValidGender = (value) => Object.values(Gender).includes(value);
 export const isValidProfileCreatedBy = (value) => Object.values(ProfileCreatedBy).includes(value);
 export const isValidInterestStatus = (value) => Object.values(InterestStatus).includes(value);
+
+// Extended Enums Validators
+export const isValidMaritalStatus = (value) => Object.values(MaritalStatus).includes(value);
+export const isValidPhysicalStatus = (value) => Object.values(PhysicalStatus).includes(value);
+export const isValidEmploymentType = (value) => Object.values(EmploymentType).includes(value);
+export const isValidFamilyValues = (value) => Object.values(FamilyValues).includes(value);
+export const isValidIncomeRange = (value) => Object.values(IncomeRange).includes(value);
+export const isValidPhotoVisibility = (value) => Object.values(PhotoVisibility).includes(value);
+export const isValidEducationLevel = (value) => Object.values(EducationLevel).includes(value);
+export const isValidDietPreference = (value) => Object.values(DietPreference).includes(value);
+export const isValidDrinkingHabit = (value) => Object.values(DrinkingHabit).includes(value);
+export const isValidSmokingHabit = (value) => Object.values(SmokingHabit).includes(value);
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Get all values from an enum object
+ * @param {Object} enumObj - The enum object
+ * @returns {Array} Array of enum values
+ */
+export const getEnumValues = (enumObj) => Object.values(enumObj);
+
+/**
+ * Get all keys from an enum object
+ * @param {Object} enumObj - The enum object
+ * @returns {Array} Array of enum keys
+ */
+export const getEnumKeys = (enumObj) => Object.keys(enumObj);
+
+/**
+ * Check if a value exists in any enum
+ * @param {Object} enumObj - The enum object
+ * @param {any} value - The value to check
+ * @returns {boolean} True if value exists in enum
+ */
+export const isValidEnum = (enumObj, value) => Object.values(enumObj).includes(value);

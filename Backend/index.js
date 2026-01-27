@@ -1,8 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.js';
+import masterDataRoutes from './src/routes/masterData.js';
+import prisma from './src/config/prisma.js';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/master', masterDataRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -24,7 +26,15 @@ app.get('/', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌐 API: http://localhost:${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  
+  // Check database connection
+  try {
+    await prisma.$connect();
+    console.log('✓ Connected to database');
+  } catch (error) {
+    console.error('✗ Failed to connect to database:');
+    console.error(error.message);
+  }
 });
