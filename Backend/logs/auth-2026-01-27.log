@@ -1,0 +1,84 @@
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:05:55"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:05:56","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid input: expected string, received undefined\"\n  }\n]","method":"POST","name":"ZodError","stack":"ZodError: [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid input: expected string, received undefined\"\n  }\n]\n    at AuthController.sendOtp (file:///D:/SarvVivah/Matrimony-site/Backend/src/controllers/authController.js:32:45)\n    at file:///D:/SarvVivah/Matrimony-site/Backend/src/routes/auth.js:12:68\n    at file:///D:/SarvVivah/Matrimony-site/Backend/src/utils/asyncHandler.js:20:21\n    at Layer.handleRequest (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:295:15\n    at processParams (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:582:12)","statusCode":500,"timestamp":"2026-01-27 19:07:17","url":"/auth/send-otp","userId":null}
+{"ip":"::1","level":"warn","message":"POST /auth/send-otp 422 5ms","method":"POST","responseTime":"5ms","statusCode":422,"timestamp":"2026-01-27 19:07:17","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"warn","message":"POST /auth/send-otp 422 6ms","method":"POST","responseTime":"6ms","statusCode":422,"timestamp":"2026-01-27 19:07:17","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"warn","message":"POST /auth/send-otp 422 9ms","method":"POST","responseTime":"9ms","statusCode":422,"timestamp":"2026-01-27 19:07:17","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:09:07"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:09:08","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid input: expected string, received undefined\"\n  }\n]","method":"POST","name":"ZodError","stack":"ZodError: [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid input: expected string, received undefined\"\n  }\n]\n    at AuthController.sendOtp (file:///D:/SarvVivah/Matrimony-site/Backend/src/controllers/authController.js:32:45)\n    at file:///D:/SarvVivah/Matrimony-site/Backend/src/routes/auth.js:12:68\n    at file:///D:/SarvVivah/Matrimony-site/Backend/src/utils/asyncHandler.js:20:21\n    at Layer.handleRequest (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:295:15\n    at processParams (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\router\\index.js:582:12)","statusCode":500,"timestamp":"2026-01-27 19:10:23","url":"/auth/send-otp","userId":null}
+{"level":"http","message":"POST /auth/send-otp 422 4ms","timestamp":"2026-01-27 19:10:23"}
+{"level":"http","message":"POST /auth/send-otp 422 5ms","timestamp":"2026-01-27 19:10:23"}
+{"level":"http","message":"POST /auth/send-otp 422 6ms","timestamp":"2026-01-27 19:10:23"}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"9380422508","purpose":"SIGNUP","status":"success","timestamp":"2026-01-27 19:11:05"}
+{"level":"http","message":"POST /auth/send-otp 200 1100ms","timestamp":"2026-01-27 19:11:05"}
+{"level":"http","message":"POST /auth/send-otp 200 1101ms","timestamp":"2026-01-27 19:11:05"}
+{"level":"http","message":"POST /auth/send-otp 200 1101ms","timestamp":"2026-01-27 19:11:05"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:13:23"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:13:23","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid input: expected string, received undefined\"\n  }\n]","method":"POST","name":"ZodError","statusCode":500,"timestamp":"2026-01-27 19:13:50","url":"/auth/send-otp","userId":null}
+{"level":"http","message":"POST /auth/send-otp 422 4ms","timestamp":"2026-01-27 19:13:50"}
+{"level":"http","message":"POST /auth/send-otp 422 4ms","timestamp":"2026-01-27 19:13:50"}
+{"level":"http","message":"POST /auth/send-otp 422 6ms","timestamp":"2026-01-27 19:13:50"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:42:00"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:42:00","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error Cannot set property query of #<IncomingMessage> which has only a getter","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-27 19:43:43","url":"/auth/login","userId":null}
+{"ip":"::1","level":"error","message":"Request Error Cannot set property query of #<IncomingMessage> which has only a getter","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-27 19:44:20","url":"/auth/send-otp","userId":null}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:46:09"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:46:10","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error Cannot set property query of #<IncomingMessage> which has only a getter","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-27 19:46:33","url":"/auth/send-otp","userId":null}
+{"ip":"::1","level":"error","message":"Request Error Cannot set property query of #<IncomingMessage> which has only a getter","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-27 19:46:39","url":"/auth/send-otp","userId":null}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:47:40"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:47:40","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error Cannot set property query of #<IncomingMessage> which has only a getter","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-27 19:48:22","url":"/auth/send-otp","userId":null}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-27 19:49:10"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-27 19:49:11","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error Failed to send OTP SMS: The number +91987654XXXX is unverified. Trial accounts cannot send messages to unverified numbers; verify +91987654XXXX at twilio.com/user/account/phone-numbers/verified, or purchase a Twilio number to send messages to unverified numbers. Please try again later.","method":"POST","name":"Error","statusCode":500,"timestamp":"2026-01-27 19:49:49","url":"/auth/send-otp","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/send-otp 500 4645ms","method":"POST","responseTime":"4645ms","statusCode":500,"timestamp":"2026-01-27 19:49:49","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/send-otp 500 4645ms","method":"POST","responseTime":"4645ms","statusCode":500,"timestamp":"2026-01-27 19:49:49","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/send-otp 500 4647ms","method":"POST","responseTime":"4647ms","statusCode":500,"timestamp":"2026-01-27 19:49:49","url":"/auth/send-otp","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"9380422508","purpose":"SIGNUP","status":"success","timestamp":"2026-01-27 19:50:07"}
+{"level":"http","message":"POST /auth/send-otp 200 931ms","timestamp":"2026-01-27 19:50:07"}
+{"level":"http","message":"POST /auth/send-otp 200 931ms","timestamp":"2026-01-27 19:50:07"}
+{"level":"http","message":"POST /auth/send-otp 200 932ms","timestamp":"2026-01-27 19:50:07"}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"9380422508","purpose":"SIGNUP","status":"success","timestamp":"2026-01-27 19:51:21"}
+{"level":"http","message":"POST /auth/send-otp 200 903ms","timestamp":"2026-01-27 19:51:21"}
+{"level":"http","message":"POST /auth/send-otp 200 904ms","timestamp":"2026-01-27 19:51:21"}
+{"level":"http","message":"POST /auth/send-otp 200 904ms","timestamp":"2026-01-27 19:51:21"}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"9380422508","purpose":"SIGNUP","status":"success","timestamp":"2026-01-27 19:51:22"}
+{"level":"http","message":"POST /auth/send-otp 200 773ms","timestamp":"2026-01-27 19:51:22"}
+{"level":"http","message":"POST /auth/send-otp 200 773ms","timestamp":"2026-01-27 19:51:22"}
+{"level":"http","message":"POST /auth/send-otp 200 774ms","timestamp":"2026-01-27 19:51:22"}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"9380422508","purpose":"SIGNUP","status":"success","timestamp":"2026-01-27 19:51:24"}
+{"level":"http","message":"POST /auth/send-otp 200 1180ms","timestamp":"2026-01-27 19:51:24"}
+{"level":"http","message":"POST /auth/send-otp 200 1180ms","timestamp":"2026-01-27 19:51:24"}
+{"level":"http","message":"POST /auth/send-otp 200 1181ms","timestamp":"2026-01-27 19:51:24"}
+{"endpoint":"/auth/send-otp","ip":"::1","level":"warn","limit":5,"message":"[Security] Rate limit exceeded","timestamp":"2026-01-27 19:51:25","type":"auth","window":"15 minutes"}
+{"level":"http","message":"POST /auth/send-otp 429 2ms","timestamp":"2026-01-27 19:51:25"}
+{"level":"http","message":"POST /auth/send-otp 429 3ms","timestamp":"2026-01-27 19:51:25"}
+{"level":"http","message":"POST /auth/send-otp 429 4ms","timestamp":"2026-01-27 19:51:25"}
+{"endpoint":"/auth/login","ip":"::1","level":"warn","limit":5,"message":"[Security] Rate limit exceeded","timestamp":"2026-01-27 19:52:38","type":"auth","window":"15 minutes"}
+{"level":"http","message":"POST /auth/login 429 1ms","timestamp":"2026-01-27 19:52:38"}
+{"level":"http","message":"POST /auth/login 429 2ms","timestamp":"2026-01-27 19:52:38"}
+{"level":"http","message":"POST /auth/login 429 2ms","timestamp":"2026-01-27 19:52:38"}
+{"level":"http","message":"GET / 200 1ms","timestamp":"2026-01-27 19:54:36"}
+{"level":"http","message":"GET / 200 2ms","timestamp":"2026-01-27 19:54:36"}
+{"level":"http","message":"GET / 200 4ms","timestamp":"2026-01-27 19:54:36"}
+{"ip":"::1","level":"error","message":"Request Error Route not found - GET /favicon.ico","method":"GET","name":"Error","statusCode":404,"timestamp":"2026-01-27 19:54:36","url":"/favicon.ico","userId":null}
+{"level":"http","message":"GET /favicon.ico 404 1ms","timestamp":"2026-01-27 19:54:36"}
+{"level":"http","message":"GET /favicon.ico 404 2ms","timestamp":"2026-01-27 19:54:36"}
+{"level":"http","message":"GET /favicon.ico 404 4ms","timestamp":"2026-01-27 19:54:36"}
+{"ip":"::1","level":"error","message":"Request Error Route not found - GET /.well-known/appspecific/com.chrome.devtools.json","method":"GET","name":"Error","statusCode":404,"timestamp":"2026-01-27 19:54:44","url":"/.well-known/appspecific/com.chrome.devtools.json","userId":null}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 1ms","timestamp":"2026-01-27 19:54:44"}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 2ms","timestamp":"2026-01-27 19:54:44"}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 3ms","timestamp":"2026-01-27 19:54:44"}
+{"level":"http","message":"GET / 200 0ms","timestamp":"2026-01-27 19:55:07"}
+{"level":"http","message":"GET / 200 1ms","timestamp":"2026-01-27 19:55:07"}
+{"level":"http","message":"GET / 304 3ms","timestamp":"2026-01-27 19:55:07"}
+{"ip":"::1","level":"error","message":"Request Error Route not found - GET /.well-known/appspecific/com.chrome.devtools.json","method":"GET","name":"Error","statusCode":404,"timestamp":"2026-01-27 19:55:07","url":"/.well-known/appspecific/com.chrome.devtools.json","userId":null}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 1ms","timestamp":"2026-01-27 19:55:07"}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 2ms","timestamp":"2026-01-27 19:55:07"}
+{"level":"http","message":"GET /.well-known/appspecific/com.chrome.devtools.json 404 3ms","timestamp":"2026-01-27 19:55:07"}
+{"level":"http","message":"GET / 200 0ms","timestamp":"2026-01-27 19:57:09"}
+{"level":"http","message":"GET / 200 0ms","timestamp":"2026-01-27 19:57:09"}
+{"level":"http","message":"GET / 200 1ms","timestamp":"2026-01-27 19:57:09"}

@@ -1,5 +1,6 @@
 import express from 'express';
 import authController from '../controllers/authController.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -59,7 +60,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/send-otp', (req, res) => authController.sendOtp(req, res));
+router.post('/send-otp', asyncHandler((req, res) => authController.sendOtp(req, res)));
 
 /**
  * @swagger
@@ -93,7 +94,7 @@ router.post('/send-otp', (req, res) => authController.sendOtp(req, res));
  *       500:
  *         description: Server error
  */
-router.post('/verify-otp', (req, res) => authController.verifyOtp(req, res));
+router.post('/verify-otp', asyncHandler((req, res) => authController.verifyOtp(req, res)));
 
 /**
  * @swagger
@@ -174,7 +175,7 @@ router.post('/verify-otp', (req, res) => authController.verifyOtp(req, res));
  *       500:
  *         description: Server error
  */
-router.post('/signup', (req, res) => authController.signup(req, res));
+router.post('/signup', asyncHandler((req, res) => authController.signup(req, res)));
 
 /**
  * @swagger
@@ -240,7 +241,7 @@ router.post('/signup', (req, res) => authController.signup(req, res));
  *       500:
  *         description: Server error
  */
-router.post('/login', (req, res) => authController.login(req, res));
+router.post('/login', asyncHandler((req, res) => authController.login(req, res)));
 
 /**
  * @swagger
@@ -302,7 +303,7 @@ router.post('/login', (req, res) => authController.login(req, res));
  *       500:
  *         description: Server error
  */
-router.post('/create-admin', (req, res) => authController.createAdmin(req, res));
+router.post('/create-admin', asyncHandler((req, res) => authController.createAdmin(req, res)));
 
 /**
  * @swagger
