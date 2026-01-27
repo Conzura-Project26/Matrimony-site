@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\SarvVivah\\Matrimony-site\\Backend\\logs\\.31954f1d4ef7d9e7830c63751a4ddb3a61add4ce-audit.json",
+    "files": [
+        {
+            "date": 1769520955767,
+            "name": "D:\\SarvVivah\\Matrimony-site\\Backend\\logs\\combined-2026-01-27.log",
+            "hash": "abcc2bb9946b7935489678ccb221e9a142fd3344beeea41c76983c916b7ca00b"
+        }
+    ],
+    "hashType": "sha256"
+}
