@@ -112,6 +112,7 @@ model Caste {
   sub_castes    SubCaste[]
   caste_details UserCasteDetails[]
 
+  @@unique([religion_id, caste_name])
   @@map("castes")
 }
 
@@ -123,6 +124,7 @@ model SubCaste {
   caste          Caste              @relation(fields: [caste_id], references: [id])
   caste_details  UserCasteDetails[]
 
+  @@unique([caste_id, sub_caste_name])
   @@map("sub_castes")
 }
 

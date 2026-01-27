@@ -1,16 +1,31 @@
-const express = require('express');
+import express from 'express';
+import dotenv from 'dotenv';
+import authRoutes from './src/routes/auth.js';
+import masterDataRoutes from './src/routes/masterData.js';
+import prisma from './src/config/prisma.js';
+
+dotenv.config();
+
 const app = express();
-require('dotenv').config();
-const authRoutes = require('./routes/auth');
 
 app.use(express.json());
 app.use('/auth', authRoutes);
+app.use('/master', masterDataRoutes);
 
 app.get('/', (req, res) => {
   res.send('SarvVivah Backend API');
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Check database connection
+  try {
+    await prisma.$connect();
+    console.log('✓ Connected to database');
+  } catch (error) {
+    console.error('✗ Failed to connect to database:');
+    console.error(error.message);
+  }
 });
