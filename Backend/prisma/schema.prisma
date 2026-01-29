@@ -144,13 +144,22 @@ model SubCaste {
 }
 
 model UserPersonalDetails {
-  user_id         String  @id @db.Uuid
+  user_id         String    @id @db.Uuid
   height_cm       Int?
   weight_kg       Int?
-  marital_status  String? @db.VarChar(30)
-  physical_status String? @db.VarChar(50)
-  mother_tongue   String? @db.VarChar(50)
-  user            User    @relation(fields: [user_id], references: [id])
+  marital_status  String?   @db.VarChar(30)
+  physical_status String?   @db.VarChar(50)
+  mother_tongue   String?   @db.VarChar(50)
+  complexion      String?   @db.VarChar(30)
+  body_type       String?   @db.VarChar(30)
+  blood_group     String?   @db.VarChar(10)
+  diet_preference String?   @db.VarChar(30)
+  drinking_habit  String?   @db.VarChar(30)
+  smoking_habit   String?   @db.VarChar(30)
+  about_me        String?   @db.Text
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now()) @updatedAt
+  user            User      @relation(fields: [user_id], references: [id])
 
   @@map("user_personal_details")
 }
