@@ -261,7 +261,7 @@ export const authorizePermission = (requiredPermissions) => {
  */
 export const checkOwnership = (paramName, options = {}) => {
   const {
-    bypassRoles = ['ADMIN', 'MODERATOR'],
+    bypassRoles = ['ADMIN'], // Only ADMIN can bypass by default (not MODERATOR)
     resourceType = 'resource'
   } = options;
 
@@ -378,24 +378,13 @@ async function logAuthorizationFailure(userId, req, action, details = {}) {
   try {
     await prisma.auditLog.create({
       data: {
-        user_id: userId,
-        action: action,
-        table_name: 'authorization',
-        record_id: userId,
-        old_values: null,
-        new_values: JSON.stringify({
-          path: req.path,
-          method: req.method,
-          ip: req.ip,
-          userAgent: req.get('user-agent'),
-          ...details
-        }),
-        ip_address: req.ip,
-        user_agent: req.get('user-agent')
+        actor_id: userId,
+        action: `${action} - ${req.method} ${req.path}`,
+        ip_address: req.ip
       }
     });
 
-    logger.database('Authorization failure logged to audit trail', {
+    logger.info('Authorization failure logged to audit trail', {
       userId,
       action,
       path: req.path

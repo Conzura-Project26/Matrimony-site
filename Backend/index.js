@@ -4,6 +4,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './src/routes/auth.js';
 import masterDataRoutes from './src/routes/masterData.js';
+import userProfileRoutes from './src/routes/userProfile.js';
 import testErrorRoutes from './src/routes/testErrors.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
@@ -59,6 +60,7 @@ if (process.env.NODE_ENV !== 'production') {
 // Auth routes with stricter rate limiting
 app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
+app.use('/users', userProfileRoutes);
 
 // Test routes (only in development)
 if (process.env.NODE_ENV !== 'production') {

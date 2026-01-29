@@ -124,3 +124,477 @@
 {"level":"http","message":"GET /master/religions/1/hierarchy 200 412ms","timestamp":"2026-01-29 14:12:44"}
 {"level":"http","message":"GET /master/religions/1/hierarchy 200 413ms","timestamp":"2026-01-29 14:12:44"}
 {"level":"http","message":"GET /master/religions/1/hierarchy 200 416ms","timestamp":"2026-01-29 14:12:44"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 14:42:18"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 14:42:19","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 14:42:30"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 14:42:30","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 14:43:27"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 14:43:28","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error Failed to generate token pair: Failed to store refresh token: Cannot read properties of undefined (reading 'create')","method":"POST","name":"Error","statusCode":500,"timestamp":"2026-01-29 14:43:46","url":"/auth/login","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 611ms","method":"POST","responseTime":"611ms","statusCode":500,"timestamp":"2026-01-29 14:43:46","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 612ms","method":"POST","responseTime":"612ms","statusCode":500,"timestamp":"2026-01-29 14:43:46","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 616ms","method":"POST","responseTime":"616ms","statusCode":500,"timestamp":"2026-01-29 14:43:46","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"Request Error Failed to generate token pair: Failed to store refresh token: Cannot read properties of undefined (reading 'create')","method":"POST","name":"Error","statusCode":500,"timestamp":"2026-01-29 14:45:08","url":"/auth/login","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 371ms","method":"POST","responseTime":"371ms","statusCode":500,"timestamp":"2026-01-29 14:45:08","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 371ms","method":"POST","responseTime":"371ms","statusCode":500,"timestamp":"2026-01-29 14:45:08","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 372ms","method":"POST","responseTime":"372ms","statusCode":500,"timestamp":"2026-01-29 14:45:08","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"Request Error Failed to generate token pair: Failed to store refresh token: Cannot read properties of undefined (reading 'create')","method":"POST","name":"Error","statusCode":500,"timestamp":"2026-01-29 14:46:51","url":"/auth/login","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 410ms","method":"POST","responseTime":"410ms","statusCode":500,"timestamp":"2026-01-29 14:46:51","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 411ms","method":"POST","responseTime":"411ms","statusCode":500,"timestamp":"2026-01-29 14:46:51","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"ip":"::1","level":"error","message":"POST /auth/login 500 412ms","method":"POST","responseTime":"412ms","statusCode":500,"timestamp":"2026-01-29 14:46:51","url":"/auth/login","userAgent":"PostmanRuntime/7.51.0","userId":null}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 14:47:33"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 14:47:33","type":"PostgreSQL"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 14:48:03","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 14:48:03","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 721ms","timestamp":"2026-01-29 14:48:03"}
+{"level":"http","message":"POST /auth/login 200 722ms","timestamp":"2026-01-29 14:48:03"}
+{"level":"http","message":"POST /auth/login 200 726ms","timestamp":"2026-01-29 14:48:03"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 401 0ms","timestamp":"2026-01-29 14:49:17"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 401 1ms","timestamp":"2026-01-29 14:49:17"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 401 2ms","timestamp":"2026-01-29 14:49:17"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 200 1337ms","timestamp":"2026-01-29 14:49:43"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 200 1338ms","timestamp":"2026-01-29 14:49:43"}
+{"level":"http","message":"GET /master/religions/1/hierarchy 200 1338ms","timestamp":"2026-01-29 14:49:43"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 15:50:37"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 15:50:38","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 15:52:22"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 15:52:22","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 15:52:23"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 15:52:23","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:12:00"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:12:00","type":"PostgreSQL"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 16:12:06","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 16:12:06","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 685ms","timestamp":"2026-01-29 16:12:06"}
+{"level":"http","message":"POST /auth/login 200 686ms","timestamp":"2026-01-29 16:12:06"}
+{"level":"http","message":"POST /auth/login 200 689ms","timestamp":"2026-01-29 16:12:06"}
+{"ip":"::1","level":"error","message":"Request Error logDatabase is not a function","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-29 16:15:46","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 978ms","method":"POST","responseTime":"978ms","statusCode":500,"timestamp":"2026-01-29 16:15:46","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 979ms","method":"POST","responseTime":"979ms","statusCode":500,"timestamp":"2026-01-29 16:15:46","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 980ms","method":"POST","responseTime":"980ms","statusCode":500,"timestamp":"2026-01-29 16:15:46","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:18:16"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:18:16","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:18:47"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:18:47","type":"PostgreSQL"}
+{"fieldsUpdated":["height_cm","weight_kg","marital_status","physical_status","mother_tongue","complexion","body_type","blood_group","diet_preference","drinking_habit","smoking_habit","about_me"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:19:02","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 696ms","timestamp":"2026-01-29 16:19:02"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 697ms","timestamp":"2026-01-29 16:19:02"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 700ms","timestamp":"2026-01-29 16:19:02"}
+{"fieldsUpdated":["mother_tongue","diet_preference"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:23:20","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 878ms","timestamp":"2026-01-29 16:23:20"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 879ms","timestamp":"2026-01-29 16:23:20"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 880ms","timestamp":"2026-01-29 16:23:20"}
+{"fieldsUpdated":["mother_tongue","diet_preference"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:23:41","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 940ms","timestamp":"2026-01-29 16:23:41"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 940ms","timestamp":"2026-01-29 16:23:41"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 941ms","timestamp":"2026-01-29 16:23:41"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 16:25:00"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 16:25:00"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 16:25:00"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1395ms","timestamp":"2026-01-29 16:25:15"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1396ms","timestamp":"2026-01-29 16:25:15"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1397ms","timestamp":"2026-01-29 16:25:15"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 401 1ms","timestamp":"2026-01-29 16:30:40"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 401 1ms","timestamp":"2026-01-29 16:30:40"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 401 2ms","timestamp":"2026-01-29 16:30:40"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 16:30:49","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 16:30:49","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 996ms","timestamp":"2026-01-29 16:30:49"}
+{"level":"http","message":"POST /auth/login 200 996ms","timestamp":"2026-01-29 16:30:49"}
+{"level":"http","message":"POST /auth/login 200 997ms","timestamp":"2026-01-29 16:30:49"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 200 968ms","timestamp":"2026-01-29 16:31:07"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 200 969ms","timestamp":"2026-01-29 16:31:07"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/profile-completion 200 970ms","timestamp":"2026-01-29 16:31:07"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 16:33:47"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 16:33:47"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 16:33:47"}
+{"ip":"::1","level":"error","message":"Request Error Cannot read properties of undefined (reading 'map')","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-29 16:34:02","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 3ms","method":"POST","responseTime":"3ms","statusCode":500,"timestamp":"2026-01-29 16:34:02","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 3ms","method":"POST","responseTime":"3ms","statusCode":500,"timestamp":"2026-01-29 16:34:02","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 3ms","method":"POST","responseTime":"3ms","statusCode":500,"timestamp":"2026-01-29 16:34:02","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"fieldsUpdated":["height_cm","weight_kg","marital_status","physical_status","mother_tongue","complexion","body_type","blood_group","diet_preference","drinking_habit","smoking_habit","about_me"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:34:21","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 821ms","timestamp":"2026-01-29 16:34:21"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 821ms","timestamp":"2026-01-29 16:34:21"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 822ms","timestamp":"2026-01-29 16:34:21"}
+{"ip":"::1","level":"error","message":"Request Error Cannot read properties of undefined (reading 'map')","method":"POST","name":"TypeError","statusCode":500,"timestamp":"2026-01-29 16:34:29","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 2ms","method":"POST","responseTime":"2ms","statusCode":500,"timestamp":"2026-01-29 16:34:29","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 2ms","method":"POST","responseTime":"2ms","statusCode":500,"timestamp":"2026-01-29 16:34:29","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"ip":"::1","level":"error","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 500 3ms","method":"POST","responseTime":"3ms","statusCode":500,"timestamp":"2026-01-29 16:34:29","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userAgent":"PostmanRuntime/7.51.0","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:36:13"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:36:13","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"origin\": \"number\",\n    \"code\": \"too_small\",\n    \"minimum\": 120,\n    \"inclusive\": true,\n    \"path\": [\n      \"height_cm\"\n    ],\n    \"message\": \"Height must be at least 120 cm\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 16:37:14","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 8ms","timestamp":"2026-01-29 16:37:14"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 9ms","timestamp":"2026-01-29 16:37:14"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 12ms","timestamp":"2026-01-29 16:37:14"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"origin\": \"number\",\n    \"code\": \"too_big\",\n    \"maximum\": 200,\n    \"inclusive\": true,\n    \"path\": [\n      \"weight_kg\"\n    ],\n    \"message\": \"Weight cannot exceed 200 kg\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 16:38:05","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 3ms","timestamp":"2026-01-29 16:38:05"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 3ms","timestamp":"2026-01-29 16:38:05"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 4ms","timestamp":"2026-01-29 16:38:05"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"origin\": \"number\",\n    \"code\": \"too_big\",\n    \"maximum\": 200,\n    \"inclusive\": true,\n    \"path\": [\n      \"weight_kg\"\n    ],\n    \"message\": \"Weight cannot exceed 200 kg\"\n  },\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"A+\",\n      \"A-\",\n      \"B+\",\n      \"B-\",\n      \"AB+\",\n      \"AB-\",\n      \"O+\",\n      \"O-\"\n    ],\n    \"path\": [\n      \"blood_group\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"A+\\\"|\\\"A-\\\"|\\\"B+\\\"|\\\"B-\\\"|\\\"AB+\\\"|\\\"AB-\\\"|\\\"O+\\\"|\\\"O-\\\"\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 16:38:50","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 2ms","timestamp":"2026-01-29 16:38:50"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 3ms","timestamp":"2026-01-29 16:38:50"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 3ms","timestamp":"2026-01-29 16:38:50"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"A+\",\n      \"A-\",\n      \"B+\",\n      \"B-\",\n      \"AB+\",\n      \"AB-\",\n      \"O+\",\n      \"O-\"\n    ],\n    \"path\": [\n      \"blood_group\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"A+\\\"|\\\"A-\\\"|\\\"B+\\\"|\\\"B-\\\"|\\\"AB+\\\"|\\\"AB-\\\"|\\\"O+\\\"|\\\"O-\\\"\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 16:43:02","url":"/users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 2ms","timestamp":"2026-01-29 16:43:02"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 2ms","timestamp":"2026-01-29 16:43:02"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 3ms","timestamp":"2026-01-29 16:43:02"}
+{"fieldsUpdated":["height_cm","weight_kg","marital_status","physical_status","mother_tongue","complexion","body_type","blood_group","diet_preference","drinking_habit","smoking_habit","about_me"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:43:16","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 1226ms","timestamp":"2026-01-29 16:43:16"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 1227ms","timestamp":"2026-01-29 16:43:16"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 1227ms","timestamp":"2026-01-29 16:43:16"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:47:38"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:47:38","type":"PostgreSQL"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 3ms","timestamp":"2026-01-29 16:48:51"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 4ms","timestamp":"2026-01-29 16:48:51"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 6ms","timestamp":"2026-01-29 16:48:51"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 16:48:57","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 16:48:57","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 593ms","timestamp":"2026-01-29 16:48:57"}
+{"level":"http","message":"POST /auth/login 200 594ms","timestamp":"2026-01-29 16:48:57"}
+{"level":"http","message":"POST /auth/login 200 595ms","timestamp":"2026-01-29 16:48:57"}
+{"fieldsUpdated":["height_cm","weight_kg","marital_status","physical_status","mother_tongue","complexion","body_type","blood_group","diet_preference","drinking_habit","smoking_habit","about_me"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 16:49:16","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 677ms","timestamp":"2026-01-29 16:49:16"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 678ms","timestamp":"2026-01-29 16:49:16"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 200 679ms","timestamp":"2026-01-29 16:49:16"}
+{"identifier":"9380245433","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"MODERATOR","success":true,"timestamp":"2026-01-29 16:51:33","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 16:51:33","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /auth/login 200 654ms","timestamp":"2026-01-29 16:51:33"}
+{"level":"http","message":"POST /auth/login 200 654ms","timestamp":"2026-01-29 16:51:33"}
+{"level":"http","message":"POST /auth/login 200 655ms","timestamp":"2026-01-29 16:51:33"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's personal details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 16:51:50","url":"/users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 403 558ms","timestamp":"2026-01-29 16:51:50"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 403 558ms","timestamp":"2026-01-29 16:51:50"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 403 559ms","timestamp":"2026-01-29 16:51:50"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 16:54:27"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 16:54:27","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:05:40"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:05:40","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:06:10"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:06:11","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:06:39"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:06:39","type":"PostgreSQL"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 3ms","timestamp":"2026-01-29 17:07:43"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 5ms","timestamp":"2026-01-29 17:07:43"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 401 7ms","timestamp":"2026-01-29 17:07:43"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 17:08:08","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 17:08:08","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 802ms","timestamp":"2026-01-29 17:08:08"}
+{"level":"http","message":"POST /auth/login 200 802ms","timestamp":"2026-01-29 17:08:08"}
+{"level":"http","message":"POST /auth/login 200 803ms","timestamp":"2026-01-29 17:08:08"}
+{"ip":"::1","level":"error","message":"Request Error Personal details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 17:08:42","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 438ms","timestamp":"2026-01-29 17:08:42"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 439ms","timestamp":"2026-01-29 17:08:42"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 441ms","timestamp":"2026-01-29 17:08:42"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 17:09:50"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 17:09:50"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 17:09:50"}
+{"fieldsUpdated":["complexion"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 17:10:03","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1154ms","timestamp":"2026-01-29 17:10:03"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1155ms","timestamp":"2026-01-29 17:10:03"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1156ms","timestamp":"2026-01-29 17:10:03"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:50:57"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:50:57","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:51:27"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:51:27","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 17:53:43"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 17:53:43","type":"PostgreSQL"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 17:55:45","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 17:55:45","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 873ms","timestamp":"2026-01-29 17:55:45"}
+{"level":"http","message":"POST /auth/login 200 874ms","timestamp":"2026-01-29 17:55:45"}
+{"level":"http","message":"POST /auth/login 200 876ms","timestamp":"2026-01-29 17:55:45"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1327ms","timestamp":"2026-01-29 17:56:04"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1329ms","timestamp":"2026-01-29 17:56:04"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1331ms","timestamp":"2026-01-29 17:56:04"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 17:57:33"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 2ms","timestamp":"2026-01-29 17:57:33"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 2ms","timestamp":"2026-01-29 17:57:33"}
+{"ip":"::1","level":"warn","message":"Ownership check attempted without authentication","method":"PUT","path":"/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","resourceType":"personal_details","timestamp":"2026-01-29 17:57:47"}
+{"ip":"::1","level":"error","message":"Request Error Authentication required","method":"PUT","name":"UnauthorizedError","statusCode":401,"timestamp":"2026-01-29 17:57:47","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 3ms","timestamp":"2026-01-29 17:57:47"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 3ms","timestamp":"2026-01-29 17:57:47"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 4ms","timestamp":"2026-01-29 17:57:47"}
+{"ip":"::1","level":"warn","message":"Ownership check attempted without authentication","method":"PUT","path":"/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","resourceType":"personal_details","timestamp":"2026-01-29 18:00:24"}
+{"ip":"::1","level":"error","message":"Request Error Authentication required","method":"PUT","name":"UnauthorizedError","statusCode":401,"timestamp":"2026-01-29 18:00:24","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 2ms","timestamp":"2026-01-29 18:00:24"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 3ms","timestamp":"2026-01-29 18:00:24"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 4ms","timestamp":"2026-01-29 18:00:24"}
+{"ip":"::1","level":"warn","message":"Ownership check attempted without authentication","method":"PUT","path":"/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","resourceType":"personal_details","timestamp":"2026-01-29 18:04:40"}
+{"ip":"::1","level":"error","message":"Request Error Authentication required","method":"PUT","name":"UnauthorizedError","statusCode":401,"timestamp":"2026-01-29 18:04:40","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 18:04:40"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 2ms","timestamp":"2026-01-29 18:04:40"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 2ms","timestamp":"2026-01-29 18:04:40"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 18:06:05"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 18:06:06","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 18:07:53"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 18:07:54","type":"PostgreSQL"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 18:08:21","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 18:08:21","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 846ms","timestamp":"2026-01-29 18:08:21"}
+{"level":"http","message":"POST /auth/login 200 847ms","timestamp":"2026-01-29 18:08:21"}
+{"level":"http","message":"POST /auth/login 200 849ms","timestamp":"2026-01-29 18:08:21"}
+{"ip":"::1","level":"warn","message":"Ownership check attempted without authentication","method":"PUT","path":"/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","resourceType":"personal_details","timestamp":"2026-01-29 18:08:36"}
+{"ip":"::1","level":"error","message":"Request Error Authentication required","method":"PUT","name":"UnauthorizedError","statusCode":401,"timestamp":"2026-01-29 18:08:36","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 3ms","timestamp":"2026-01-29 18:08:36"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 3ms","timestamp":"2026-01-29 18:08:36"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 4ms","timestamp":"2026-01-29 18:08:36"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 18:12:30"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 18:12:30","type":"PostgreSQL"}
+{"fieldsUpdated":["mother_tongue","complexion"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 18:12:52","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1045ms","timestamp":"2026-01-29 18:12:52"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1046ms","timestamp":"2026-01-29 18:12:52"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1048ms","timestamp":"2026-01-29 18:12:52"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:06:01"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:06:01","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:06:34"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:06:34","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:06:49"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:06:49","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:08:08"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:08:09","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:09:16"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:09:16","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:16:06"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:16:07","type":"PostgreSQL"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 19:21:04","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 19:21:04","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 742ms","timestamp":"2026-01-29 19:21:04"}
+{"level":"http","message":"POST /auth/login 200 743ms","timestamp":"2026-01-29 19:21:04"}
+{"level":"http","message":"POST /auth/login 200 747ms","timestamp":"2026-01-29 19:21:04"}
+{"fieldsCreated":["religion_id"],"level":"info","message":"Caste details created","timestamp":"2026-01-29 19:22:06","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 201 1471ms","timestamp":"2026-01-29 19:22:06"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 201 1472ms","timestamp":"2026-01-29 19:22:06"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 201 1473ms","timestamp":"2026-01-29 19:22:06"}
+{"ip":"::1","level":"error","message":"Request Error Caste details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:22:36","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 429ms","timestamp":"2026-01-29 19:22:36"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 429ms","timestamp":"2026-01-29 19:22:36"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 430ms","timestamp":"2026-01-29 19:22:36"}
+{"ip":"::1","level":"error","message":"Request Error Selected sub-caste does not belong to your current caste.","method":"PUT","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:23:03","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1285ms","timestamp":"2026-01-29 19:23:03"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1286ms","timestamp":"2026-01-29 19:23:03"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1286ms","timestamp":"2026-01-29 19:23:03"}
+{"ip":"::1","level":"error","message":"Request Error Caste details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:23:42","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 504ms","timestamp":"2026-01-29 19:23:42"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 504ms","timestamp":"2026-01-29 19:23:42"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 505ms","timestamp":"2026-01-29 19:23:42"}
+{"ip":"::1","level":"error","message":"Request Error Caste details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:24:29","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 424ms","timestamp":"2026-01-29 19:24:29"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 425ms","timestamp":"2026-01-29 19:24:29"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 425ms","timestamp":"2026-01-29 19:24:29"}
+{"ip":"::1","level":"error","message":"Request Error Selected sub-caste does not belong to your current caste.","method":"PUT","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:24:37","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1098ms","timestamp":"2026-01-29 19:24:37"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1098ms","timestamp":"2026-01-29 19:24:37"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1099ms","timestamp":"2026-01-29 19:24:37"}
+{"ip":"::1","level":"error","message":"Request Error Selected sub-caste does not belong to your current caste.","method":"PUT","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:25:38","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1122ms","timestamp":"2026-01-29 19:25:38"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1122ms","timestamp":"2026-01-29 19:25:38"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1123ms","timestamp":"2026-01-29 19:25:38"}
+{"fieldsUpdated":["religion_id","caste_id","sub_caste_id","community_details"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:27:17","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1887ms","timestamp":"2026-01-29 19:27:17"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1887ms","timestamp":"2026-01-29 19:27:17"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1888ms","timestamp":"2026-01-29 19:27:17"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 401 0ms","timestamp":"2026-01-29 19:30:46"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 401 1ms","timestamp":"2026-01-29 19:30:46"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 401 2ms","timestamp":"2026-01-29 19:30:46"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 19:30:52","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 19:30:52","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 636ms","timestamp":"2026-01-29 19:30:52"}
+{"level":"http","message":"POST /auth/login 200 636ms","timestamp":"2026-01-29 19:30:52"}
+{"level":"http","message":"POST /auth/login 200 637ms","timestamp":"2026-01-29 19:30:52"}
+{"fieldsUpdated":["caste_id"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:31:22","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1518ms","timestamp":"2026-01-29 19:31:22"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1519ms","timestamp":"2026-01-29 19:31:22"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1519ms","timestamp":"2026-01-29 19:31:22"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:35:03"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:35:03","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:35:12"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:35:13","type":"PostgreSQL"}
+{"fieldsUpdated":["caste_id"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:36:47","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1422ms","timestamp":"2026-01-29 19:36:47"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1423ms","timestamp":"2026-01-29 19:36:47"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1425ms","timestamp":"2026-01-29 19:36:47"}
+{"fieldsUpdated":["caste_id"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:37:26","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1347ms","timestamp":"2026-01-29 19:37:26"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1347ms","timestamp":"2026-01-29 19:37:26"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1348ms","timestamp":"2026-01-29 19:37:26"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 19:37:54"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 19:37:55","type":"PostgreSQL"}
+{"fieldsUpdated":["caste_id","sub_caste_id"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:38:18","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1736ms","timestamp":"2026-01-29 19:38:18"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1737ms","timestamp":"2026-01-29 19:38:18"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1739ms","timestamp":"2026-01-29 19:38:18"}
+{"ip":"::1","level":"error","message":"Request Error Selected sub-caste does not belong to your current caste.","method":"PUT","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:39:38","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1402ms","timestamp":"2026-01-29 19:39:38"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1402ms","timestamp":"2026-01-29 19:39:38"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 400 1403ms","timestamp":"2026-01-29 19:39:38"}
+{"fieldsUpdated":["sub_caste_id"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:39:49","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1535ms","timestamp":"2026-01-29 19:39:49"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1536ms","timestamp":"2026-01-29 19:39:49"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1536ms","timestamp":"2026-01-29 19:39:49"}
+{"fieldsUpdated":["community_details"],"level":"info","message":"Caste details updated","timestamp":"2026-01-29 19:40:14","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1454ms","timestamp":"2026-01-29 19:40:14"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1454ms","timestamp":"2026-01-29 19:40:14"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1455ms","timestamp":"2026-01-29 19:40:14"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1415ms","timestamp":"2026-01-29 19:40:50"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1416ms","timestamp":"2026-01-29 19:40:50"}
+{"level":"http","message":"GET /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/caste 200 1417ms","timestamp":"2026-01-29 19:40:50"}
+{"identifier":"9380245433","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"MODERATOR","success":true,"timestamp":"2026-01-29 19:41:47","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 19:41:47","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /auth/login 200 643ms","timestamp":"2026-01-29 19:41:47"}
+{"level":"http","message":"POST /auth/login 200 644ms","timestamp":"2026-01-29 19:41:47"}
+{"level":"http","message":"POST /auth/login 200 644ms","timestamp":"2026-01-29 19:41:47"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 0ms","timestamp":"2026-01-29 19:43:10"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 19:43:10"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 401 1ms","timestamp":"2026-01-29 19:43:10"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Never Married\",\n      \"Divorced\",\n      \"Widowed\",\n      \"Awaiting Divorce\",\n      \"Separated\",\n      \"Annulled\"\n    ],\n    \"path\": [\n      \"marital_status\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Never Married\\\"|\\\"Divorced\\\"|\\\"Widowed\\\"|\\\"Awaiting Divorce\\\"|\\\"Separated\\\"|\\\"Annulled\\\"\"\n  },\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Normal\",\n      \"Visually Impaired\",\n      \"Hearing Impaired\",\n      \"Mobility Impaired\",\n      \"Other\"\n    ],\n    \"path\": [\n      \"physical_status\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Normal\\\"|\\\"Visually Impaired\\\"|\\\"Hearing Impaired\\\"|\\\"Mobility Impaired\\\"|\\\"Other\\\"\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:43:24","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 3ms","timestamp":"2026-01-29 19:43:24"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 4ms","timestamp":"2026-01-29 19:43:24"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 4ms","timestamp":"2026-01-29 19:43:24"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Normal\",\n      \"Visually Impaired\",\n      \"Hearing Impaired\",\n      \"Mobility Impaired\",\n      \"Other\"\n    ],\n    \"path\": [\n      \"physical_status\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Normal\\\"|\\\"Visually Impaired\\\"|\\\"Hearing Impaired\\\"|\\\"Mobility Impaired\\\"|\\\"Other\\\"\"\n  }\n]","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:44:08","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 1ms","timestamp":"2026-01-29 19:44:08"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 1ms","timestamp":"2026-01-29 19:44:08"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 2ms","timestamp":"2026-01-29 19:44:08"}
+{"ip":"::1","level":"error","message":"Request Error Personal details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:44:39","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 791ms","timestamp":"2026-01-29 19:44:39"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 791ms","timestamp":"2026-01-29 19:44:39"}
+{"level":"http","message":"POST /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 400 792ms","timestamp":"2026-01-29 19:44:39"}
+{"ip":"::1","level":"error","message":"Request Error Personal details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:44:57","url":"/users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 443ms","timestamp":"2026-01-29 19:44:57"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 443ms","timestamp":"2026-01-29 19:44:57"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 444ms","timestamp":"2026-01-29 19:44:57"}
+{"ip":"::1","level":"error","message":"Request Error Personal details already exist. Use PUT to update.","method":"POST","name":"BadRequestError","statusCode":400,"timestamp":"2026-01-29 19:45:40","url":"/users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 496ms","timestamp":"2026-01-29 19:45:40"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 496ms","timestamp":"2026-01-29 19:45:40"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/personal 400 497ms","timestamp":"2026-01-29 19:45:40"}
+{"identifier":"9380245433","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"MODERATOR","success":true,"timestamp":"2026-01-29 19:51:56","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 19:51:56","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /auth/login 200 1217ms","timestamp":"2026-01-29 19:51:56"}
+{"level":"http","message":"POST /auth/login 200 1217ms","timestamp":"2026-01-29 19:51:56"}
+{"level":"http","message":"POST /auth/login 200 1217ms","timestamp":"2026-01-29 19:51:56"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's personal details","method":"PUT","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 19:55:19","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 576ms","timestamp":"2026-01-29 19:55:19"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 576ms","timestamp":"2026-01-29 19:55:19"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 577ms","timestamp":"2026-01-29 19:55:19"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's personal details","method":"PUT","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 20:00:05","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 903ms","timestamp":"2026-01-29 20:00:05"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 903ms","timestamp":"2026-01-29 20:00:05"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 903ms","timestamp":"2026-01-29 20:00:05"}
+{"identifier":"9380245433","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-29 20:00:31","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 20:00:31","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /auth/login 200 707ms","timestamp":"2026-01-29 20:00:31"}
+{"level":"http","message":"POST /auth/login 200 707ms","timestamp":"2026-01-29 20:00:31"}
+{"level":"http","message":"POST /auth/login 200 708ms","timestamp":"2026-01-29 20:00:31"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's personal details","method":"PUT","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 20:00:48","url":"/users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 501ms","timestamp":"2026-01-29 20:00:48"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 501ms","timestamp":"2026-01-29 20:00:48"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 403 502ms","timestamp":"2026-01-29 20:00:48"}
+{"identifier":"9380422508","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"ADMIN","success":true,"timestamp":"2026-01-29 20:01:59","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 20:01:59","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"POST /auth/login 200 803ms","timestamp":"2026-01-29 20:01:59"}
+{"level":"http","message":"POST /auth/login 200 803ms","timestamp":"2026-01-29 20:01:59"}
+{"level":"http","message":"POST /auth/login 200 804ms","timestamp":"2026-01-29 20:01:59"}
+{"fieldsUpdated":["height_cm","weight_kg","marital_status","physical_status","mother_tongue","complexion","body_type","blood_group","diet_preference","drinking_habit","smoking_habit","about_me"],"level":"info","message":"Personal details updated","timestamp":"2026-01-29 20:02:10","userId":"eb5321fe-160b-4688-8ca2-d56f3b1d6e4e"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1099ms","timestamp":"2026-01-29 20:02:10"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1100ms","timestamp":"2026-01-29 20:02:10"}
+{"level":"http","message":"PUT /users/eb5321fe-160b-4688-8ca2-d56f3b1d6e4e/personal 200 1100ms","timestamp":"2026-01-29 20:02:10"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 0ms","timestamp":"2026-01-29 20:06:24"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 1ms","timestamp":"2026-01-29 20:06:24"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 2ms","timestamp":"2026-01-29 20:06:24"}
+{"fieldsCreated":["religion_id"],"level":"info","message":"Caste details created","timestamp":"2026-01-29 20:06:55","userId":"f6ab094e-2900-497f-bb0d-000cc93a25db"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 201 1941ms","timestamp":"2026-01-29 20:06:55"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 201 1942ms","timestamp":"2026-01-29 20:06:55"}
+{"level":"http","message":"POST /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 201 1943ms","timestamp":"2026-01-29 20:06:55"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 0ms","timestamp":"2026-01-29 20:07:25"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 1ms","timestamp":"2026-01-29 20:07:25"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 401 1ms","timestamp":"2026-01-29 20:07:25"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 200 1604ms","timestamp":"2026-01-29 20:07:41"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 200 1605ms","timestamp":"2026-01-29 20:07:41"}
+{"level":"http","message":"GET /users/f6ab094e-2900-497f-bb0d-000cc93a25db/caste 200 1605ms","timestamp":"2026-01-29 20:07:41"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 20:31:30"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 20:31:31","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:02:22"}
+{"error":"Can't reach database server at `aws-1-ap-south-1.pooler.supabase.com:6543`\n\nPlease make sure your database server is running at `aws-1-ap-south-1.pooler.supabase.com:6543`.","level":"error","message":"Database connection failed","stack":"PrismaClientInitializationError: Can't reach database server at `aws-1-ap-south-1.pooler.supabase.com:6543`\n\nPlease make sure your database server is running at `aws-1-ap-south-1.pooler.supabase.com:6543`.\n    at r (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\@prisma\\client\\runtime\\library.js:112:2770)\n    at async Server.<anonymous> (file:///D:/SarvVivah/Matrimony-site/Backend/index.js:96:5)","timestamp":"2026-01-29 22:02:27"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:03:29"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:03:29","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:06:12"}
+{"error":"Can't reach database server at `aws-1-ap-south-1.pooler.supabase.com:6543`\n\nPlease make sure your database server is running at `aws-1-ap-south-1.pooler.supabase.com:6543`.","level":"error","message":"Database connection failed","stack":"PrismaClientInitializationError: Can't reach database server at `aws-1-ap-south-1.pooler.supabase.com:6543`\n\nPlease make sure your database server is running at `aws-1-ap-south-1.pooler.supabase.com:6543`.\n    at r (D:\\SarvVivah\\Matrimony-site\\Backend\\node_modules\\@prisma\\client\\runtime\\library.js:112:2770)\n    at async Server.<anonymous> (file:///D:/SarvVivah/Matrimony-site/Backend/index.js:96:5)","timestamp":"2026-01-29 22:06:17"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:08:57"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:08:58","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:10:36"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:10:37","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:12:52"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:12:53"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:12:53","type":"PostgreSQL"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:12:53","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:12:54"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:12:54"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:12:54","type":"PostgreSQL"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:12:54","type":"PostgreSQL"}
+{"level":"http","message":"GET /api-docs/?id=292b5e86-609d-4896-af5e-ae47ee6bb702&vscodeBrowserReqId=1769705057241 200 1ms","timestamp":"2026-01-29 22:14:17"}
+{"level":"http","message":"GET /api-docs/ 200 1ms","timestamp":"2026-01-29 22:28:16"}
+{"level":"http","message":"GET /api-docs/swagger-ui-init.js 200 0ms","timestamp":"2026-01-29 22:28:16"}
+{"identifier":"6362115998","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-29 22:36:31","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 22:36:31","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /auth/login 200 1170ms","timestamp":"2026-01-29 22:36:31"}
+{"level":"http","message":"POST /auth/login 200 1170ms","timestamp":"2026-01-29 22:36:31"}
+{"level":"http","message":"POST /auth/login 200 1171ms","timestamp":"2026-01-29 22:36:31"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:38:22","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 418ms","timestamp":"2026-01-29 22:38:22"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 419ms","timestamp":"2026-01-29 22:38:22"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 419ms","timestamp":"2026-01-29 22:38:22"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:38:55","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 347ms","timestamp":"2026-01-29 22:38:55"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 347ms","timestamp":"2026-01-29 22:38:55"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 348ms","timestamp":"2026-01-29 22:38:55"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:45:53","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 986ms","timestamp":"2026-01-29 22:45:53"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 987ms","timestamp":"2026-01-29 22:45:53"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 988ms","timestamp":"2026-01-29 22:45:53"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:47:00"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:47:00","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:47:03"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:47:04","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:47:05"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:47:06","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error requested is not defined","method":"POST","name":"ReferenceError","statusCode":500,"timestamp":"2026-01-29 22:48:08","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 512ms","method":"POST","responseTime":"512ms","statusCode":500,"timestamp":"2026-01-29 22:48:08","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 513ms","method":"POST","responseTime":"513ms","statusCode":500,"timestamp":"2026-01-29 22:48:08","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 515ms","method":"POST","responseTime":"515ms","statusCode":500,"timestamp":"2026-01-29 22:48:08","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:48:50"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:48:50","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error requested is not defined","method":"POST","name":"ReferenceError","statusCode":500,"timestamp":"2026-01-29 22:48:57","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 361ms","method":"POST","responseTime":"361ms","statusCode":500,"timestamp":"2026-01-29 22:48:57","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 362ms","method":"POST","responseTime":"362ms","statusCode":500,"timestamp":"2026-01-29 22:48:57","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 364ms","method":"POST","responseTime":"364ms","statusCode":500,"timestamp":"2026-01-29 22:48:57","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:49:56"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:49:56","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:50:02","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 317ms","timestamp":"2026-01-29 22:50:02"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 318ms","timestamp":"2026-01-29 22:50:02"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 323ms","timestamp":"2026-01-29 22:50:02"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:51:33"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:51:34","type":"PostgreSQL"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 401 4ms","timestamp":"2026-01-29 22:51:39"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 401 6ms","timestamp":"2026-01-29 22:51:39"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 401 11ms","timestamp":"2026-01-29 22:51:39"}
+{"identifier":"6362115998","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-29 22:51:46","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-29 22:51:46","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /auth/login 200 799ms","timestamp":"2026-01-29 22:51:46"}
+{"level":"http","message":"POST /auth/login 200 800ms","timestamp":"2026-01-29 22:51:46"}
+{"level":"http","message":"POST /auth/login 200 800ms","timestamp":"2026-01-29 22:51:46"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:51:56","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 476ms","timestamp":"2026-01-29 22:51:56"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 476ms","timestamp":"2026-01-29 22:51:56"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 477ms","timestamp":"2026-01-29 22:51:56"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:52:38"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:52:38","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error user is not defined","method":"POST","name":"ReferenceError","statusCode":500,"timestamp":"2026-01-29 22:52:39","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 416ms","method":"POST","responseTime":"416ms","statusCode":500,"timestamp":"2026-01-29 22:52:39","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 417ms","method":"POST","responseTime":"417ms","statusCode":500,"timestamp":"2026-01-29 22:52:39","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"ip":"::1","level":"error","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 500 420ms","method":"POST","responseTime":"420ms","statusCode":500,"timestamp":"2026-01-29 22:52:39","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userAgent":"PostmanRuntime/7.51.0","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-29 22:53:25"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-29 22:53:25","type":"PostgreSQL"}
+{"ip":"::1","level":"error","message":"Request Error You do not have permission to modify this user's education details","method":"POST","name":"ForbiddenError","statusCode":403,"timestamp":"2026-01-29 22:53:27","url":"/users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education","userId":"7af0cc53-de82-48c7-8711-18e8dea6cb9c"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 429ms","timestamp":"2026-01-29 22:53:27"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 430ms","timestamp":"2026-01-29 22:53:27"}
+{"level":"http","message":"POST /users/7af0cc53-de82-48c7-8711-18e8dea6cb9c/education 403 432ms","timestamp":"2026-01-29 22:53:27"}
