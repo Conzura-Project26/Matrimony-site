@@ -28,7 +28,6 @@ export function authenticateToken(req, res, next) {
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
     // Attach user data to request
     req.user = decoded;
     

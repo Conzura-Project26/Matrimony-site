@@ -1,6 +1,12 @@
 /**
  * Roles and Role-Permissions Master Data
  * Defines user roles and their permission mappings
+ * 
+ * IMPORTANT: 
+ * - All permissions must be defined in permissionData.js first
+ * - ADMIN role includes ALL permissions from USER and MODERATOR
+ * - Permissions with 'own' prefix (e.g., create_own_*) mean users can only manage their own resources
+ * - ADMIN can bypass 'own' restrictions using 'manage_*' permissions (e.g., manage_family_details)
  */
 
 export const roles = [
@@ -29,6 +35,9 @@ export const rolePermissions = {
   USER: [
     'view_profiles',
     'edit_own_profile',
+    'create_own_family_details',
+    'edit_own_family_details',
+    'view_family_details',
     'upload_photo',
     'delete_own_photo',
     'send_interest',
@@ -47,6 +56,9 @@ export const rolePermissions = {
     // All User permissions
     'view_profiles',
     'edit_own_profile',
+    'create_own_family_details',
+    'edit_own_family_details',
+    'view_family_details',
     'upload_photo',
     'delete_own_photo',
     'send_interest',
@@ -75,6 +87,9 @@ export const rolePermissions = {
     // All User permissions
     'view_profiles',
     'edit_own_profile',
+    'create_own_family_details',
+    'edit_own_family_details',
+    'view_family_details',
     'upload_photo',
     'delete_own_photo',
     'send_interest',
@@ -103,6 +118,7 @@ export const rolePermissions = {
     'activate_deactivate_users',
     'delete_users',
     'verify_profiles',
+    'manage_family_details',
     'manage_subscriptions',
     'view_analytics',
     'manage_master_data',

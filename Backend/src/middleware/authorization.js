@@ -39,7 +39,8 @@ export const authorizeRole = (allowedRoles) => {
         throw new UnauthorizedError('Authentication required');
       }
 
-      const { userId, roleName } = req.user;
+      const { userId, role } = req.user;
+      const roleName = role; // JWT token uses 'role' field
 
       // Check if user is active
       const user = await prisma.user.findUnique({
@@ -134,12 +135,13 @@ export const authorizePermission = (requiredPermissions) => {
         throw new UnauthorizedError('Authentication required');
       }
 
-      const { userId, roleId, roleName } = req.user;
+      const { userId, role } = req.user;
+      const roleName = role; // JWT token uses 'role' field
 
       // Check if user is active
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { is_active: true }
+        select: { is_active: true, role_id: true }
       });
 
       if (!user) {
@@ -181,7 +183,7 @@ export const authorizePermission = (requiredPermissions) => {
 
       // Fetch user's permissions from database
       const userPermissions = await prisma.rolePermission.findMany({
-        where: { role_id: roleId },
+        where: { role_id: user.role_id },
         include: {
           permission: {
             select: { permission_name: true }
@@ -278,7 +280,8 @@ export const checkOwnership = (paramName, options = {}) => {
         throw new UnauthorizedError('Authentication required');
       }
 
-      const { userId, roleName } = req.user;
+      const { userId, role } = req.user;
+      const roleName = role; // JWT token uses 'role' field
       const resourceId = req.params[paramName];
 
       if (!resourceId) {
