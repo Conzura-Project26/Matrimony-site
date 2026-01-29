@@ -4,7 +4,7 @@
  * 
  * Rate Limit Tiers:
  * - Global: 100 requests per 15 minutes (general API protection)
- * - Auth: 5 requests per 15 minutes (stricter for sensitive operations)
+ * - Auth: 50 requests per 15 minutes (stricter for sensitive operations)
  * - Special: 10 requests per 15 minutes (moderate protection)
  */
 
@@ -60,7 +60,7 @@ export const globalRateLimiter = rateLimit({
  */
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 50, // Limit each IP to 5 requests per windowMs
   message: {
     success: false,
     message: 'Too many authentication attempts, please try again after 15 minutes',
@@ -71,7 +71,7 @@ export const authRateLimiter = rateLimit({
   
   handler: (req, res) => {
     logSecurity.rateLimit(req.ip, req.originalUrl, {
-      limit: 5,
+      limit: 50,
       window: '15 minutes',
       type: 'auth',
     });

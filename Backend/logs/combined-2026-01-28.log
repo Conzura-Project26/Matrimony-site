@@ -1,0 +1,177 @@
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 11:00:07"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 11:00:07","type":"PostgreSQL"}
+{"level":"auth","message":"[Auth] OTP sent","mobile":"8073550468","purpose":"SIGNUP","reason":"already_registered","status":"failed","timestamp":"2026-01-28 11:00:13"}
+{"ip":"::1","level":"error","message":"Request Error Mobile number already registered. Please login.","method":"POST","name":"ConflictError","statusCode":409,"timestamp":"2026-01-28 11:00:13","url":"/auth/send-otp","userId":null}
+{"level":"http","message":"POST /auth/send-otp 409 191ms","timestamp":"2026-01-28 11:00:13"}
+{"level":"http","message":"POST /auth/send-otp 409 192ms","timestamp":"2026-01-28 11:00:13"}
+{"level":"http","message":"POST /auth/send-otp 409 197ms","timestamp":"2026-01-28 11:00:13"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 11:00:30","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 11:00:30","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 455ms","timestamp":"2026-01-28 11:00:30"}
+{"level":"http","message":"POST /auth/login 200 455ms","timestamp":"2026-01-28 11:00:30"}
+{"level":"http","message":"POST /auth/login 200 456ms","timestamp":"2026-01-28 11:00:30"}
+{"level":"http","message":"POST /auth/change-password 200 906ms","timestamp":"2026-01-28 11:11:19"}
+{"level":"http","message":"POST /auth/change-password 200 907ms","timestamp":"2026-01-28 11:11:19"}
+{"level":"http","message":"POST /auth/change-password 200 907ms","timestamp":"2026-01-28 11:11:19"}
+{"level":"http","message":"POST /auth/change-password 401 1ms","timestamp":"2026-01-28 11:20:26"}
+{"level":"http","message":"POST /auth/change-password 401 2ms","timestamp":"2026-01-28 11:20:26"}
+{"level":"http","message":"POST /auth/change-password 401 3ms","timestamp":"2026-01-28 11:20:26"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: FAILED","reason":"invalid_password","success":false,"timestamp":"2026-01-28 11:22:38","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"ip":"::1","level":"error","message":"Request Error Invalid credentials. Please check your password and try again.","method":"POST","name":"UnauthorizedError","statusCode":401,"timestamp":"2026-01-28 11:22:38","url":"/auth/login","userId":null}
+{"level":"http","message":"POST /auth/login 401 484ms","timestamp":"2026-01-28 11:22:38"}
+{"level":"http","message":"POST /auth/login 401 484ms","timestamp":"2026-01-28 11:22:38"}
+{"level":"http","message":"POST /auth/login 401 485ms","timestamp":"2026-01-28 11:22:38"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 11:22:46","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 11:22:46","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 372ms","timestamp":"2026-01-28 11:22:46"}
+{"level":"http","message":"POST /auth/login 200 372ms","timestamp":"2026-01-28 11:22:46"}
+{"level":"http","message":"POST /auth/login 200 373ms","timestamp":"2026-01-28 11:22:46"}
+{"level":"http","message":"POST /auth/change-password 400 2ms","timestamp":"2026-01-28 11:23:28"}
+{"level":"http","message":"POST /auth/change-password 400 2ms","timestamp":"2026-01-28 11:23:28"}
+{"level":"http","message":"POST /auth/change-password 400 3ms","timestamp":"2026-01-28 11:23:28"}
+{"level":"http","message":"POST /auth/change-password 200 540ms","timestamp":"2026-01-28 11:23:41"}
+{"level":"http","message":"POST /auth/change-password 200 540ms","timestamp":"2026-01-28 11:23:41"}
+{"level":"http","message":"POST /auth/change-password 200 541ms","timestamp":"2026-01-28 11:23:41"}
+{"endpoint":"/auth/logout","ip":"::1","level":"warn","limit":5,"message":"[Security] Rate limit exceeded","timestamp":"2026-01-28 11:25:10","type":"auth","window":"15 minutes"}
+{"level":"http","message":"POST /auth/logout 429 2ms","timestamp":"2026-01-28 11:25:10"}
+{"level":"http","message":"POST /auth/logout 429 2ms","timestamp":"2026-01-28 11:25:10"}
+{"level":"http","message":"POST /auth/logout 429 3ms","timestamp":"2026-01-28 11:25:10"}
+{"level":"http","message":"POST /auth/logout 200 395ms","timestamp":"2026-01-28 11:36:43"}
+{"level":"http","message":"POST /auth/logout 200 395ms","timestamp":"2026-01-28 11:36:43"}
+{"level":"http","message":"POST /auth/logout 200 396ms","timestamp":"2026-01-28 11:36:43"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:38:48"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:38:48"}
+{"level":"http","message":"POST /auth/forgot-password 400 2ms","timestamp":"2026-01-28 11:38:48"}
+{"level":"http","message":"POST /auth/forgot-password 400 0ms","timestamp":"2026-01-28 11:38:54"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:38:54"}
+{"level":"http","message":"POST /auth/forgot-password 400 2ms","timestamp":"2026-01-28 11:38:54"}
+{"level":"http","message":"POST /auth/forgot-password 400 0ms","timestamp":"2026-01-28 11:41:28"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:41:28"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:41:28"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 11:42:15","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 11:42:15","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 552ms","timestamp":"2026-01-28 11:42:15"}
+{"level":"http","message":"POST /auth/login 200 553ms","timestamp":"2026-01-28 11:42:15"}
+{"level":"http","message":"POST /auth/login 200 553ms","timestamp":"2026-01-28 11:42:15"}
+{"endpoint":"/auth/logout","ip":"::1","level":"warn","limit":5,"message":"[Security] Rate limit exceeded","timestamp":"2026-01-28 11:43:05","type":"auth","window":"15 minutes"}
+{"level":"http","message":"POST /auth/logout 429 0ms","timestamp":"2026-01-28 11:43:05"}
+{"level":"http","message":"POST /auth/logout 429 1ms","timestamp":"2026-01-28 11:43:05"}
+{"level":"http","message":"POST /auth/logout 429 1ms","timestamp":"2026-01-28 11:43:05"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 11:43:56"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 11:43:56","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 11:49:08"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 11:49:08","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 11:54:43"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 11:54:44","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 11:54:47"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 11:54:47","type":"PostgreSQL"}
+{"level":"http","message":"POST /auth/logout 200 221ms","timestamp":"2026-01-28 11:55:01"}
+{"level":"http","message":"POST /auth/logout 200 223ms","timestamp":"2026-01-28 11:55:01"}
+{"level":"http","message":"POST /auth/logout 200 226ms","timestamp":"2026-01-28 11:55:01"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:55:09"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:55:09"}
+{"level":"http","message":"POST /auth/forgot-password 400 2ms","timestamp":"2026-01-28 11:55:09"}
+{"level":"http","message":"POST /auth/forgot-password 400 1ms","timestamp":"2026-01-28 11:55:16"}
+{"level":"http","message":"POST /auth/forgot-password 400 2ms","timestamp":"2026-01-28 11:55:16"}
+{"level":"http","message":"POST /auth/forgot-password 400 3ms","timestamp":"2026-01-28 11:55:16"}
+{"level":"http","message":"POST /auth/forgot-password 200 467ms","timestamp":"2026-01-28 11:55:39"}
+{"level":"http","message":"POST /auth/forgot-password 200 467ms","timestamp":"2026-01-28 11:55:39"}
+{"level":"http","message":"POST /auth/forgot-password 200 468ms","timestamp":"2026-01-28 11:55:39"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 194ms","timestamp":"2026-01-28 11:57:55"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 195ms","timestamp":"2026-01-28 11:57:55"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 196ms","timestamp":"2026-01-28 11:57:55"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 147ms","timestamp":"2026-01-28 11:58:19"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 150ms","timestamp":"2026-01-28 11:58:19"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 400 151ms","timestamp":"2026-01-28 11:58:19"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 200 282ms","timestamp":"2026-01-28 11:58:47"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 200 283ms","timestamp":"2026-01-28 11:58:47"}
+{"level":"http","message":"POST /auth/verify-forgot-otp 200 283ms","timestamp":"2026-01-28 11:58:47"}
+{"level":"http","message":"POST /auth/reset-password 200 649ms","timestamp":"2026-01-28 12:00:16"}
+{"level":"http","message":"POST /auth/reset-password 200 650ms","timestamp":"2026-01-28 12:00:16"}
+{"level":"http","message":"POST /auth/reset-password 200 650ms","timestamp":"2026-01-28 12:00:16"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:02:02","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:02:02","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 404ms","timestamp":"2026-01-28 12:02:02"}
+{"level":"http","message":"POST /auth/login 200 405ms","timestamp":"2026-01-28 12:02:02"}
+{"level":"http","message":"POST /auth/login 200 406ms","timestamp":"2026-01-28 12:02:02"}
+{"level":"http","message":"POST /auth/logout 200 148ms","timestamp":"2026-01-28 12:02:28"}
+{"level":"http","message":"POST /auth/logout 200 148ms","timestamp":"2026-01-28 12:02:28"}
+{"level":"http","message":"POST /auth/logout 200 149ms","timestamp":"2026-01-28 12:02:28"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:03:14","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:03:14","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 454ms","timestamp":"2026-01-28 12:03:14"}
+{"level":"http","message":"POST /auth/login 200 454ms","timestamp":"2026-01-28 12:03:14"}
+{"level":"http","message":"POST /auth/login 200 455ms","timestamp":"2026-01-28 12:03:14"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:03:24","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:03:24","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 369ms","timestamp":"2026-01-28 12:03:24"}
+{"level":"http","message":"POST /auth/login 200 369ms","timestamp":"2026-01-28 12:03:24"}
+{"level":"http","message":"POST /auth/login 200 370ms","timestamp":"2026-01-28 12:03:24"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"origin\": \"string\",\n    \"code\": \"invalid_format\",\n    \"format\": \"regex\",\n    \"pattern\": \"/^[6-9]\\\\d{9}$/\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid mobile number format\"\n  }\n]","method":"POST","name":"ZodError","statusCode":500,"timestamp":"2026-01-28 12:06:29","url":"/auth/send-otp","userId":null}
+{"level":"http","message":"POST /auth/send-otp 422 3ms","timestamp":"2026-01-28 12:06:29"}
+{"level":"http","message":"POST /auth/send-otp 422 3ms","timestamp":"2026-01-28 12:06:29"}
+{"level":"http","message":"POST /auth/send-otp 422 4ms","timestamp":"2026-01-28 12:06:29"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Self\",\n      \"Parent\",\n      \"Guardian\"\n    ],\n    \"path\": [\n      \"profile_created_by\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Self\\\"|\\\"Parent\\\"|\\\"Guardian\\\"\"\n  }\n]","method":"POST","name":"ZodError","statusCode":500,"timestamp":"2026-01-28 12:07:38","url":"/auth/signup","userId":null}
+{"level":"http","message":"POST /auth/signup 422 3ms","timestamp":"2026-01-28 12:07:38"}
+{"level":"http","message":"POST /auth/signup 422 3ms","timestamp":"2026-01-28 12:07:38"}
+{"level":"http","message":"POST /auth/signup 422 4ms","timestamp":"2026-01-28 12:07:38"}
+{"level":"http","message":"POST /auth/logout 200 362ms","timestamp":"2026-01-28 12:08:21"}
+{"level":"http","message":"POST /auth/logout 200 363ms","timestamp":"2026-01-28 12:08:21"}
+{"level":"http","message":"POST /auth/logout 200 364ms","timestamp":"2026-01-28 12:08:21"}
+{"level":"http","message":"POST /auth/logout 200 122ms","timestamp":"2026-01-28 12:08:36"}
+{"level":"http","message":"POST /auth/logout 200 122ms","timestamp":"2026-01-28 12:08:36"}
+{"level":"http","message":"POST /auth/logout 200 123ms","timestamp":"2026-01-28 12:08:36"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:08:49","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:08:49","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 390ms","timestamp":"2026-01-28 12:08:49"}
+{"level":"http","message":"POST /auth/login 200 390ms","timestamp":"2026-01-28 12:08:49"}
+{"level":"http","message":"POST /auth/login 200 391ms","timestamp":"2026-01-28 12:08:49"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:10:04","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:10:04","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 396ms","timestamp":"2026-01-28 12:10:04"}
+{"level":"http","message":"POST /auth/login 200 396ms","timestamp":"2026-01-28 12:10:04"}
+{"level":"http","message":"POST /auth/login 200 398ms","timestamp":"2026-01-28 12:10:04"}
+{"level":"http","message":"POST /auth/logout-all 200 220ms","timestamp":"2026-01-28 12:13:17"}
+{"level":"http","message":"POST /auth/logout-all 200 221ms","timestamp":"2026-01-28 12:13:17"}
+{"level":"http","message":"POST /auth/logout-all 200 221ms","timestamp":"2026-01-28 12:13:17"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:15:18","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:15:18","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 561ms","timestamp":"2026-01-28 12:15:18"}
+{"level":"http","message":"POST /auth/login 200 561ms","timestamp":"2026-01-28 12:15:18"}
+{"level":"http","message":"POST /auth/login 200 562ms","timestamp":"2026-01-28 12:15:18"}
+{"identifier":"8073550468","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:30:33","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:30:33","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 624ms","timestamp":"2026-01-28 12:30:33"}
+{"level":"http","message":"POST /auth/login 200 624ms","timestamp":"2026-01-28 12:30:33"}
+{"level":"http","message":"POST /auth/login 200 625ms","timestamp":"2026-01-28 12:30:33"}
+{"identifier":"kshithu911@gmail.com","level":"auth","message":"[Auth] Login attempt: SUCCESS","role":"USER","success":true,"timestamp":"2026-01-28 12:31:27","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"auth","message":"[Auth] Token generated","timestamp":"2026-01-28 12:31:27","userId":"c5735592-9acc-46f8-9644-f55d9660560e"}
+{"level":"http","message":"POST /auth/login 200 383ms","timestamp":"2026-01-28 12:31:27"}
+{"level":"http","message":"POST /auth/login 200 384ms","timestamp":"2026-01-28 12:31:27"}
+{"level":"http","message":"POST /auth/login 200 385ms","timestamp":"2026-01-28 12:31:27"}
+{"level":"http","message":"POST /auth/logout-all 200 148ms","timestamp":"2026-01-28 12:31:48"}
+{"level":"http","message":"POST /auth/logout-all 200 148ms","timestamp":"2026-01-28 12:31:48"}
+{"level":"http","message":"POST /auth/logout-all 200 149ms","timestamp":"2026-01-28 12:31:48"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"origin\": \"string\",\n    \"code\": \"invalid_format\",\n    \"format\": \"regex\",\n    \"pattern\": \"/^[6-9]\\\\d{9}$/\",\n    \"path\": [\n      \"mobile_number\"\n    ],\n    \"message\": \"Invalid mobile number format\"\n  },\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Admin\",\n      \"Moderator\"\n    ],\n    \"path\": [\n      \"role\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Admin\\\"|\\\"Moderator\\\"\"\n  }\n]","method":"POST","name":"ZodError","statusCode":500,"timestamp":"2026-01-28 12:52:07","url":"/auth/create-admin","userId":null}
+{"level":"http","message":"POST /auth/create-admin 422 4ms","timestamp":"2026-01-28 12:52:07"}
+{"level":"http","message":"POST /auth/create-admin 422 4ms","timestamp":"2026-01-28 12:52:07"}
+{"level":"http","message":"POST /auth/create-admin 422 5ms","timestamp":"2026-01-28 12:52:07"}
+{"ip":"::1","level":"error","message":"Request Error [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"Admin\",\n      \"Moderator\"\n    ],\n    \"path\": [\n      \"role\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"Admin\\\"|\\\"Moderator\\\"\"\n  }\n]","method":"POST","name":"ZodError","statusCode":500,"timestamp":"2026-01-28 12:52:42","url":"/auth/create-admin","userId":null}
+{"level":"http","message":"POST /auth/create-admin 422 1ms","timestamp":"2026-01-28 12:52:42"}
+{"level":"http","message":"POST /auth/create-admin 422 2ms","timestamp":"2026-01-28 12:52:42"}
+{"level":"http","message":"POST /auth/create-admin 422 3ms","timestamp":"2026-01-28 12:52:42"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 12:56:15"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 12:56:15","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 12:56:23"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 12:56:24","type":"PostgreSQL"}
+{"level":"http","message":"POST /auth/create-admin 201 773ms","timestamp":"2026-01-28 12:56:36"}
+{"level":"http","message":"POST /auth/create-admin 201 775ms","timestamp":"2026-01-28 12:56:36"}
+{"level":"http","message":"POST /auth/create-admin 201 778ms","timestamp":"2026-01-28 12:56:36"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 12:59:00"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 12:59:00","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 13:16:53"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 13:16:54","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 13:33:24"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 13:33:24","type":"PostgreSQL"}
+{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-28 14:49:10"}
+{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-28 14:49:10","type":"PostgreSQL"}

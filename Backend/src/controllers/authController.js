@@ -335,6 +335,22 @@ class AuthController {
       throw new ForbiddenError('Invalid admin secret');
     }
 
+    // Check if any admin already exists
+    const existingAdmin = await prisma.user.findFirst({
+      where: {
+        role: {
+          role_name: 'ADMIN'
+        }
+      }
+    });
+
+    // If admins exist, require ADMIN authentication
+    if (existingAdmin) {
+      if (!req.user || req.user.role !== 'ADMIN') {
+        throw new ForbiddenError('Only existing admins can create new admin or moderator accounts');
+      }
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { mobile_number },

@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\Kshitij\\Internship\\Projects\\SARVVIVAH\\Backend\\logs\\.2dbf14732c5289c6466c8f22430d63710f987ba1-audit.json",
+    "files": [
+        {
+            "date": 1769578202103,
+            "name": "D:\\Kshitij\\Internship\\Projects\\SARVVIVAH\\Backend\\logs\\combined-2026-01-28.log",
+            "hash": "1822af83b5e53fb0896c98ff1a6e9f53422df2e5eaa6b01210082ce03676e91a"
+        },
+        {
+            "date": 1769674501949,
+            "name": "D:\\Kshitij\\Internship\\Projects\\SARVVIVAH\\Backend\\logs\\combined-2026-01-29.log",
+            "hash": "8f70e6470f7df9309c4e1d1f01c47a5c10d2b0c8568bd29ba9195cfa5c398c44"
+        }
+    ],
+    "hashType": "sha256"
+}
