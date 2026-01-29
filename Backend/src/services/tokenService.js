@@ -14,19 +14,19 @@ class TokenService {
         throw new Error('JWT_SECRET environment variable is not set');
       }
 
-      if (!payload || !payload.user_id) {
-        throw new Error('Invalid payload: user_id is required');
+      if (!payload || !payload.userId) {
+        throw new Error('Invalid payload: userId is required');
       }
 
       const token = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: '15m', // 15 minutes
       });
 
-      console.log(`[TokenService] Access token generated for user: ${payload.user_id}`);
+      console.log(`[TokenService] Access token generated for user: ${payload.userId}`);
       return token;
     } catch (error) {
       console.error('[TokenService] Error generating access token:', {
-        payload: payload?.user_id ? { user_id: payload.user_id } : 'invalid',
+        payload: payload?.userId ? { userId: payload.userId } : 'invalid',
         error: error.message,
         stack: error.stack,
       });
@@ -254,7 +254,7 @@ class TokenService {
       }
 
       const payload = {
-        user_id: user.id,
+        userId: user.id,
         mobile_number: user.mobile_number,
         role: user.role?.role_name || user.role,
       };
