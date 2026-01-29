@@ -2,8 +2,26 @@ import express from 'express';
 import authController from '../controllers/authController.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRole } from '../middleware/authorization.js';
 
 const router = express.Router();
+
+/**
+ * Optional authentication middleware for create-admin route
+ * Allows the request to proceed regardless of authentication status
+ * The controller will handle the logic of checking if admins exist
+ */
+const optionalAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    // No token provided, proceed without authentication
+    return next();
+  }
+  
+  // Token provided, authenticate it
+  authenticateToken(req, res, next);
+};
 
 /**
  * @swagger
@@ -303,7 +321,7 @@ router.post('/login', asyncHandler((req, res) => authController.login(req, res))
  *       500:
  *         description: Server error
  */
-router.post('/create-admin', asyncHandler((req, res) => authController.createAdmin(req, res)));
+router.post('/create-admin', optionalAuth, asyncHandler((req, res) => authController.createAdmin(req, res)));
 
 /**
  * @swagger

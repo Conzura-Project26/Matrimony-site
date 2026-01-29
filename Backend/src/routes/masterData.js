@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { authenticateToken } from '../middleware/auth.js';
 import {
   getAllEnums,
   getAllReligions,
@@ -39,7 +40,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get('/enums', getAllEnums);
+router.get('/enums', authenticateToken, getAllEnums);
 
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get('/enums', getAllEnums);
  *       500:
  *         description: Server error
  */
-router.get('/religions', getAllReligions);
+router.get('/religions', authenticateToken, getAllReligions);
 
 /**
  * @swagger
@@ -106,7 +107,7 @@ router.get('/religions', getAllReligions);
  *       500:
  *         description: Server error
  */
-router.get('/castes/:religionId', getCastesByReligion);
+router.get('/castes/:religionId', authenticateToken, getCastesByReligion);
 
 /**
  * @swagger
@@ -145,7 +146,7 @@ router.get('/castes/:religionId', getCastesByReligion);
  *       500:
  *         description: Server error
  */
-router.get('/sub-castes/:casteId', getSubCastesByCaste);
+router.get('/sub-castes/:casteId', authenticateToken, getSubCastesByCaste);
 
 /**
  * @swagger
@@ -178,7 +179,7 @@ router.get('/sub-castes/:casteId', getSubCastesByCaste);
  *       500:
  *         description: Server error
  */
-router.get('/all', getAllMasterData);
+router.get('/all', authenticateToken, getAllMasterData);
 
 /**
  * @swagger
@@ -239,6 +240,6 @@ router.get('/all', getAllMasterData);
  *       500:
  *         description: Server error
  */
-router.get('/religions/:religionId/hierarchy', getReligionHierarchy);
+router.get('/religions/:religionId/hierarchy', authenticateToken, getReligionHierarchy);
 
 export default router;
