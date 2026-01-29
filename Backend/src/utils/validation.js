@@ -1,5 +1,16 @@
 import { z } from 'zod';
-import { Gender, ProfileCreatedBy } from '../types/enums.js';
+import { 
+  Gender, 
+  ProfileCreatedBy,
+  MaritalStatus,
+  PhysicalStatus,
+  DietPreference,
+  DrinkingHabit,
+  SmokingHabit,
+  Complexion,
+  BodyType,
+  BloodGroup
+} from '../types/enums.js';
 
 // Password validation schema - Industry best practice
 const passwordSchema = z
@@ -160,6 +171,204 @@ const createFamilyDetailsSchema = z.object({
 
 const updateFamilyDetailsSchema = createFamilyDetailsSchema;
 
+// ============================================
+// PERSONAL DETAILS VALIDATION (Phase 2 - Task 2.1)
+// ============================================
+
+// Create/Update Personal Details validation
+const personalDetailsSchema = z.object({
+  height_cm: z.number()
+    .int('Height must be a whole number')
+    .min(120, 'Height must be at least 120 cm')
+    .max(250, 'Height cannot exceed 250 cm')
+    .optional(),
+  
+  weight_kg: z.number()
+    .int('Weight must be a whole number')
+    .min(30, 'Weight must be at least 30 kg')
+    .max(200, 'Weight cannot exceed 200 kg')
+    .optional(),
+  
+  marital_status: z.enum([
+    MaritalStatus.NEVER_MARRIED,
+    MaritalStatus.DIVORCED,
+    MaritalStatus.WIDOWED,
+    MaritalStatus.AWAITING_DIVORCE,
+    MaritalStatus.SEPARATED,
+    MaritalStatus.ANNULLED
+  ], {
+    errorMap: () => ({ message: 'Invalid marital status' })
+  }).optional(),
+  
+  physical_status: z.enum([
+    PhysicalStatus.NORMAL,
+    PhysicalStatus.VISUALLY_IMPAIRED,
+    PhysicalStatus.HEARING_IMPAIRED,
+    PhysicalStatus.MOBILITY_IMPAIRED,
+    PhysicalStatus.OTHER
+  ], {
+    errorMap: () => ({ message: 'Invalid physical status' })
+  }).optional(),
+  
+  mother_tongue: z.string()
+    .min(2, 'Mother tongue must be at least 2 characters')
+    .max(50, 'Mother tongue cannot exceed 50 characters')
+    .optional(),
+  
+  complexion: z.enum([
+    Complexion.VERY_FAIR,
+    Complexion.FAIR,
+    Complexion.WHEATISH,
+    Complexion.WHEATISH_BROWN,
+    Complexion.DARK
+  ], {
+    errorMap: () => ({ message: 'Invalid complexion' })
+  }).optional(),
+  
+  body_type: z.enum([
+    BodyType.SLIM,
+    BodyType.AVERAGE,
+    BodyType.ATHLETIC,
+    BodyType.HEAVY
+  ], {
+    errorMap: () => ({ message: 'Invalid body type' })
+  }).optional(),
+  
+  blood_group: z.enum([
+    BloodGroup.A_POSITIVE,
+    BloodGroup.A_NEGATIVE,
+    BloodGroup.B_POSITIVE,
+    BloodGroup.B_NEGATIVE,
+    BloodGroup.AB_POSITIVE,
+    BloodGroup.AB_NEGATIVE,
+    BloodGroup.O_POSITIVE,
+    BloodGroup.O_NEGATIVE
+  ], {
+    errorMap: () => ({ message: 'Invalid blood group' })
+  }).optional(),
+  
+  diet_preference: z.enum([
+    DietPreference.VEGETARIAN,
+    DietPreference.NON_VEGETARIAN,
+    DietPreference.EGGETARIAN,
+    DietPreference.VEGAN
+  ], {
+    errorMap: () => ({ message: 'Invalid diet preference' })
+  }).optional(),
+  
+  drinking_habit: z.enum([
+    DrinkingHabit.NEVER,
+    DrinkingHabit.OCCASIONALLY,
+    DrinkingHabit.SOCIALLY,
+    DrinkingHabit.REGULARLY
+  ], {
+    errorMap: () => ({ message: 'Invalid drinking habit' })
+  }).optional(),
+  
+  smoking_habit: z.enum([
+    SmokingHabit.NEVER,
+    SmokingHabit.OCCASIONALLY,
+    SmokingHabit.SOCIALLY,
+    SmokingHabit.REGULARLY
+  ], {
+    errorMap: () => ({ message: 'Invalid smoking habit' })
+  }).optional(),
+  
+  about_me: z.string()
+    .min(10, 'About me must be at least 10 characters')
+    .max(1000, 'About me cannot exceed 1000 characters')
+    .optional()
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'At least one field is required to update personal details'
+});
+
+// ============================================
+// CASTE DETAILS VALIDATION (Phase 2 - Task 2.2)
+// ============================================
+
+// Create/Update Caste Details validation
+const casteDetailsSchema = z.object({
+  religion_id: z.number()
+    .int('Religion ID must be an integer')
+    .positive('Religion ID must be positive')
+    .optional(),
+  
+  caste_id: z.number()
+    .int('Caste ID must be an integer')
+    .positive('Caste ID must be positive')
+    .optional(),
+  
+  sub_caste_id: z.number()
+    .int('Sub-caste ID must be an integer')
+    .positive('Sub-caste ID must be positive')
+    .optional(),
+  
+  community_details: z.string()
+    .min(10, 'Community details must be at least 10 characters')
+    .max(500, 'Community details cannot exceed 500 characters')
+    .optional()
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'At least one field is required to update caste details'
+});
+
+// ============================================
+// EDUCATION DETAILS VALIDATION (Phase 2 - Task 2.3)
+// ============================================
+
+/**
+ * Maximum number of education entries allowed per user
+ * Industry best practice: Limit to prevent data pollution
+ */
+export const MAX_EDUCATION_ENTRIES = 5;
+
+/**
+ * Create Education Entry Validation
+ * All three fields are mandatory for meaningful education record
+ */
+const educationDetailsCreateSchema = z.object({
+  highest_qualification: z.string()
+    .min(2, 'Qualification must be at least 2 characters')
+    .max(150, 'Qualification cannot exceed 150 characters')
+    .trim(),
+  
+  institution_name: z.string()
+    .min(3, 'Institution name must be at least 3 characters')
+    .max(200, 'Institution name cannot exceed 200 characters')
+    .trim(),
+  
+  year_of_passing: z.number()
+    .int('Year must be a whole number')
+    .positive('Year must be positive')
+    // Note: Min/Max year validation done at controller level 
+    // (requires user's birth year from database)
+});
+
+/**
+ * Update Education Entry Validation
+ * Partial updates allowed (PATCH-style)
+ * Only provided fields will be validated and updated
+ */
+const educationDetailsUpdateSchema = z.object({
+  highest_qualification: z.string()
+    .min(2, 'Qualification must be at least 2 characters')
+    .max(150, 'Qualification cannot exceed 150 characters')
+    .trim()
+    .optional(),
+  
+  institution_name: z.string()
+    .min(3, 'Institution name must be at least 3 characters')
+    .max(200, 'Institution name cannot exceed 200 characters')
+    .trim()
+    .optional(),
+  
+  year_of_passing: z.number()
+    .int('Year must be a whole number')
+    .positive('Year must be positive')
+    .optional()
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'At least one field is required to update education details'
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -173,4 +382,8 @@ export {
   refreshTokenSchema,
   createFamilyDetailsSchema,
   updateFamilyDetailsSchema,
+  personalDetailsSchema,
+  casteDetailsSchema,
+  educationDetailsCreateSchema,
+  educationDetailsUpdateSchema,
 };
