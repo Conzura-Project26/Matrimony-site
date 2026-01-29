@@ -696,7 +696,7 @@ class AuthController {
   async changePassword(req, res) {
     try {
       // User ID comes from JWT middleware (req.user)
-      const userId = req.user.user_id;
+      const userId = req.user.userId;
 
       // Validate request body
       const { current_password, new_password } = changePasswordSchema.parse(req.body);
@@ -874,7 +874,7 @@ class AuthController {
    */
   async logoutAllDevices(req, res) {
     try {
-      const userId = req.user.user_id;
+      const userId = req.user.userId;
 
       // Revoke all refresh tokens for this user
       const count = await tokenService.revokeAllUserTokens(userId);

@@ -138,6 +138,28 @@ const refreshTokenSchema = z.object({
   refresh_token: z.string().min(1, 'Refresh token is required'),
 });
 
+// ============================================
+// PROFILE MANAGEMENT VALIDATIONS (Phase 2)
+// ============================================
+
+// Family Details validation
+const createFamilyDetailsSchema = z.object({
+  father_occupation: z.string().max(150, 'Father occupation must not exceed 150 characters').optional(),
+  mother_occupation: z.string().max(150, 'Mother occupation must not exceed 150 characters').optional(),
+  siblings_details: z.string().optional(),
+  family_values: z.enum([
+    'Orthodox',
+    'Traditional',
+    'Moderate',
+    'Liberal',
+    'Progressive'
+  ], {
+    errorMap: () => ({ message: 'Family values must be one of: Orthodox, Traditional, Moderate, Liberal, Progressive' })
+  }).optional(),
+});
+
+const updateFamilyDetailsSchema = createFamilyDetailsSchema;
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -149,4 +171,6 @@ export {
   resetPasswordSchema,
   changePasswordSchema,
   refreshTokenSchema,
+  createFamilyDetailsSchema,
+  updateFamilyDetailsSchema,
 };

@@ -142,7 +142,7 @@ const errorHandler = (err, req, res, next) => {
     url: req.originalUrl,
     method: req.method,
     ip: req.ip,
-    userId: req.user?.id || req.user?.user_id || null,
+    userId: req.user?.id || req.user?.userId || null,
     statusCode: error.statusCode || 500,
     timestamp: new Date().toISOString()
   });
