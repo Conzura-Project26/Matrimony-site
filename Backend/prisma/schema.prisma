@@ -228,12 +228,14 @@ model UserPhoto {
   user_id     String    @db.Uuid
   photo_url   String    @db.Text
   visibility  String?   @default("PUBLIC") @db.VarChar(20)
+  is_primary  Boolean   @default(false)
   is_approved Boolean   @default(false)
   approved_by String?   @db.Uuid
   uploaded_at DateTime  @default(now())
   user        User      @relation(fields: [user_id], references: [id])
   approver    User?     @relation("PhotoApprover", fields: [approved_by], references: [id])
 
+  @@index([user_id, is_primary])
   @@map("user_photos")
 }
 
