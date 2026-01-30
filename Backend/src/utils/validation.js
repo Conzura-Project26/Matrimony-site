@@ -175,7 +175,8 @@ const createFamilyDetailsSchema = z.object({
 const updateFamilyDetailsSchema = createFamilyDetailsSchema;
 
 // Horoscope Details validation
-// Time format helper - accepts "HH:MM AM/PM" and converts to 24-hour format for database
+// Time format helper - accepts "HH:MM AM/PM" and converts to ISO-8601 DateTime for Prisma
+// Prisma requires full DateTime even for TIME columns, using epoch date 1970-01-01
 const parseTimeOfBirth = (timeStr) => {
   if (!timeStr || timeStr.trim() === '') return null;
   
@@ -198,27 +199,30 @@ const parseTimeOfBirth = (timeStr) => {
     hours = 0;
   }
   
-  // Create a date object with time (date part doesn't matter for Time type)
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
+  // Return ISO-8601 DateTime string for Prisma (uses epoch date 1970-01-01)
+  const hoursStr = hours.toString().padStart(2, '0');
+  const minutesStr = minutes.toString().padStart(2, '0');
+  return `1970-01-01T${hoursStr}:${minutesStr}:00.000Z`;
 };
 
 const createHoroscopeDetailsSchema = z.object({
-  rasi: z.enum(rasiOptions, {
-    errorMap: () => ({ 
-      message: `Rasi must be one of: ${rasiOptions.join(', ')}` 
+  rasi: z.string()
+    .refine((val) => rasiOptions.includes(val), {
+      message: `Rasi must be one of: ${rasiOptions.join(', ')}`
     })
-  }).optional(),
-  nakshatra: z.enum(nakshatraOptions, {
-    errorMap: () => ({ 
-      message: `Nakshatra must be one of: ${nakshatraOptions.join(', ')}` 
-    })
-  }).optional(),
-  time_of_birth: z.string()
-    .regex(/^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i, 'Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")')
-    .transform(parseTimeOfBirth)
     .optional(),
+  nakshatra: z.string()
+    .refine((val) => nakshatraOptions.includes(val), {
+      message: `Nakshatra must be one of: ${nakshatraOptions.join(', ')}`
+    })
+    .optional(),
+  time_of_birth: z.union([
+    z.string()
+      .regex(/^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i, 'Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")')
+      .transform(parseTimeOfBirth),
+    z.literal('').transform(() => null),
+    z.undefined()
+  ]).optional(),
   place_of_birth: z.string().max(150, 'Place of birth must not exceed 150 characters').optional(),
 });
 

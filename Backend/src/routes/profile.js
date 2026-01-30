@@ -493,7 +493,7 @@ router.post(
   '/:userId/horoscope',
   authenticateToken,
   authorizePermission(['create_own_horoscope_details', 'manage_horoscope_details']),
-  checkOwnership,
+  checkOwnership('userId', { bypassRoles: ['ADMIN'], resourceType: 'horoscope details' }),
   asyncHandler(async (req, res) => profileController.createHoroscopeDetails(req, res))
 );
 
@@ -632,7 +632,7 @@ router.put(
   '/:userId/horoscope',
   authenticateToken,
   authorizePermission(['edit_own_horoscope_details', 'manage_horoscope_details']),
-  checkOwnership,
+  checkOwnership('userId', { bypassRoles: ['ADMIN'], resourceType: 'horoscope details' }),
   asyncHandler(async (req, res) => profileController.updateHoroscopeDetails(req, res))
 );
 

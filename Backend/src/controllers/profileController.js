@@ -13,6 +13,34 @@ import {
 } from '../utils/errors.js';
 import { logAPI, logDatabase } from '../utils/logUtils.js';
 
+/**
+ * Format horoscope details for API response
+ * Converts ISO DateTime to 12-hour format with AM/PM for time_of_birth
+ */
+const formatHoroscopeResponse = (horoscopeDetails) => {
+  if (!horoscopeDetails) return horoscopeDetails;
+  
+  let formattedTime = null;
+  if (horoscopeDetails.time_of_birth) {
+    const date = new Date(horoscopeDetails.time_of_birth);
+    let hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    
+    // Convert to 12-hour format
+    hours = hours % 12;
+    hours = hours === 0 ? 12 : hours;
+    const hoursStr = hours.toString().padStart(2, '0');
+    
+    formattedTime = `${hoursStr}:${minutes} ${period}`;
+  }
+  
+  return {
+    ...horoscopeDetails,
+    time_of_birth: formattedTime,
+  };
+};
+
 class ProfileController {
   /**
    * Create family details for a user
@@ -281,7 +309,7 @@ class ProfileController {
       success: true,
       message: 'Horoscope details created successfully',
       data: {
-        horoscope_details: horoscopeDetails,
+        horoscope_details: formatHoroscopeResponse(horoscopeDetails),
         user: {
           id: user.id,
           full_name: user.full_name,
@@ -349,7 +377,7 @@ class ProfileController {
       success: true,
       message: 'Horoscope details updated successfully',
       data: {
-        horoscope_details: updatedHoroscopeDetails,
+        horoscope_details: formatHoroscopeResponse(updatedHoroscopeDetails),
         user: {
           id: user.id,
           full_name: user.full_name,
@@ -406,7 +434,7 @@ class ProfileController {
         ? 'Horoscope details retrieved successfully' 
         : 'No horoscope details found for this user',
       data: {
-        horoscope_details: horoscopeDetails || {},
+        horoscope_details: horoscopeDetails ? formatHoroscopeResponse(horoscopeDetails) : {},
         user: {
           id: user.id,
           full_name: user.full_name,
