@@ -65,7 +65,7 @@ const requestLogger = (req, res, next) => {
         responseTime: `${responseTime}ms`,
         ip: clientIp,
         userAgent,
-        userId: req.user?.id || req.user?.user_id || null,
+        userId: req.user?.id || req.user?.userId || null,
       });
     } else {
       // Simple log for successful requests and client errors (2xx, 3xx, 4xx)

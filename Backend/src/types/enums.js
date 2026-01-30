@@ -58,9 +58,11 @@ export const EmploymentType = {
   PRIVATE_JOB: 'Private Job',
   BUSINESS: 'Business',
   SELF_EMPLOYED: 'Self-Employed',
+  FREELANCER_CONSULTANT: 'Freelancer / Consultant',
+  HOMEMAKER: 'Homemaker',
+  STUDENT: 'Student',
   RETIRED: 'Retired',
-  NOT_WORKING: 'Not Working',
-  STUDENT: 'Student'
+  NOT_WORKING: 'Not Working'
 };
 
 /**
@@ -140,6 +142,41 @@ export const SmokingHabit = {
   REGULARLY: 'Regularly'
 };
 
+/**
+ * Complexion options
+ */
+export const Complexion = {
+  VERY_FAIR: 'Very Fair',
+  FAIR: 'Fair',
+  WHEATISH: 'Wheatish',
+  WHEATISH_BROWN: 'Wheatish Brown',
+  DARK: 'Dark'
+};
+
+/**
+ * Body Type options
+ */
+export const BodyType = {
+  SLIM: 'Slim',
+  AVERAGE: 'Average',
+  ATHLETIC: 'Athletic',
+  HEAVY: 'Heavy'
+};
+
+/**
+ * Blood Group options
+ */
+export const BloodGroup = {
+  A_POSITIVE: 'A+',
+  A_NEGATIVE: 'A-',
+  B_POSITIVE: 'B+',
+  B_NEGATIVE: 'B-',
+  AB_POSITIVE: 'AB+',
+  AB_NEGATIVE: 'AB-',
+  O_POSITIVE: 'O+',
+  O_NEGATIVE: 'O-'
+};
+
 // ============================================
 // VALIDATION HELPERS
 // ============================================
@@ -160,6 +197,9 @@ export const isValidEducationLevel = (value) => Object.values(EducationLevel).in
 export const isValidDietPreference = (value) => Object.values(DietPreference).includes(value);
 export const isValidDrinkingHabit = (value) => Object.values(DrinkingHabit).includes(value);
 export const isValidSmokingHabit = (value) => Object.values(SmokingHabit).includes(value);
+export const isValidComplexion = (value) => Object.values(Complexion).includes(value);
+export const isValidBodyType = (value) => Object.values(BodyType).includes(value);
+export const isValidBloodGroup = (value) => Object.values(BloodGroup).includes(value);
 
 // ============================================
 // UTILITY FUNCTIONS

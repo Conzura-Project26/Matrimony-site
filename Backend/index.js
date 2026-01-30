@@ -4,6 +4,8 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './src/routes/auth.js';
 import masterDataRoutes from './src/routes/masterData.js';
+import profileRoutes from './src/routes/profile.js';
+import userProfileRoutes from './src/routes/userProfile.js';
 import testErrorRoutes from './src/routes/testErrors.js';
 import userRoutes from './src/routes/user.js';
 import adminRoutes from './src/routes/admin.js';
@@ -63,6 +65,8 @@ app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
+app.use('/users', profileRoutes);
+app.use('/users', userProfileRoutes);
 
 // Test routes (only in development)
 if (process.env.NODE_ENV !== 'production') {

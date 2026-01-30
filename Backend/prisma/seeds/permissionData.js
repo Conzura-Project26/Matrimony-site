@@ -1,50 +1,84 @@
 /**
  * Permissions Master Data
  * Comprehensive permissions for role-based access control
+ * 
+ * IMPORTANT: This is a FLAT LIST of all permissions in the system.
+ * The comments below are for ORGANIZATIONAL purposes only.
+ * Actual role-to-permission assignments are defined in roleData.js
+ * 
+ * A permission can be assigned to multiple roles (e.g., 'view_profiles' is assigned to USER, MODERATOR, and ADMIN)
  */
 
 export const permissions = [
-  // User Permissions
-  { permission_name: 'view_profiles' },
-  { permission_name: 'edit_own_profile' },
-  { permission_name: 'upload_photo' },
-  { permission_name: 'delete_own_photo' },
-  { permission_name: 'send_interest' },
-  { permission_name: 'accept_reject_interest' },
-  { permission_name: 'send_message' },
-  { permission_name: 'view_messages' },
-  { permission_name: 'shortlist_profiles' },
-  { permission_name: 'search_profiles' },
-  { permission_name: 'view_own_profile_viewers' },
-  { permission_name: 'report_user' },
-  { permission_name: 'manage_subscription' },
-  { permission_name: 'view_notifications' },
+  // ============================================
+  // PROFILE & USER MANAGEMENT PERMISSIONS
+  // ============================================
+  { permission_name: 'view_profiles' },                    // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_profile' },                 // USER, MODERATOR, ADMIN
+  
+  // Family Details Permissions (Phase 2 - Task 2.5)
+  { permission_name: 'create_own_family_details' },        // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_family_details' },          // USER, MODERATOR, ADMIN
+  { permission_name: 'view_family_details' },              // USER, MODERATOR, ADMIN (for matchmaking)
+  
+  // Horoscope Details Permissions (Phase 2 - Task 2.6)
+  { permission_name: 'create_own_horoscope_details' },     // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_horoscope_details' },       // USER, MODERATOR, ADMIN
+  { permission_name: 'view_horoscope_details' },           // USER, MODERATOR, ADMIN (for matchmaking)
+  
+  // Partner Preferences Permissions (Phase 2 - Task 2.7)
+  { permission_name: 'create_own_partner_preferences' },   // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_partner_preferences' },     // USER, MODERATOR, ADMIN
+  { permission_name: 'view_partner_preferences' },         // USER, MODERATOR, ADMIN (viewable by all for matching)
+  
+  // Photo Management
+  { permission_name: 'upload_photo' },                     // USER, MODERATOR, ADMIN
+  { permission_name: 'delete_own_photo' },                 // USER, MODERATOR, ADMIN
+  
+  // Communication & Interaction
+  { permission_name: 'send_interest' },                    // USER, MODERATOR, ADMIN
+  { permission_name: 'accept_reject_interest' },           // USER, MODERATOR, ADMIN
+  { permission_name: 'send_message' },                     // USER, MODERATOR, ADMIN
+  { permission_name: 'view_messages' },                    // USER, MODERATOR, ADMIN
+  { permission_name: 'shortlist_profiles' },               // USER, MODERATOR, ADMIN
+  { permission_name: 'search_profiles' },                  // USER, MODERATOR, ADMIN
+  { permission_name: 'view_own_profile_viewers' },         // USER, MODERATOR, ADMIN
+  { permission_name: 'report_user' },                      // USER, MODERATOR, ADMIN
+  { permission_name: 'manage_subscription' },              // USER, MODERATOR, ADMIN
+  { permission_name: 'view_notifications' },               // USER, MODERATOR, ADMIN
 
-  // Moderator Permissions
-  { permission_name: 'approve_photos' },
-  { permission_name: 'reject_photos' },
-  { permission_name: 'view_reports' },
-  { permission_name: 'moderate_content' },
-  { permission_name: 'update_report_status' },
-  { permission_name: 'warn_users' },
-  { permission_name: 'view_audit_logs' },
-  { permission_name: 'view_all_photos_pending' },
+  // ============================================
+  // MODERATION PERMISSIONS
+  // ============================================
+  { permission_name: 'approve_photos' },                   // MODERATOR, ADMIN
+  { permission_name: 'reject_photos' },                    // MODERATOR, ADMIN
+  { permission_name: 'view_reports' },                     // MODERATOR, ADMIN
+  { permission_name: 'moderate_content' },                 // MODERATOR, ADMIN
+  { permission_name: 'update_report_status' },             // MODERATOR, ADMIN
+  { permission_name: 'warn_users' },                       // MODERATOR, ADMIN
+  { permission_name: 'view_audit_logs' },                  // MODERATOR, ADMIN
+  { permission_name: 'view_all_photos_pending' },          // MODERATOR, ADMIN
 
-  // Admin Permissions
-  { permission_name: 'manage_users' },
-  { permission_name: 'activate_deactivate_users' },
-  { permission_name: 'delete_users' },
-  { permission_name: 'verify_profiles' },
-  { permission_name: 'manage_subscriptions' },
-  { permission_name: 'view_analytics' },
-  { permission_name: 'manage_master_data' },
-  { permission_name: 'create_moderators' },
-  { permission_name: 'manage_roles' },
-  { permission_name: 'manage_permissions' },
-  { permission_name: 'view_all_users' },
-  { permission_name: 'view_user_details' },
-  { permission_name: 'export_reports' },
-  { permission_name: 'view_revenue_reports' },
-  { permission_name: 'manual_subscription_activation' },
-  { permission_name: 'process_refunds' }
+  // ============================================
+  // ADMIN-ONLY PERMISSIONS
+  // ============================================
+  { permission_name: 'manage_users' },                     // ADMIN only
+  { permission_name: 'activate_deactivate_users' },        // ADMIN only
+  { permission_name: 'delete_users' },                     // ADMIN only
+  { permission_name: 'verify_profiles' },                  // ADMIN only
+  { permission_name: 'manage_family_details' },            // ADMIN only (can manage any user's family details)
+  { permission_name: 'manage_horoscope_details' },         // ADMIN only (can manage any user's horoscope details)
+  { permission_name: 'manage_partner_preferences' },       // ADMIN only (can manage any user's partner preferences)
+  { permission_name: 'manage_subscriptions' },             // ADMIN only
+  { permission_name: 'view_analytics' },                   // ADMIN only
+  { permission_name: 'manage_master_data' },               // ADMIN only
+  { permission_name: 'create_moderators' },                // ADMIN only
+  { permission_name: 'manage_roles' },                     // ADMIN only
+  { permission_name: 'manage_permissions' },               // ADMIN only
+  { permission_name: 'view_all_users' },                   // ADMIN only
+  { permission_name: 'view_user_details' },                // ADMIN only
+  { permission_name: 'export_reports' },                   // ADMIN only
+  { permission_name: 'view_revenue_reports' },             // ADMIN only
+  { permission_name: 'manual_subscription_activation' },   // ADMIN only
+  { permission_name: 'process_refunds' },                  // ADMIN only
 ];
