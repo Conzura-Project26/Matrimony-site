@@ -7,6 +7,8 @@ import masterDataRoutes from './src/routes/masterData.js';
 import profileRoutes from './src/routes/profile.js';
 import userProfileRoutes from './src/routes/userProfile.js';
 import testErrorRoutes from './src/routes/testErrors.js';
+import userRoutes from './src/routes/user.js';
+import adminRoutes from './src/routes/admin.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -61,6 +63,8 @@ if (process.env.NODE_ENV !== 'production') {
 // Auth routes with stricter rate limiting
 app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
+app.use('/users', userRoutes);
+app.use('/admin', adminRoutes);
 app.use('/users', profileRoutes);
 app.use('/users', userProfileRoutes);
 
