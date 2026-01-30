@@ -16,10 +16,15 @@ export const permissions = [
   { permission_name: 'view_profiles' },                    // USER, MODERATOR, ADMIN
   { permission_name: 'edit_own_profile' },                 // USER, MODERATOR, ADMIN
   
-  // Family Details Permissions (Phase 2)
+  // Family Details Permissions (Phase 2 - Task 2.5)
   { permission_name: 'create_own_family_details' },        // USER, MODERATOR, ADMIN
   { permission_name: 'edit_own_family_details' },          // USER, MODERATOR, ADMIN
   { permission_name: 'view_family_details' },              // USER, MODERATOR, ADMIN (for matchmaking)
+  
+  // Horoscope Details Permissions (Phase 2 - Task 2.6)
+  { permission_name: 'create_own_horoscope_details' },     // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_horoscope_details' },       // USER, MODERATOR, ADMIN
+  { permission_name: 'view_horoscope_details' },           // USER, MODERATOR, ADMIN (for matchmaking)
   
   // Photo Management
   { permission_name: 'upload_photo' },                     // USER, MODERATOR, ADMIN
@@ -57,6 +62,7 @@ export const permissions = [
   { permission_name: 'delete_users' },                     // ADMIN only
   { permission_name: 'verify_profiles' },                  // ADMIN only
   { permission_name: 'manage_family_details' },            // ADMIN only (can manage any user's family details)
+  { permission_name: 'manage_horoscope_details' },         // ADMIN only (can manage any user's horoscope details)
   { permission_name: 'manage_subscriptions' },             // ADMIN only
   { permission_name: 'view_analytics' },                   // ADMIN only
   { permission_name: 'manage_master_data' },               // ADMIN only

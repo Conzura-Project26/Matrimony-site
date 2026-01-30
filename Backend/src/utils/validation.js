@@ -13,6 +13,7 @@ import {
   EmploymentType,
   IncomeRange
 } from '../types/enums.js';
+import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
 // Password validation schema - Industry best practice
 const passwordSchema = z
@@ -172,6 +173,60 @@ const createFamilyDetailsSchema = z.object({
 });
 
 const updateFamilyDetailsSchema = createFamilyDetailsSchema;
+
+// Horoscope Details validation
+// Time format helper - accepts "HH:MM AM/PM" and converts to ISO-8601 DateTime for Prisma
+// Prisma requires full DateTime even for TIME columns, using epoch date 1970-01-01
+const parseTimeOfBirth = (timeStr) => {
+  if (!timeStr || timeStr.trim() === '') return null;
+  
+  // Match "HH:MM AM/PM" format (e.g., "02:30 PM", "11:45 AM")
+  const timePattern = /^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i;
+  const match = timeStr.trim().match(timePattern);
+  
+  if (!match) {
+    throw new Error('Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")');
+  }
+  
+  let [, hours, minutes, period] = match;
+  hours = parseInt(hours);
+  minutes = parseInt(minutes);
+  
+  // Convert to 24-hour format
+  if (period.toUpperCase() === 'PM' && hours !== 12) {
+    hours += 12;
+  } else if (period.toUpperCase() === 'AM' && hours === 12) {
+    hours = 0;
+  }
+  
+  // Return ISO-8601 DateTime string for Prisma (uses epoch date 1970-01-01)
+  const hoursStr = hours.toString().padStart(2, '0');
+  const minutesStr = minutes.toString().padStart(2, '0');
+  return `1970-01-01T${hoursStr}:${minutesStr}:00.000Z`;
+};
+
+const createHoroscopeDetailsSchema = z.object({
+  rasi: z.string()
+    .refine((val) => rasiOptions.includes(val), {
+      message: `Rasi must be one of: ${rasiOptions.join(', ')}`
+    })
+    .optional(),
+  nakshatra: z.string()
+    .refine((val) => nakshatraOptions.includes(val), {
+      message: `Nakshatra must be one of: ${nakshatraOptions.join(', ')}`
+    })
+    .optional(),
+  time_of_birth: z.union([
+    z.string()
+      .regex(/^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i, 'Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")')
+      .transform(parseTimeOfBirth),
+    z.literal('').transform(() => null),
+    z.undefined()
+  ]).optional(),
+  place_of_birth: z.string().max(150, 'Place of birth must not exceed 150 characters').optional(),
+});
+
+const updateHoroscopeDetailsSchema = createHoroscopeDetailsSchema;
 
 // ============================================
 // PERSONAL DETAILS VALIDATION (Phase 2 - Task 2.1)
@@ -534,6 +589,8 @@ export {
   refreshTokenSchema,
   createFamilyDetailsSchema,
   updateFamilyDetailsSchema,
+  createHoroscopeDetailsSchema,
+  updateHoroscopeDetailsSchema,
   personalDetailsSchema,
   casteDetailsSchema,
   educationDetailsCreateSchema,

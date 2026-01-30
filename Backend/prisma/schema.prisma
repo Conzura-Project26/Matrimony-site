@@ -157,7 +157,7 @@ model UserPersonalDetails {
   drinking_habit  String?  @db.VarChar(30)
   smoking_habit   String?  @db.VarChar(30)
   updated_at      DateTime @default(now()) @updatedAt
-  user            User     @relation(fields: [user_id], references: [id])
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_personal_details")
 }
@@ -171,7 +171,7 @@ model UserCasteDetails {
   caste             Caste?    @relation(fields: [caste_id], references: [id])
   religion          Religion? @relation(fields: [religion_id], references: [id])
   sub_caste         SubCaste? @relation(fields: [sub_caste_id], references: [id])
-  user              User      @relation(fields: [user_id], references: [id])
+  user              User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_caste_details")
 }
@@ -182,7 +182,7 @@ model UserEducationDetails {
   institution_name String? @db.VarChar(200)
   year_of_passing  Int?
   qualification    String? @db.VarChar(150)
-  user             User    @relation(fields: [user_id], references: [id])
+  user             User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_education_details")
 }
@@ -198,7 +198,7 @@ model UserProfessionalDetails {
   designation         String?  @db.VarChar(150)
   updated_at          DateTime @default(now()) @updatedAt
   years_of_experience Int?
-  user                User     @relation(fields: [user_id], references: [id])
+  user                User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_professional_details")
 }
@@ -209,7 +209,7 @@ model UserFamilyDetails {
   mother_occupation String? @db.VarChar(150)
   siblings_details  String?
   family_values     String? @db.VarChar(100)
-  user              User    @relation(fields: [user_id], references: [id])
+  user              User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_family_details")
 }
@@ -218,9 +218,9 @@ model UserHoroscopeDetails {
   user_id        String    @id @db.Uuid
   rasi           String?   @db.VarChar(50)
   nakshatra      String?   @db.VarChar(50)
-  time_of_birth  DateTime? @db.Time(6)
+  time_of_birth  DateTime? @db.Time()
   place_of_birth String?   @db.VarChar(150)
-  user           User      @relation(fields: [user_id], references: [id])
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_horoscope_details")
 }
@@ -235,7 +235,7 @@ model UserPhoto {
   uploaded_at DateTime @default(now())
   is_primary  Boolean  @default(false)
   approver    User?    @relation("PhotoApprover", fields: [approved_by], references: [id])
-  user        User     @relation(fields: [user_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, is_primary])
   @@map("user_photos")
@@ -252,7 +252,7 @@ model PartnerPreferences {
   education_preference  String?
   profession_preference String?
   location_preference   String?
-  user                  User    @relation(fields: [user_id], references: [id])
+  user                  User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("partner_preferences")
 }
