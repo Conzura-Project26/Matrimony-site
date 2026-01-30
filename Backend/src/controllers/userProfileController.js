@@ -4,13 +4,17 @@ import {
   casteDetailsSchema,
   educationDetailsCreateSchema,
   educationDetailsUpdateSchema,
+  professionalDetailsCreateSchema,
+  professionalDetailsUpdateSchema,
+  professionalDetailsPatchSchema,
   MAX_EDUCATION_ENTRIES
 } from '../utils/validation.js';
 import { 
   BadRequestError, 
   UnauthorizedError, 
   NotFoundError,
-  ForbiddenError 
+  ForbiddenError,
+  ConflictError
 } from '../utils/errors.js';
 import logger from '../config/logger.js';
 
@@ -110,15 +114,32 @@ class UserProfileController {
       }
     }
 
-    // Professional details - 10 points
+    // Professional details - 10 points (Weighted scoring - Task 2.4)
+    // Core fields (8 pts): occupation=3, employment_type=3, income=2
+    // Enrichment fields (2 pts): company_name=1, work_location=1
     if (user.professional_details) {
-      const professionalFields = [
-        user.professional_details.occupation,
-        user.professional_details.employment_type,
-        user.professional_details.annual_income_range
-      ];
-      const professionalFilledCount = professionalFields.filter(field => field !== null && field !== undefined).length;
-      sections.professional = (professionalFilledCount / professionalFields.length) * 10;
+      let professionalScore = 0;
+      
+      // Core fields (critical for matching)
+      if (user.professional_details.occupation) {
+        professionalScore += 3;
+      }
+      if (user.professional_details.employment_type) {
+        professionalScore += 3;
+      }
+      if (user.professional_details.annual_income_range) {
+        professionalScore += 2;
+      }
+      
+      // Enrichment fields (quality enhancers)
+      if (user.professional_details.company_name) {
+        professionalScore += 1;
+      }
+      if (user.professional_details.work_location) {
+        professionalScore += 1;
+      }
+      
+      sections.professional = professionalScore;
     }
 
     // Family details - 10 points
@@ -1401,6 +1422,432 @@ class UserProfileController {
       success: true,
       count: educationEntries.length,
       data: educationEntries
+    });
+  }
+
+  // ============================================
+  // PROFESSIONAL DETAILS CRUD (Phase 2 - Task 2.4)
+  // ============================================
+
+  /**
+   * Check if requester has permission to modify user's professional details
+   * Authorization: Self + Admin only (NO Moderator)
+   * @param {Object} requester - The user making the request (from JWT)
+   * @param {Object} targetUser - The user whose details are being modified
+   * @returns {boolean} - True if authorized
+   */
+  canModifyProfessionalDetails(requester, targetUser) {
+    // User can modify their own details
+    if (requester.userId === targetUser.id) {
+      return true;
+    }
+
+    // Admin can modify any user's details
+    if (requester.role === 'Admin') {
+      return true;
+    }
+
+    // Moderator CANNOT modify professional details (different from personal details)
+    return false;
+  }
+
+  /**
+   * Create Audit Log with enhanced structure for professional details
+   * @param {String} actorId - User ID performing the action
+   * @param {String} action - Action performed
+   * @param {String} ipAddress - IP address of the request
+   * @param {Object} changes - Optional changes object for detailed logging
+   */
+  async createProfessionalAuditLog(actorId, userId, action, ipAddress, changes = null) {
+    const logEntry = {
+      action: action,
+      user_id: userId,
+      performed_by: actorId,
+      ip_address: ipAddress,
+      timestamp: new Date().toISOString()
+    };
+
+    if (changes) {
+      logEntry.changes = changes;
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        actor_id: actorId,
+        action: JSON.stringify(logEntry),
+        ip_address: ipAddress
+      }
+    });
+  }
+
+  /**
+   * Create Professional Details (POST /users/:userId/professional)
+   * Fails if professional details already exist (409 Conflict)
+   * All fields optional but recommended for profile completion
+   */
+  async createProfessionalDetails(req, res) {
+    const { userId } = req.params;
+    const professionalData = req.body;
+
+    // Validate request body
+    const validation = professionalDetailsCreateSchema.safeParse(professionalData);
+    if (!validation.success) {
+      const errorMessage = validation.error.errors && validation.error.errors.length > 0
+        ? validation.error.errors.map(e => e.message).join(', ')
+        : validation.error.message || 'Validation failed';
+      throw new BadRequestError(errorMessage);
+    }
+
+    // Check if target user exists
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        role: true,
+        professional_details: true
+      }
+    });
+
+    if (!targetUser) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Check if professional details already exist (Strict one-to-one)
+    if (targetUser.professional_details) {
+      throw new ConflictError('Professional details already exist. Use PUT or PATCH to update.');
+    }
+
+    // Check authorization (Self + Admin only)
+    if (!this.canModifyProfessionalDetails(req.user, targetUser)) {
+      throw new ForbiddenError('You do not have permission to modify this user\'s professional details');
+    }
+
+    // Create professional details
+    const professionalDetails = await prisma.userProfessionalDetails.create({
+      data: {
+        user_id: userId,
+        ...validation.data
+      }
+    });
+
+    // Create enhanced audit log
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    await this.createProfessionalAuditLog(
+      req.user.userId,
+      userId,
+      'PROFESSIONAL_DETAILS_CREATED',
+      ipAddress,
+      {
+        created_fields: Object.keys(validation.data)
+      }
+    );
+
+    logger.info('Professional details created', {
+      userId: userId,
+      createdBy: req.user.userId,
+      fieldsCreated: Object.keys(validation.data)
+    });
+
+    // Fetch updated user for profile completion calculation
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        personal_details: true,
+        caste_details: true,
+        education_details: true,
+        professional_details: true,
+        family_details: true,
+        horoscope_details: true,
+        photos: true,
+        partner_preferences: true
+      }
+    });
+
+    const profileCompletion = this.calculateProfileCompletion(updatedUser);
+
+    res.status(201).json({
+      success: true,
+      message: 'Professional details created successfully',
+      data: {
+        user: {
+          id: updatedUser.id,
+          full_name: updatedUser.full_name,
+          profile_completion: profileCompletion
+        },
+        professional_details: professionalDetails
+      }
+    });
+  }
+
+  /**
+   * Update Professional Details - Full Replacement (PUT /users/:userId/professional)
+   * Requires at least one field
+   */
+  async updateProfessionalDetails(req, res) {
+    const { userId } = req.params;
+    const professionalData = req.body;
+
+    // Validate request body
+    const validation = professionalDetailsUpdateSchema.safeParse(professionalData);
+    if (!validation.success) {
+      const errorMessage = validation.error.errors && validation.error.errors.length > 0
+        ? validation.error.errors.map(e => e.message).join(', ')
+        : validation.error.message || 'Validation failed';
+      throw new BadRequestError(errorMessage);
+    }
+
+    // Check if target user exists
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        role: true,
+        professional_details: true
+      }
+    });
+
+    if (!targetUser) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Check if professional details exist
+    if (!targetUser.professional_details) {
+      throw new NotFoundError('Professional details do not exist. Use POST to create first.');
+    }
+
+    // Check authorization (Self + Admin only)
+    if (!this.canModifyProfessionalDetails(req.user, targetUser)) {
+      throw new ForbiddenError('You do not have permission to modify this user\'s professional details');
+    }
+
+    // Capture before state for audit logging
+    const beforeState = { ...targetUser.professional_details };
+
+    // Update professional details
+    const professionalDetails = await prisma.userProfessionalDetails.update({
+      where: { user_id: userId },
+      data: validation.data
+    });
+
+    // Create detailed audit log showing what changed
+    const changes = {};
+    Object.keys(validation.data).forEach(key => {
+      if (beforeState[key] !== validation.data[key]) {
+        changes[key] = {
+          from: beforeState[key],
+          to: validation.data[key]
+        };
+      }
+    });
+
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    await this.createProfessionalAuditLog(
+      req.user.userId,
+      userId,
+      'PROFESSIONAL_DETAILS_UPDATED',
+      ipAddress,
+      changes
+    );
+
+    logger.info('Professional details updated', {
+      userId: userId,
+      updatedBy: req.user.userId,
+      fieldsUpdated: Object.keys(validation.data)
+    });
+
+    // Fetch updated user for profile completion calculation
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        personal_details: true,
+        caste_details: true,
+        education_details: true,
+        professional_details: true,
+        family_details: true,
+        horoscope_details: true,
+        photos: true,
+        partner_preferences: true
+      }
+    });
+
+    const profileCompletion = this.calculateProfileCompletion(updatedUser);
+
+    res.status(200).json({
+      success: true,
+      message: 'Professional details updated successfully',
+      data: {
+        user: {
+          id: updatedUser.id,
+          full_name: updatedUser.full_name,
+          profile_completion: profileCompletion
+        },
+        professional_details: professionalDetails
+      }
+    });
+  }
+
+  /**
+   * Patch Professional Details - Partial Update (PATCH /users/:userId/professional)
+   * Allows updating individual fields without full replacement
+   */
+  async patchProfessionalDetails(req, res) {
+    const { userId } = req.params;
+    const professionalData = req.body;
+
+    // Validate request body (same schema as PUT)
+    const validation = professionalDetailsPatchSchema.safeParse(professionalData);
+    if (!validation.success) {
+      const errorMessage = validation.error.errors && validation.error.errors.length > 0
+        ? validation.error.errors.map(e => e.message).join(', ')
+        : validation.error.message || 'Validation failed';
+      throw new BadRequestError(errorMessage);
+    }
+
+    // Check if target user exists
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        role: true,
+        professional_details: true
+      }
+    });
+
+    if (!targetUser) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Check if professional details exist
+    if (!targetUser.professional_details) {
+      throw new NotFoundError('Professional details do not exist. Use POST to create first.');
+    }
+
+    // Check authorization (Self + Admin only)
+    if (!this.canModifyProfessionalDetails(req.user, targetUser)) {
+      throw new ForbiddenError('You do not have permission to modify this user\'s professional details');
+    }
+
+    // Capture before state for audit logging
+    const beforeState = { ...targetUser.professional_details };
+
+    // Update only provided fields
+    const professionalDetails = await prisma.userProfessionalDetails.update({
+      where: { user_id: userId },
+      data: validation.data
+    });
+
+    // Create detailed audit log showing what changed
+    const changes = {};
+    Object.keys(validation.data).forEach(key => {
+      if (beforeState[key] !== validation.data[key]) {
+        changes[key] = {
+          from: beforeState[key],
+          to: validation.data[key]
+        };
+      }
+    });
+
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    await this.createProfessionalAuditLog(
+      req.user.userId,
+      userId,
+      'PROFESSIONAL_DETAILS_PATCHED',
+      ipAddress,
+      changes
+    );
+
+    logger.info('Professional details patched', {
+      userId: userId,
+      patchedBy: req.user.userId,
+      fieldsPatched: Object.keys(validation.data)
+    });
+
+    // Fetch updated user for profile completion calculation
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        personal_details: true,
+        caste_details: true,
+        education_details: true,
+        professional_details: true,
+        family_details: true,
+        horoscope_details: true,
+        photos: true,
+        partner_preferences: true
+      }
+    });
+
+    const profileCompletion = this.calculateProfileCompletion(updatedUser);
+
+    res.status(200).json({
+      success: true,
+      message: 'Professional details updated successfully',
+      data: {
+        user: {
+          id: updatedUser.id,
+          full_name: updatedUser.full_name,
+          profile_completion: profileCompletion
+        },
+        professional_details: professionalDetails
+      }
+    });
+  }
+
+  /**
+   * Get Professional Details (GET /users/:userId/professional)
+   * Authenticated access only - user must be logged in
+   * Returns 404 if professional details don't exist
+   */
+  async getProfessionalDetails(req, res) {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        professional_details: true
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Check if professional details exist
+    if (!user.professional_details) {
+      throw new NotFoundError('Professional details not found for this user');
+    }
+
+    logger.info('Professional details retrieved', {
+      userId: userId,
+      requestedBy: req.user.userId
+    });
+
+    // Calculate profile completion
+    const userWithAllDetails = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        personal_details: true,
+        caste_details: true,
+        education_details: true,
+        professional_details: true,
+        family_details: true,
+        horoscope_details: true,
+        photos: true,
+        partner_preferences: true
+      }
+    });
+
+    const profileCompletion = this.calculateProfileCompletion(userWithAllDetails);
+
+    res.status(200).json({
+      success: true,
+      message: 'Professional details retrieved successfully',
+      data: {
+        user: {
+          id: user.id,
+          full_name: user.full_name,
+          profile_completion: profileCompletion
+        },
+        professional_details: user.professional_details
+      }
     });
   }
 }

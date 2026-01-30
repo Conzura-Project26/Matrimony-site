@@ -58,9 +58,11 @@ export const EmploymentType = {
   PRIVATE_JOB: 'Private Job',
   BUSINESS: 'Business',
   SELF_EMPLOYED: 'Self-Employed',
+  FREELANCER_CONSULTANT: 'Freelancer / Consultant',
+  HOMEMAKER: 'Homemaker',
+  STUDENT: 'Student',
   RETIRED: 'Retired',
-  NOT_WORKING: 'Not Working',
-  STUDENT: 'Student'
+  NOT_WORKING: 'Not Working'
 };
 
 /**

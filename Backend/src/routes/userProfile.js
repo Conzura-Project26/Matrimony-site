@@ -1171,4 +1171,486 @@ router.get('/:userId/education',
   asyncHandler((req, res) => userProfileController.getAllEducation(req, res))
 );
 
+// ============================================
+// PROFESSIONAL DETAILS ROUTES (Phase 2 - Task 2.4)
+// ============================================
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ProfessionalDetails:
+ *       type: object
+ *       properties:
+ *         occupation:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 150
+ *           description: Free text occupation (hybrid approach - internally mapped to categories)
+ *           example: Software Engineer
+ *         employment_type:
+ *           type: string
+ *           enum:
+ *             - Government Job
+ *             - Private Job
+ *             - Business
+ *             - Self-Employed
+ *             - Freelancer / Consultant
+ *             - Homemaker
+ *             - Student
+ *             - Retired
+ *             - Not Working
+ *           example: Private Job
+ *         company_name:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 200
+ *           description: Company name (recommended for Government Job and Private Job)
+ *           example: Google India
+ *         designation:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 150
+ *           description: Job title or designation
+ *           example: Senior Software Engineer
+ *         years_of_experience:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 60
+ *           description: Total years of work experience
+ *           example: 5
+ *         annual_income_range:
+ *           type: string
+ *           enum:
+ *             - Below 2 Lakhs
+ *             - 2 - 5 Lakhs
+ *             - 5 - 10 Lakhs
+ *             - 10 - 15 Lakhs
+ *             - 15 - 20 Lakhs
+ *             - 20 - 30 Lakhs
+ *             - 30 - 50 Lakhs
+ *             - Above 50 Lakhs
+ *           example: 20 - 30 Lakhs
+ *         work_location:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 150
+ *           description: Work location (city/state - free text)
+ *           example: Bangalore, Karnataka
+ *       example:
+ *         occupation: Software Engineer
+ *         employment_type: Private Job
+ *         company_name: Google India
+ *         designation: Senior Software Engineer
+ *         years_of_experience: 5
+ *         annual_income_range: 20 - 30 Lakhs
+ *         work_location: Bangalore, Karnataka
+ *
+ *     ProfessionalDetailsResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: Professional details retrieved successfully
+ *         data:
+ *           type: object
+ *           properties:
+ *             user:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 full_name:
+ *                   type: string
+ *                   example: John Doe
+ *                 profile_completion:
+ *                   type: integer
+ *                   example: 65
+ *             professional_details:
+ *               $ref: '#/components/schemas/ProfessionalDetails'
+ */
+
+/**
+ * @swagger
+ * /users/{userId}/professional:
+ *   post:
+ *     summary: Create professional details
+ *     description: |
+ *       Create professional details for a user. Fails if professional details already exist (409 Conflict).
+ *       
+ *       **Authorization:** Self + Admin only (NO Moderator)
+ *       
+ *       **Profile Completion Scoring (10 points):**
+ *       - Core fields (8 pts): occupation=3pts, employment_type=3pts, annual_income_range=2pts
+ *       - Enrichment fields (2 pts): company_name=1pt, work_location=1pt
+ *       
+ *       **Validation:**
+ *       - All fields optional but recommended
+ *       - Sanitization to prevent XSS/SQL injection
+ *       - Only alphanumeric and basic punctuation allowed (.,&-/()')
+ *       
+ *       **Business Logic:**
+ *       - company_name recommended for "Private Job" and "Government Job"
+ *       - Any income range allowed regardless of employment type
+ *     tags: [User Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProfessionalDetails'
+ *           examples:
+ *             software_engineer:
+ *               summary: Software Engineer in Private Job
+ *               value:
+ *                 occupation: Software Engineer
+ *                 employment_type: Private Job
+ *                 company_name: Google India
+ *                 designation: Senior Software Engineer
+ *                 years_of_experience: 5
+ *                 annual_income_range: 20 - 30 Lakhs
+ *                 work_location: Bangalore, Karnataka
+ *             business_owner:
+ *               summary: Business Owner (no company name)
+ *               value:
+ *                 occupation: Entrepreneur
+ *                 employment_type: Business
+ *                 designation: Founder & CEO
+ *                 years_of_experience: 10
+ *                 annual_income_range: 30 - 50 Lakhs
+ *                 work_location: Mumbai, Maharashtra
+ *             government_employee:
+ *               summary: Government Employee
+ *               value:
+ *                 occupation: Civil Engineer
+ *                 employment_type: Government Job
+ *                 company_name: Public Works Department
+ *                 designation: Assistant Engineer
+ *                 years_of_experience: 3
+ *                 annual_income_range: 5 - 10 Lakhs
+ *                 work_location: Chennai, Tamil Nadu
+ *     responses:
+ *       201:
+ *         description: Professional details created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProfessionalDetailsResponse'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalid_characters:
+ *                 summary: Invalid characters in occupation
+ *                 value:
+ *                   success: false
+ *                   message: "Occupation contains invalid characters. Only letters, numbers, and basic punctuation (.,&-/()')  are allowed"
+ *               field_too_long:
+ *                 summary: Company name exceeds max length
+ *                 value:
+ *                   success: false
+ *                   message: "Company name cannot exceed 200 characters"
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *       403:
+ *         description: Forbidden - User lacks permission
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "You do not have permission to modify this user's professional details"
+ *       404:
+ *         description: User not found
+ *       409:
+ *         description: Conflict - Professional details already exist
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Professional details already exist. Use PUT or PATCH to update."
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:userId/professional',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.createProfessionalDetails(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/professional:
+ *   put:
+ *     summary: Update professional details (full replacement)
+ *     description: |
+ *       Update professional details with full replacement. Requires at least one field.
+ *       
+ *       **Authorization:** Self + Admin only (NO Moderator)
+ *       
+ *       **Audit Logging:** Records before/after values for all changed fields
+ *     tags: [User Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProfessionalDetails'
+ *           examples:
+ *             update_all_fields:
+ *               summary: Update all fields
+ *               value:
+ *                 occupation: Senior Software Architect
+ *                 employment_type: Private Job
+ *                 company_name: Microsoft India
+ *                 designation: Principal Engineer
+ *                 years_of_experience: 8
+ *                 annual_income_range: 30 - 50 Lakhs
+ *                 work_location: Hyderabad, Telangana
+ *             update_single_field:
+ *               summary: Update only designation
+ *               value:
+ *                 designation: Lead Software Engineer
+ *     responses:
+ *       200:
+ *         description: Professional details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProfessionalDetailsResponse'
+ *       400:
+ *         description: Validation error or no fields provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               no_fields:
+ *                 summary: No fields provided
+ *                 value:
+ *                   success: false
+ *                   message: "At least one field is required to update professional details"
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User or professional details not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               user_not_found:
+ *                 summary: User does not exist
+ *                 value:
+ *                   success: false
+ *                   message: "User not found"
+ *               details_not_found:
+ *                 summary: Professional details not created yet
+ *                 value:
+ *                   success: false
+ *                   message: "Professional details do not exist. Use POST to create first."
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/:userId/professional',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.updateProfessionalDetails(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/professional:
+ *   patch:
+ *     summary: Patch professional details (partial update)
+ *     description: |
+ *       Update specific fields without full replacement. Requires at least one field.
+ *       
+ *       **Authorization:** Self + Admin only (NO Moderator)
+ *       
+ *       **Use Case:** Update individual fields like changing company or location
+ *       
+ *       **Audit Logging:** Records before/after values for changed fields only
+ *     tags: [User Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProfessionalDetails'
+ *           examples:
+ *             update_company:
+ *               summary: Update only company name
+ *               value:
+ *                 company_name: Amazon India
+ *             update_location_income:
+ *               summary: Update location and income
+ *               value:
+ *                 work_location: Pune, Maharashtra
+ *                 annual_income_range: 20 - 30 Lakhs
+ *             promotion_update:
+ *               summary: Update after promotion
+ *               value:
+ *                 designation: Engineering Manager
+ *                 annual_income_range: 30 - 50 Lakhs
+ *     responses:
+ *       200:
+ *         description: Professional details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProfessionalDetailsResponse'
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User or professional details not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch('/:userId/professional',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.patchProfessionalDetails(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/professional:
+ *   get:
+ *     summary: Get professional details
+ *     description: |
+ *       Retrieve professional details for a user.
+ *       
+ *       **Authorization:** Authenticated users only (no public access)
+ *       
+ *       **Returns:** User info + professional details + profile completion percentage
+ *       
+ *       **Use Case:** Viewing professional profile during matchmaking
+ *     tags: [User Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Professional details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProfessionalDetailsResponse'
+ *             examples:
+ *               complete_profile:
+ *                 summary: Complete professional profile
+ *                 value:
+ *                   success: true
+ *                   message: Professional details retrieved successfully
+ *                   data:
+ *                     user:
+ *                       id: "550e8400-e29b-41d4-a716-446655440000"
+ *                       full_name: John Doe
+ *                       profile_completion: 72
+ *                     professional_details:
+ *                       user_id: "550e8400-e29b-41d4-a716-446655440000"
+ *                       occupation: Software Engineer
+ *                       employment_type: Private Job
+ *                       company_name: Google India
+ *                       designation: Senior Software Engineer
+ *                       years_of_experience: 5
+ *                       annual_income_range: 20 - 30 Lakhs
+ *                       work_location: Bangalore, Karnataka
+ *                       created_at: "2026-01-30T10:15:00Z"
+ *                       updated_at: "2026-01-30T10:15:00Z"
+ *               partial_profile:
+ *                 summary: Partial professional profile
+ *                 value:
+ *                   success: true
+ *                   message: Professional details retrieved successfully
+ *                   data:
+ *                     user:
+ *                       id: "550e8400-e29b-41d4-a716-446655440000"
+ *                       full_name: Jane Smith
+ *                       profile_completion: 55
+ *                     professional_details:
+ *                       user_id: "550e8400-e29b-41d4-a716-446655440000"
+ *                       occupation: Teacher
+ *                       employment_type: Government Job
+ *                       company_name: null
+ *                       designation: null
+ *                       years_of_experience: null
+ *                       annual_income_range: 5 - 10 Lakhs
+ *                       work_location: null
+ *                       created_at: "2026-01-30T10:15:00Z"
+ *                       updated_at: "2026-01-30T10:15:00Z"
+ *       401:
+ *         description: Unauthorized - User must be logged in
+ *       404:
+ *         description: User or professional details not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               user_not_found:
+ *                 summary: User does not exist
+ *                 value:
+ *                   success: false
+ *                   message: "User not found"
+ *               details_not_found:
+ *                 summary: Professional details not created yet
+ *                 value:
+ *                   success: false
+ *                   message: "Professional details not found for this user"
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:userId/professional',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.getProfessionalDetails(req, res))
+);
+
 export default router;
