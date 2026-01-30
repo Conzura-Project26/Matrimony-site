@@ -9,7 +9,9 @@ import {
   SmokingHabit,
   Complexion,
   BodyType,
-  BloodGroup
+  BloodGroup,
+  EmploymentType,
+  IncomeRange
 } from '../types/enums.js';
 
 // Password validation schema - Industry best practice
@@ -369,6 +371,156 @@ const educationDetailsUpdateSchema = z.object({
   message: 'At least one field is required to update education details'
 });
 
+// ============================================
+// PROFESSIONAL DETAILS VALIDATION (Phase 2 - Task 2.4)
+// ============================================
+
+/**
+ * Sanitization helper for text fields
+ * Prevents XSS, SQL injection, and script injection
+ * Allows: A-Z a-z 0-9 space . , & - / ( ) '
+ * Blocks: <script>, HTML tags, special characters
+ */
+const sanitizeTextInput = (fieldName) => {
+  return z.string()
+    .trim()
+    .refine(
+      (val) => !/[<>{}[\]\\`~!@#$%^*+=|;:"?]/.test(val),
+      { message: `${fieldName} contains invalid characters. Only letters, numbers, and basic punctuation (.,&-/()')  are allowed` }
+    )
+    .refine(
+      (val) => !/<script|<iframe|javascript:|onerror=|onclick=/i.test(val),
+      { message: `${fieldName} contains potentially malicious content` }
+    );
+};
+
+/**
+ * Create Professional Details Validation
+ * All fields optional but recommended for profile completion
+ * Hybrid approach: Free text for occupation with category mapping
+ */
+const professionalDetailsCreateSchema = z.object({
+  occupation: sanitizeTextInput('Occupation')
+    .min(2, 'Occupation must be at least 2 characters')
+    .max(150, 'Occupation cannot exceed 150 characters')
+    .optional(),
+  
+  employment_type: z.enum([
+    EmploymentType.GOVERNMENT_JOB,
+    EmploymentType.PRIVATE_JOB,
+    EmploymentType.BUSINESS,
+    EmploymentType.SELF_EMPLOYED,
+    EmploymentType.FREELANCER_CONSULTANT,
+    EmploymentType.HOMEMAKER,
+    EmploymentType.STUDENT,
+    EmploymentType.RETIRED,
+    EmploymentType.NOT_WORKING
+  ], {
+    errorMap: () => ({ message: 'Invalid employment type' })
+  }).optional(),
+  
+  company_name: sanitizeTextInput('Company name')
+    .min(2, 'Company name must be at least 2 characters')
+    .max(200, 'Company name cannot exceed 200 characters')
+    .optional(),
+  
+  designation: sanitizeTextInput('Designation')
+    .min(2, 'Designation must be at least 2 characters')
+    .max(150, 'Designation cannot exceed 150 characters')
+    .optional(),
+  
+  years_of_experience: z.number()
+    .int('Years of experience must be a whole number')
+    .min(0, 'Years of experience cannot be negative')
+    .max(60, 'Years of experience cannot exceed 60')
+    .optional(),
+  
+  annual_income_range: z.enum([
+    IncomeRange.BELOW_2L,
+    IncomeRange.L2_TO_5L,
+    IncomeRange.L5_TO_10L,
+    IncomeRange.L10_TO_15L,
+    IncomeRange.L15_TO_20L,
+    IncomeRange.L20_TO_30L,
+    IncomeRange.L30_TO_50L,
+    IncomeRange.ABOVE_50L
+  ], {
+    errorMap: () => ({ message: 'Invalid income range' })
+  }).optional(),
+  
+  work_location: sanitizeTextInput('Work location')
+    .min(2, 'Work location must be at least 2 characters')
+    .max(150, 'Work location cannot exceed 150 characters')
+    .optional()
+});
+
+/**
+ * Update Professional Details Validation (Full Replacement - PUT)
+ * Same as create schema but requires at least one field
+ */
+const professionalDetailsUpdateSchema = z.object({
+  occupation: sanitizeTextInput('Occupation')
+    .min(2, 'Occupation must be at least 2 characters')
+    .max(150, 'Occupation cannot exceed 150 characters')
+    .optional(),
+  
+  employment_type: z.enum([
+    EmploymentType.GOVERNMENT_JOB,
+    EmploymentType.PRIVATE_JOB,
+    EmploymentType.BUSINESS,
+    EmploymentType.SELF_EMPLOYED,
+    EmploymentType.FREELANCER_CONSULTANT,
+    EmploymentType.HOMEMAKER,
+    EmploymentType.STUDENT,
+    EmploymentType.RETIRED,
+    EmploymentType.NOT_WORKING
+  ], {
+    errorMap: () => ({ message: 'Invalid employment type' })
+  }).optional(),
+  
+  company_name: sanitizeTextInput('Company name')
+    .min(2, 'Company name must be at least 2 characters')
+    .max(200, 'Company name cannot exceed 200 characters')
+    .optional(),
+  
+  designation: sanitizeTextInput('Designation')
+    .min(2, 'Designation must be at least 2 characters')
+    .max(150, 'Designation cannot exceed 150 characters')
+    .optional(),
+  
+  years_of_experience: z.number()
+    .int('Years of experience must be a whole number')
+    .min(0, 'Years of experience cannot be negative')
+    .max(60, 'Years of experience cannot exceed 60')
+    .optional(),
+  
+  annual_income_range: z.enum([
+    IncomeRange.BELOW_2L,
+    IncomeRange.L2_TO_5L,
+    IncomeRange.L5_TO_10L,
+    IncomeRange.L10_TO_15L,
+    IncomeRange.L15_TO_20L,
+    IncomeRange.L20_TO_30L,
+    IncomeRange.L30_TO_50L,
+    IncomeRange.ABOVE_50L
+  ], {
+    errorMap: () => ({ message: 'Invalid income range' })
+  }).optional(),
+  
+  work_location: sanitizeTextInput('Work location')
+    .min(2, 'Work location must be at least 2 characters')
+    .max(150, 'Work location cannot exceed 150 characters')
+    .optional()
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'At least one field is required to update professional details'
+});
+
+/**
+ * Patch Professional Details Validation (Partial Update - PATCH)
+ * Identical to update schema - allows partial field updates
+ */
+const professionalDetailsPatchSchema = professionalDetailsUpdateSchema;
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -386,4 +538,7 @@ export {
   casteDetailsSchema,
   educationDetailsCreateSchema,
   educationDetailsUpdateSchema,
+  professionalDetailsCreateSchema,
+  professionalDetailsUpdateSchema,
+  professionalDetailsPatchSchema,
 };
