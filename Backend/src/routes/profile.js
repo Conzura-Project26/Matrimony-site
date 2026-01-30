@@ -349,6 +349,387 @@ router.get(
   asyncHandler((req, res) => profileController.getFamilyDetails(req, res))
 );
 
+// ============================================
+// HOROSCOPE DETAILS ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /users/{userId}/horoscope:
+ *   post:
+ *     tags:
+ *       - Profile Management
+ *     summary: Create horoscope details for a user
+ *     description: Create horoscope details for a user. Users can only create their own horoscope details. ADMIN can create for any user.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *         example: '550e8400-e29b-41d4-a716-446655440000'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rasi:
+ *                 type: string
+ *                 description: Rasi (Moon Sign/Zodiac)
+ *                 enum:
+ *                   - Mesha (Aries)
+ *                   - Vrishabha (Taurus)
+ *                   - Mithuna (Gemini)
+ *                   - Karka (Cancer)
+ *                   - Simha (Leo)
+ *                   - Kanya (Virgo)
+ *                   - Tula (Libra)
+ *                   - Vrishchika (Scorpio)
+ *                   - Dhanu (Sagittarius)
+ *                   - Makara (Capricorn)
+ *                   - Kumbha (Aquarius)
+ *                   - Meena (Pisces)
+ *                 example: 'Mesha (Aries)'
+ *               nakshatra:
+ *                 type: string
+ *                 description: Nakshatra (Birth Star)
+ *                 enum:
+ *                   - Ashwini
+ *                   - Bharani
+ *                   - Krittika
+ *                   - Rohini
+ *                   - Mrigashira
+ *                   - Ardra
+ *                   - Punarvasu
+ *                   - Pushya
+ *                   - Ashlesha
+ *                   - Magha
+ *                   - Purva Phalguni
+ *                   - Uttara Phalguni
+ *                   - Hasta
+ *                   - Chitra
+ *                   - Swati
+ *                   - Vishakha
+ *                   - Anuradha
+ *                   - Jyeshtha
+ *                   - Mula
+ *                   - Purva Ashadha
+ *                   - Uttara Ashadha
+ *                   - Shravana
+ *                   - Dhanishta
+ *                   - Shatabhisha
+ *                   - Purva Bhadrapada
+ *                   - Uttara Bhadrapada
+ *                   - Revati
+ *                 example: 'Ashwini'
+ *               time_of_birth:
+ *                 type: string
+ *                 pattern: '^(0?[1-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$'
+ *                 description: Time of birth in 12-hour format (HH:MM AM/PM)
+ *                 example: '02:30 PM'
+ *               place_of_birth:
+ *                 type: string
+ *                 maxLength: 150
+ *                 description: Place of birth (city, state, country)
+ *                 example: 'Chennai, Tamil Nadu, India'
+ *           examples:
+ *             complete:
+ *               summary: Complete horoscope details
+ *               value:
+ *                 rasi: 'Mesha (Aries)'
+ *                 nakshatra: 'Ashwini'
+ *                 time_of_birth: '02:30 PM'
+ *                 place_of_birth: 'Chennai, Tamil Nadu, India'
+ *             partial:
+ *               summary: Partial horoscope details (all fields optional)
+ *               value:
+ *                 rasi: 'Kanya (Virgo)'
+ *                 place_of_birth: 'Mumbai, Maharashtra, India'
+ *     responses:
+ *       201:
+ *         description: Horoscope details created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Horoscope details created successfully'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     horoscope_details:
+ *                       $ref: '#/components/schemas/HoroscopeDetails'
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         full_name:
+ *                           type: string
+ *       400:
+ *         description: Invalid request body or validation error
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - Insufficient permissions or inactive user
+ *       404:
+ *         description: User not found
+ *       409:
+ *         description: Conflict - Horoscope details already exist (use PUT to update)
+ */
+router.post(
+  '/:userId/horoscope',
+  authenticateToken,
+  authorizePermission(['create_own_horoscope_details', 'manage_horoscope_details']),
+  checkOwnership,
+  asyncHandler(async (req, res) => profileController.createHoroscopeDetails(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/horoscope:
+ *   put:
+ *     tags:
+ *       - Profile Management
+ *     summary: Update horoscope details for a user
+ *     description: Update horoscope details for a user. Users can only update their own horoscope details. ADMIN can update for any user. All fields are optional for partial updates.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *         example: '550e8400-e29b-41d4-a716-446655440000'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rasi:
+ *                 type: string
+ *                 description: Rasi (Moon Sign/Zodiac)
+ *                 enum:
+ *                   - Mesha (Aries)
+ *                   - Vrishabha (Taurus)
+ *                   - Mithuna (Gemini)
+ *                   - Karka (Cancer)
+ *                   - Simha (Leo)
+ *                   - Kanya (Virgo)
+ *                   - Tula (Libra)
+ *                   - Vrishchika (Scorpio)
+ *                   - Dhanu (Sagittarius)
+ *                   - Makara (Capricorn)
+ *                   - Kumbha (Aquarius)
+ *                   - Meena (Pisces)
+ *                 example: 'Simha (Leo)'
+ *               nakshatra:
+ *                 type: string
+ *                 description: Nakshatra (Birth Star)
+ *                 enum:
+ *                   - Ashwini
+ *                   - Bharani
+ *                   - Krittika
+ *                   - Rohini
+ *                   - Mrigashira
+ *                   - Ardra
+ *                   - Punarvasu
+ *                   - Pushya
+ *                   - Ashlesha
+ *                   - Magha
+ *                   - Purva Phalguni
+ *                   - Uttara Phalguni
+ *                   - Hasta
+ *                   - Chitra
+ *                   - Swati
+ *                   - Vishakha
+ *                   - Anuradha
+ *                   - Jyeshtha
+ *                   - Mula
+ *                   - Purva Ashadha
+ *                   - Uttara Ashadha
+ *                   - Shravana
+ *                   - Dhanishta
+ *                   - Shatabhisha
+ *                   - Purva Bhadrapada
+ *                   - Uttara Bhadrapada
+ *                   - Revati
+ *                 example: 'Magha'
+ *               time_of_birth:
+ *                 type: string
+ *                 pattern: '^(0?[1-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$'
+ *                 description: Time of birth in 12-hour format (HH:MM AM/PM)
+ *                 example: '05:45 AM'
+ *               place_of_birth:
+ *                 type: string
+ *                 maxLength: 150
+ *                 description: Place of birth (city, state, country)
+ *                 example: 'Bangalore, Karnataka, India'
+ *           examples:
+ *             updateTime:
+ *               summary: Update only time of birth
+ *               value:
+ *                 time_of_birth: '11:30 PM'
+ *             updateMultiple:
+ *               summary: Update multiple fields
+ *               value:
+ *                 nakshatra: 'Rohini'
+ *                 place_of_birth: 'Hyderabad, Telangana, India'
+ *     responses:
+ *       200:
+ *         description: Horoscope details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Horoscope details updated successfully'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     horoscope_details:
+ *                       $ref: '#/components/schemas/HoroscopeDetails'
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         full_name:
+ *                           type: string
+ *       400:
+ *         description: Invalid request body or validation error
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - Insufficient permissions or inactive user
+ *       404:
+ *         description: User or horoscope details not found (use POST to create)
+ */
+router.put(
+  '/:userId/horoscope',
+  authenticateToken,
+  authorizePermission(['edit_own_horoscope_details', 'manage_horoscope_details']),
+  checkOwnership,
+  asyncHandler(async (req, res) => profileController.updateHoroscopeDetails(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/horoscope:
+ *   get:
+ *     tags:
+ *       - Profile Management
+ *     summary: Get horoscope details for a user
+ *     description: Retrieve horoscope details for a user. All authenticated users can view horoscope details of any user.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *         example: '550e8400-e29b-41d4-a716-446655440000'
+ *     responses:
+ *       200:
+ *         description: Horoscope details retrieved successfully (or empty if not created yet)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Horoscope details retrieved successfully'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     horoscope_details:
+ *                       oneOf:
+ *                         - $ref: '#/components/schemas/HoroscopeDetails'
+ *                         - type: object
+ *                           description: Empty object if no horoscope details exist
+ *                           example: {}
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         full_name:
+ *                           type: string
+ *                         gender:
+ *                           type: string
+ *             examples:
+ *               withDetails:
+ *                 summary: User with horoscope details
+ *                 value:
+ *                   success: true
+ *                   message: 'Horoscope details retrieved successfully'
+ *                   data:
+ *                     horoscope_details:
+ *                       user_id: '550e8400-e29b-41d4-a716-446655440000'
+ *                       rasi: 'Mesha (Aries)'
+ *                       nakshatra: 'Ashwini'
+ *                       time_of_birth: '1970-01-01T09:00:00.000Z'
+ *                       place_of_birth: 'Chennai, Tamil Nadu, India'
+ *                     user:
+ *                       id: '550e8400-e29b-41d4-a716-446655440000'
+ *                       full_name: 'John Doe'
+ *                       gender: 'Male'
+ *               withoutDetails:
+ *                 summary: User without horoscope details
+ *                 value:
+ *                   success: true
+ *                   message: 'No horoscope details found for this user'
+ *                   data:
+ *                     horoscope_details: {}
+ *                     user:
+ *                       id: '550e8400-e29b-41d4-a716-446655440000'
+ *                       full_name: 'Jane Smith'
+ *                       gender: 'Female'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - Inactive user
+ *       404:
+ *         description: User not found
+ */
+router.get(
+  '/:userId/horoscope',
+  authenticateToken,
+  authorizePermission(['view_horoscope_details']),
+  asyncHandler(async (req, res) => profileController.getHoroscopeDetails(req, res))
+);
+
 /**
  * @swagger
  * components:
@@ -381,6 +762,76 @@ router.get(
  *           enum: [Orthodox, Traditional, Moderate, Liberal, Progressive]
  *           description: Family values orientation
  *           example: 'Moderate'
+ *     HoroscopeDetails:
+ *       type: object
+ *       properties:
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *           description: User ID
+ *         rasi:
+ *           type: string
+ *           nullable: true
+ *           enum:
+ *             - Mesha (Aries)
+ *             - Vrishabha (Taurus)
+ *             - Mithuna (Gemini)
+ *             - Karka (Cancer)
+ *             - Simha (Leo)
+ *             - Kanya (Virgo)
+ *             - Tula (Libra)
+ *             - Vrishchika (Scorpio)
+ *             - Dhanu (Sagittarius)
+ *             - Makara (Capricorn)
+ *             - Kumbha (Aquarius)
+ *             - Meena (Pisces)
+ *           description: Rasi (Moon Sign/Zodiac)
+ *           example: 'Mesha (Aries)'
+ *         nakshatra:
+ *           type: string
+ *           nullable: true
+ *           enum:
+ *             - Ashwini
+ *             - Bharani
+ *             - Krittika
+ *             - Rohini
+ *             - Mrigashira
+ *             - Ardra
+ *             - Punarvasu
+ *             - Pushya
+ *             - Ashlesha
+ *             - Magha
+ *             - Purva Phalguni
+ *             - Uttara Phalguni
+ *             - Hasta
+ *             - Chitra
+ *             - Swati
+ *             - Vishakha
+ *             - Anuradha
+ *             - Jyeshtha
+ *             - Mula
+ *             - Purva Ashadha
+ *             - Uttara Ashadha
+ *             - Shravana
+ *             - Dhanishta
+ *             - Shatabhisha
+ *             - Purva Bhadrapada
+ *             - Uttara Bhadrapada
+ *             - Revati
+ *           description: Nakshatra (Birth Star)
+ *           example: 'Ashwini'
+ *         time_of_birth:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Time of birth (stored as DateTime, displayed in 12-hour format)
+ *           example: '1970-01-01T14:30:00.000Z'
+ *         place_of_birth:
+ *           type: string
+ *           nullable: true
+ *           maxLength: 150
+ *           description: Place of birth (city, state, country)
+ *           example: 'Chennai, Tamil Nadu, India'
  */
 
 export default router;

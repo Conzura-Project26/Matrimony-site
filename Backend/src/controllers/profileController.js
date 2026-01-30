@@ -2,6 +2,8 @@ import prisma from '../config/prisma.js';
 import {
   createFamilyDetailsSchema,
   updateFamilyDetailsSchema,
+  createHoroscopeDetailsSchema,
+  updateHoroscopeDetailsSchema,
 } from '../utils/validation.js';
 import {
   BadRequestError,
@@ -202,6 +204,209 @@ class ProfileController {
         : 'No family details found for this user',
       data: {
         family_details: familyDetails || {},
+        user: {
+          id: user.id,
+          full_name: user.full_name,
+          gender: user.gender,
+        },
+      },
+    });
+  }
+
+  // ============================================
+  // HOROSCOPE DETAILS CRUD
+  // ============================================
+
+  /**
+   * Create horoscope details for a user
+   * POST /users/:userId/horoscope
+   */
+  async createHoroscopeDetails(req, res) {
+    const { userId } = req.params;
+
+    // Validate request body
+    const horoscopeData = createHoroscopeDetailsSchema.parse(req.body);
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, full_name: true, is_active: true },
+    });
+
+    if (!user) {
+      logAPI.error('Create horoscope details failed - user not found', new Error('User not found'), {
+        userId,
+        requestedBy: req.user.id,
+      });
+      throw new NotFoundError('User not found');
+    }
+
+    if (!user.is_active) {
+      throw new ForbiddenError('Cannot create horoscope details for inactive user');
+    }
+
+    // Check if horoscope details already exist
+    const existingHoroscopeDetails = await prisma.userHoroscopeDetails.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (existingHoroscopeDetails) {
+      logAPI.error('Create horoscope details failed - already exists', new Error('Conflict'), {
+        userId,
+        requestedBy: req.user.id,
+      });
+      throw new ConflictError(
+        'Horoscope details already exist for this user. Use PUT /users/:userId/horoscope to update.'
+      );
+    }
+
+    // Create horoscope details
+    const horoscopeDetails = await prisma.userHoroscopeDetails.create({
+      data: {
+        user_id: userId,
+        rasi: horoscopeData.rasi,
+        nakshatra: horoscopeData.nakshatra,
+        time_of_birth: horoscopeData.time_of_birth,
+        place_of_birth: horoscopeData.place_of_birth,
+      },
+    });
+
+    logAPI.success('Horoscope details created successfully', {
+      userId,
+      createdBy: req.user.id,
+      hasData: Object.keys(horoscopeData).length > 0,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Horoscope details created successfully',
+      data: {
+        horoscope_details: horoscopeDetails,
+        user: {
+          id: user.id,
+          full_name: user.full_name,
+        },
+      },
+    });
+  }
+
+  /**
+   * Update horoscope details for a user
+   * PUT /users/:userId/horoscope
+   */
+  async updateHoroscopeDetails(req, res) {
+    const { userId } = req.params;
+
+    // Validate request body
+    const horoscopeData = updateHoroscopeDetailsSchema.parse(req.body);
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, full_name: true, is_active: true },
+    });
+
+    if (!user) {
+      logAPI.error('Update horoscope details failed - user not found', new Error('User not found'), {
+        userId,
+        requestedBy: req.user.id,
+      });
+      throw new NotFoundError('User not found');
+    }
+
+    if (!user.is_active) {
+      throw new ForbiddenError('Cannot update horoscope details for inactive user');
+    }
+
+    // Check if horoscope details exist
+    const existingHoroscopeDetails = await prisma.userHoroscopeDetails.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (!existingHoroscopeDetails) {
+      logAPI.error('Update horoscope details failed - not found', new Error('Not found'), {
+        userId,
+        requestedBy: req.user.id,
+      });
+      throw new NotFoundError(
+        'Horoscope details not found for this user. Use POST /users/:userId/horoscope to create.'
+      );
+    }
+
+    // Update horoscope details (partial update - only update provided fields)
+    const updatedHoroscopeDetails = await prisma.userHoroscopeDetails.update({
+      where: { user_id: userId },
+      data: horoscopeData,
+    });
+
+    logAPI.success('Horoscope details updated successfully', {
+      userId,
+      updatedBy: req.user.id,
+      fieldsUpdated: Object.keys(horoscopeData),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Horoscope details updated successfully',
+      data: {
+        horoscope_details: updatedHoroscopeDetails,
+        user: {
+          id: user.id,
+          full_name: user.full_name,
+        },
+      },
+    });
+  }
+
+  /**
+   * Get horoscope details for a user
+   * GET /users/:userId/horoscope
+   */
+  async getHoroscopeDetails(req, res) {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        id: true, 
+        full_name: true, 
+        gender: true,
+        is_active: true,
+      },
+    });
+
+    if (!user) {
+      logAPI.error('Get horoscope details failed - user not found', new Error('User not found'), {
+        userId,
+        requestedBy: req.user.id,
+      });
+      throw new NotFoundError('User not found');
+    }
+
+    if (!user.is_active) {
+      throw new ForbiddenError('Cannot view horoscope details for inactive user');
+    }
+
+    // Get horoscope details
+    const horoscopeDetails = await prisma.userHoroscopeDetails.findUnique({
+      where: { user_id: userId },
+    });
+
+    logAPI.success('Horoscope details retrieved successfully', {
+      userId,
+      requestedBy: req.user.id,
+      hasData: !!horoscopeDetails,
+    });
+
+    // Return 200 with empty object if no horoscope details exist (as per requirement)
+    res.status(200).json({
+      success: true,
+      message: horoscopeDetails 
+        ? 'Horoscope details retrieved successfully' 
+        : 'No horoscope details found for this user',
+      data: {
+        horoscope_details: horoscopeDetails || {},
         user: {
           id: user.id,
           full_name: user.full_name,

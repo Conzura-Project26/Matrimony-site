@@ -11,6 +11,7 @@ import {
   BodyType,
   BloodGroup
 } from '../types/enums.js';
+import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
 // Password validation schema - Industry best practice
 const passwordSchema = z
@@ -170,6 +171,56 @@ const createFamilyDetailsSchema = z.object({
 });
 
 const updateFamilyDetailsSchema = createFamilyDetailsSchema;
+
+// Horoscope Details validation
+// Time format helper - accepts "HH:MM AM/PM" and converts to 24-hour format for database
+const parseTimeOfBirth = (timeStr) => {
+  if (!timeStr || timeStr.trim() === '') return null;
+  
+  // Match "HH:MM AM/PM" format (e.g., "02:30 PM", "11:45 AM")
+  const timePattern = /^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i;
+  const match = timeStr.trim().match(timePattern);
+  
+  if (!match) {
+    throw new Error('Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")');
+  }
+  
+  let [, hours, minutes, period] = match;
+  hours = parseInt(hours);
+  minutes = parseInt(minutes);
+  
+  // Convert to 24-hour format
+  if (period.toUpperCase() === 'PM' && hours !== 12) {
+    hours += 12;
+  } else if (period.toUpperCase() === 'AM' && hours === 12) {
+    hours = 0;
+  }
+  
+  // Create a date object with time (date part doesn't matter for Time type)
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
+
+const createHoroscopeDetailsSchema = z.object({
+  rasi: z.enum(rasiOptions, {
+    errorMap: () => ({ 
+      message: `Rasi must be one of: ${rasiOptions.join(', ')}` 
+    })
+  }).optional(),
+  nakshatra: z.enum(nakshatraOptions, {
+    errorMap: () => ({ 
+      message: `Nakshatra must be one of: ${nakshatraOptions.join(', ')}` 
+    })
+  }).optional(),
+  time_of_birth: z.string()
+    .regex(/^(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM)$/i, 'Time must be in format "HH:MM AM/PM" (e.g., "02:30 PM")')
+    .transform(parseTimeOfBirth)
+    .optional(),
+  place_of_birth: z.string().max(150, 'Place of birth must not exceed 150 characters').optional(),
+});
+
+const updateHoroscopeDetailsSchema = createHoroscopeDetailsSchema;
 
 // ============================================
 // PERSONAL DETAILS VALIDATION (Phase 2 - Task 2.1)
@@ -382,6 +433,8 @@ export {
   refreshTokenSchema,
   createFamilyDetailsSchema,
   updateFamilyDetailsSchema,
+  createHoroscopeDetailsSchema,
+  updateHoroscopeDetailsSchema,
   personalDetailsSchema,
   casteDetailsSchema,
   educationDetailsCreateSchema,
