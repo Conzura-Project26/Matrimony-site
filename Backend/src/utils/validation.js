@@ -326,7 +326,7 @@ export const MAX_EDUCATION_ENTRIES = 5;
  * All three fields are mandatory for meaningful education record
  */
 const educationDetailsCreateSchema = z.object({
-  highest_qualification: z.string()
+  qualification: z.string()
     .min(2, 'Qualification must be at least 2 characters')
     .max(150, 'Qualification cannot exceed 150 characters')
     .trim(),
@@ -349,7 +349,7 @@ const educationDetailsCreateSchema = z.object({
  * Only provided fields will be validated and updated
  */
 const educationDetailsUpdateSchema = z.object({
-  highest_qualification: z.string()
+  qualification: z.string()
     .min(2, 'Qualification must be at least 2 characters')
     .max(150, 'Qualification cannot exceed 150 characters')
     .trim()

@@ -48,13 +48,14 @@ model User {
   mobile_number       String                   @unique @db.VarChar(15)
   email               String?                  @unique @db.VarChar(150)
   password_hash       String                   @db.Text
-  profile_created_by  String                   @db.VarChar(20)
-  is_mobile_verified  Boolean                  @default(false)
-  is_email_verified   Boolean                  @default(false)
-  is_profile_verified Boolean                  @default(false)
-  is_active           Boolean                  @default(true)
-  created_at          DateTime                 @default(now())
-  updated_at          DateTime                 @default(now()) @updatedAt
+  profile_created_by      String                   @db.VarChar(20)
+  highest_qualification   String?                  @db.VarChar(150)
+  is_mobile_verified      Boolean                  @default(false)
+  is_email_verified       Boolean                  @default(false)
+  is_profile_verified     Boolean                  @default(false)
+  is_active               Boolean                  @default(true)
+  created_at              DateTime                 @default(now())
+  updated_at              DateTime                 @default(now()) @updatedAt
   role                Role                     @relation(fields: [role_id], references: [id])
   otp_logs            OtpLog[]
   refresh_tokens      RefreshToken[]
@@ -179,12 +180,12 @@ model UserCasteDetails {
 }
 
 model UserEducationDetails {
-  id                    Int     @id @default(autoincrement())
-  user_id               String  @db.Uuid
-  highest_qualification String? @db.VarChar(150)
-  institution_name      String? @db.VarChar(200)
-  year_of_passing       Int?
-  user                  User    @relation(fields: [user_id], references: [id])
+  id               Int     @id @default(autoincrement())
+  user_id          String  @db.Uuid
+  qualification    String? @db.VarChar(150)
+  institution_name String? @db.VarChar(200)
+  year_of_passing  Int?
+  user             User    @relation(fields: [user_id], references: [id])
 
   @@map("user_education_details")
 }

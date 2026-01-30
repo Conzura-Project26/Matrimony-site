@@ -96,7 +96,7 @@ class UserProfileController {
       
       // Check how many are fully filled (all 3 fields present)
       const fullyFilledCount = user.education_details.filter(edu => 
-        edu.highest_qualification && 
+        edu.qualification && 
         edu.institution_name && 
         edu.year_of_passing
       ).length;
@@ -988,6 +988,89 @@ class UserProfileController {
   }
 
   /**
+   * Calculate and update highest qualification in users table (cached field)
+   * This is called after create/update/delete education operations
+   * 
+   * Qualification ranking (highest to lowest):
+   * - PhD/Doctorate > Master's/PG > Bachelor's/UG > Diploma/Certificate
+   * 
+   * @param {string} userId - User ID
+   */
+  async updateHighestQualification(userId) {
+    try {
+      // Get all education entries for user
+      const educationEntries = await prisma.userEducationDetails.findMany({
+        where: { user_id: userId },
+        select: { qualification: true }
+      });
+
+      if (educationEntries.length === 0) {
+        // No education entries, set to null
+        await prisma.user.update({
+          where: { id: userId },
+          data: { highest_qualification: null }
+        });
+        return;
+      }
+
+      // Define qualification hierarchy (higher rank = higher education)
+      const qualificationRanks = {
+        // Doctorate level
+        'phd': 100, 'ph.d': 100, 'doctorate': 100, 'doctor of philosophy': 100,
+        
+        // Master's level
+        'master': 90, 'masters': 90, 'msc': 90, 'mba': 90, 'mtech': 90, 'm.tech': 90,
+        'ma': 90, 'm.a': 90, 'mca': 90, 'mcom': 90, 'm.com': 90,
+        'post graduate': 90, 'postgraduate': 90, 'pg': 90,
+        
+        // Bachelor's level
+        'bachelor': 80, 'bachelors': 80, 'btech': 80, 'b.tech': 80, 'be': 80, 'b.e': 80,
+        'bsc': 80, 'b.sc': 80, 'ba': 80, 'b.a': 80, 'bca': 80, 'bcom': 80, 'b.com': 80,
+        'graduate': 80, 'ug': 80, 'under graduate': 80, 'undergraduate': 80,
+        
+        // Diploma level
+        'diploma': 70, 'certificate': 60,
+        
+        // School level
+        'high school': 50, 'higher secondary': 50, '12th': 50, 'intermediate': 50
+      };
+
+      // Find highest ranked qualification
+      let highestQual = educationEntries[0].qualification;
+      let highestRank = 0;
+
+      for (const entry of educationEntries) {
+        const qual = entry.qualification.toLowerCase();
+        
+        // Check each keyword in the qualification string
+        for (const [keyword, rank] of Object.entries(qualificationRanks)) {
+          if (qual.includes(keyword) && rank > highestRank) {
+            highestRank = rank;
+            highestQual = entry.qualification;
+          }
+        }
+      }
+
+      // Update users table with highest qualification
+      await prisma.user.update({
+        where: { id: userId },
+        data: { highest_qualification: highestQual }
+      });
+
+      logger.info('Highest qualification updated', {
+        userId,
+        highestQualification: highestQual
+      });
+    } catch (error) {
+      // Log error but don't throw - cache update failure shouldn't break main operation
+      logger.error('Failed to update highest qualification cache', {
+        error: error.message,
+        userId
+      });
+    }
+  }
+
+  /**
    * Check for duplicate education entry
    * @param {string} userId - User ID
    * @param {string} qualification - Qualification name
@@ -999,7 +1082,7 @@ class UserProfileController {
   async checkDuplicateEducation(userId, qualification, institution, year, excludeId = null) {
     const whereClause = {
       user_id: userId,
-      highest_qualification: qualification,
+      qualification: qualification,
       institution_name: institution,
       year_of_passing: year
     };
@@ -1059,7 +1142,7 @@ class UserProfileController {
       );
     }
 
-    const { highest_qualification, institution_name, year_of_passing } = validation.data;
+    const { qualification, institution_name, year_of_passing } = validation.data;
 
     // Validate year of passing
     this.validateYearOfPassing(year_of_passing, targetUser.date_of_birth);
@@ -1067,7 +1150,7 @@ class UserProfileController {
     // Check for duplicate entry
     const isDuplicate = await this.checkDuplicateEducation(
       userId,
-      highest_qualification,
+      qualification,
       institution_name,
       year_of_passing
     );
@@ -1082,11 +1165,14 @@ class UserProfileController {
     const education = await prisma.userEducationDetails.create({
       data: {
         user_id: userId,
-        highest_qualification,
+        qualification,
         institution_name,
         year_of_passing
       }
     });
+
+    // Update highest qualification cache in users table
+    await this.updateHighestQualification(userId);
 
     // Create audit log
     const ipAddress = req.ip || req.connection.remoteAddress;
@@ -1100,7 +1186,7 @@ class UserProfileController {
       userId: userId,
       educationId: education.id,
       createdBy: req.user.userId,
-      qualification: highest_qualification
+      qualification: qualification
     });
 
     res.status(201).json({
@@ -1164,11 +1250,11 @@ class UserProfileController {
     }
 
     // Check for duplicate entry (if qualification, institution, or year is being changed)
-    if (validation.data.highest_qualification || 
+    if (validation.data.qualification || 
         validation.data.institution_name || 
         validation.data.year_of_passing) {
       
-      const finalQualification = validation.data.highest_qualification || existingEducation.highest_qualification;
+      const finalQualification = validation.data.qualification || existingEducation.qualification;
       const finalInstitution = validation.data.institution_name || existingEducation.institution_name;
       const finalYear = validation.data.year_of_passing || existingEducation.year_of_passing;
 
@@ -1192,6 +1278,9 @@ class UserProfileController {
       where: { id: parseInt(eduId) },
       data: validation.data
     });
+
+    // Update highest qualification cache in users table
+    await this.updateHighestQualification(userId);
 
     // Create audit log
     const ipAddress = req.ip || req.connection.remoteAddress;
@@ -1254,6 +1343,9 @@ class UserProfileController {
     await prisma.userEducationDetails.delete({
       where: { id: parseInt(eduId) }
     });
+
+    // Update highest qualification cache in users table
+    await this.updateHighestQualification(userId);
 
     // Create audit log
     const ipAddress = req.ip || req.connection.remoteAddress;
