@@ -1034,41 +1034,27 @@ class UserProfileController {
         return;
       }
 
-      // Define qualification hierarchy (higher rank = higher education)
+      // Define qualification hierarchy based on EducationLevel enum
+      // Higher rank = higher education
       const qualificationRanks = {
-        // Doctorate level
-        'phd': 100, 'ph.d': 100, 'doctorate': 100, 'doctor of philosophy': 100,
-        
-        // Master's level
-        'master': 90, 'masters': 90, 'msc': 90, 'mba': 90, 'mtech': 90, 'm.tech': 90,
-        'ma': 90, 'm.a': 90, 'mca': 90, 'mcom': 90, 'm.com': 90,
-        'post graduate': 90, 'postgraduate': 90, 'pg': 90,
-        
-        // Bachelor's level
-        'bachelor': 80, 'bachelors': 80, 'btech': 80, 'b.tech': 80, 'be': 80, 'b.e': 80,
-        'bsc': 80, 'b.sc': 80, 'ba': 80, 'b.a': 80, 'bca': 80, 'bcom': 80, 'b.com': 80,
-        'graduate': 80, 'ug': 80, 'under graduate': 80, 'undergraduate': 80,
-        
-        // Diploma level
-        'diploma': 70, 'certificate': 60,
-        
-        // School level
-        'high school': 50, 'higher secondary': 50, '12th': 50, 'intermediate': 50
+        'Doctorate/PhD': 100,
+        "Master's Degree": 90,
+        "Bachelor's Degree": 80,
+        'Professional Degree': 75,
+        'Diploma': 70,
+        'High School': 60
       };
 
       // Find highest ranked qualification
       let highestQual = educationEntries[0].qualification;
-      let highestRank = 0;
+      let highestRank = qualificationRanks[highestQual] || 0;
 
       for (const entry of educationEntries) {
-        const qual = entry.qualification.toLowerCase();
+        const rank = qualificationRanks[entry.qualification] || 0;
         
-        // Check each keyword in the qualification string
-        for (const [keyword, rank] of Object.entries(qualificationRanks)) {
-          if (qual.includes(keyword) && rank > highestRank) {
-            highestRank = rank;
-            highestQual = entry.qualification;
-          }
+        if (rank > highestRank) {
+          highestRank = rank;
+          highestQual = entry.qualification;
         }
       }
 

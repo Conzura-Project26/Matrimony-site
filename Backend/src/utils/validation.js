@@ -11,7 +11,8 @@ import {
   BodyType,
   BloodGroup,
   EmploymentType,
-  IncomeRange
+  IncomeRange,
+  EducationLevel
 } from '../types/enums.js';
 import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
@@ -381,12 +382,19 @@ export const MAX_EDUCATION_ENTRIES = 5;
 /**
  * Create Education Entry Validation
  * All three fields are mandatory for meaningful education record
+ * Qualification must be from EducationLevel enum
  */
 const educationDetailsCreateSchema = z.object({
-  qualification: z.string()
-    .min(2, 'Qualification must be at least 2 characters')
-    .max(150, 'Qualification cannot exceed 150 characters')
-    .trim(),
+  qualification: z.enum([
+    EducationLevel.HIGH_SCHOOL,
+    EducationLevel.DIPLOMA,
+    EducationLevel.BACHELORS,
+    EducationLevel.MASTERS,
+    EducationLevel.DOCTORATE,
+    EducationLevel.PROFESSIONAL_DEGREE
+  ], {
+    errorMap: () => ({ message: 'Invalid qualification. Must be one of: High School, Diploma, Bachelor\'s Degree, Master\'s Degree, Doctorate/PhD, Professional Degree' })
+  }),
   
   institution_name: z.string()
     .min(3, 'Institution name must be at least 3 characters')
@@ -406,11 +414,16 @@ const educationDetailsCreateSchema = z.object({
  * Only provided fields will be validated and updated
  */
 const educationDetailsUpdateSchema = z.object({
-  qualification: z.string()
-    .min(2, 'Qualification must be at least 2 characters')
-    .max(150, 'Qualification cannot exceed 150 characters')
-    .trim()
-    .optional(),
+  qualification: z.enum([
+    EducationLevel.HIGH_SCHOOL,
+    EducationLevel.DIPLOMA,
+    EducationLevel.BACHELORS,
+    EducationLevel.MASTERS,
+    EducationLevel.DOCTORATE,
+    EducationLevel.PROFESSIONAL_DEGREE
+  ], {
+    errorMap: () => ({ message: 'Invalid qualification. Must be one of: High School, Diploma, Bachelor\'s Degree, Master\'s Degree, Doctorate/PhD, Professional Degree' })
+  }).optional(),
   
   institution_name: z.string()
     .min(3, 'Institution name must be at least 3 characters')
