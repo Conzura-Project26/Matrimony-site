@@ -1235,7 +1235,13 @@ router.get(
  *     tags:
  *       - Profile Management
  *     summary: Create partner preferences
- *     description: Create partner preferences for matchmaking. Users can create own preferences.
+ *     description: |
+ *       Create partner preferences for matchmaking. All fields are optional - empty/null means "open to all".
+ *       
+ *       **Scoring Breakdown (85% Total Base Score):**
+ *       - Age: Hard Filter (must match or profile excluded)
+ *       - Religion: 17% | Caste: 11% | Education: 11% | Profession: 14% | Location: 17%
+ *       - Height: 5% (soft) | Weight: 5% (soft) | Physical Status: 5%
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1254,56 +1260,165 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               age_min:
+ *               min_age:
  *                 type: integer
  *                 minimum: 18
- *                 example: 25
- *               age_max:
- *                 type: integer
  *                 maximum: 100
+ *                 description: Minimum age preference (Hard Filter)
+ *                 example: 25
+ *               max_age:
+ *                 type: integer
+ *                 minimum: 18
+ *                 maximum: 100
+ *                 description: Maximum age preference (Hard Filter)
  *                 example: 35
- *               height_min_cm:
+ *               min_height:
  *                 type: integer
+ *                 minimum: 120
+ *                 maximum: 250
+ *                 description: Minimum height in cm (Soft Score - 5%)
  *                 example: 160
- *               height_max_cm:
+ *               max_height:
  *                 type: integer
+ *                 minimum: 120
+ *                 maximum: 250
+ *                 description: Maximum height in cm (Soft Score - 5%)
  *                 example: 180
- *               marital_status:
+ *               min_weight:
+ *                 type: integer
+ *                 minimum: 30
+ *                 maximum: 200
+ *                 description: Minimum weight in kg (Soft Score - 5%)
+ *                 example: 50
+ *               max_weight:
+ *                 type: integer
+ *                 minimum: 30
+ *                 maximum: 200
+ *                 description: Maximum weight in kg (Soft Score - 5%)
+ *                 example: 70
+ *               religion_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Religion IDs array (17% scoring). Empty = open to all
+ *                 example: [1, 2]
+ *               caste_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Caste IDs array (11% scoring). Empty = open to all
+ *                 example: [5, 6]
+ *               education_preference:
  *                 type: array
  *                 items:
  *                   type: string
+ *                 description: Education qualifications array (11% scoring). Empty = open to all
+ *                 example: ['Bachelor\'s Degree', 'Master\'s Degree']
+ *               profession_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Profession/occupation array (14% scoring). Empty = open to all
+ *                 example: ['Software Engineer', 'Doctor']
+ *               location_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Work location array (17% scoring). Empty = open to all
+ *                 example: ['Bangalore', 'Mumbai']
+ *               physical_status:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Normal, Visually Impaired, Hearing Impaired, Mobility Impaired, Other]
+ *                 description: Physical status array (5% scoring). Empty = open to all
+ *                 example: ['Normal']
+ *               marital_status_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Never Married, Divorced, Widowed, Awaiting Divorce, Separated, Annulled]
+ *                 description: Marital status preferences. Empty = open to all
  *                 example: ['Never Married', 'Divorced']
- *               religion_ids:
+ *               mother_tongue_preference:
  *                 type: array
  *                 items:
  *                   type: string
- *                   format: uuid
- *               caste_ids:
+ *                 description: Mother tongue preferences. Empty = open to all
+ *                 example: ['Hindi', 'English']
+ *               diet_preference:
  *                 type: array
  *                 items:
  *                   type: string
- *                   format: uuid
- *               education_level:
+ *                   enum: [Vegetarian, Non-Vegetarian, Eggetarian, Vegan]
+ *                 description: Diet preferences. Empty = open to all
+ *                 example: ['Vegetarian']
+ *               drinking_habit_preference:
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ['Bachelors', 'Masters']
- *               employment_type:
+ *                   enum: [Never, Occasionally, Socially, Regularly]
+ *                 description: Drinking habit preferences. Empty = open to all
+ *                 example: ['Never', 'Occasionally']
+ *               smoking_habit_preference:
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ['Employed', 'Self-Employed']
- *               income_min:
- *                 type: number
- *                 example: 500000
- *               income_max:
- *                 type: number
- *                 example: 2000000
+ *                   enum: [Never, Occasionally, Socially, Regularly]
+ *                 description: Smoking habit preferences. Empty = open to all
+ *                 example: ['Never']
+ *               income_preference_min:
+ *                 type: string
+ *                 enum: [Below 2 Lakhs, 2 - 5 Lakhs, 5 - 10 Lakhs, 10 - 15 Lakhs, 15 - 20 Lakhs, 20 - 30 Lakhs, 30 - 50 Lakhs, Above 50 Lakhs]
+ *                 description: Minimum income preference
+ *                 example: '5 - 10 Lakhs'
+ *               income_preference_max:
+ *                 type: string
+ *                 enum: [Below 2 Lakhs, 2 - 5 Lakhs, 5 - 10 Lakhs, 10 - 15 Lakhs, 15 - 20 Lakhs, 20 - 30 Lakhs, 30 - 50 Lakhs, Above 50 Lakhs]
+ *                 description: Maximum income preference
+ *                 example: '20 - 30 Lakhs'
+ *           examples:
+ *             comprehensivePreferences:
+ *               summary: Comprehensive preferences with all fields
+ *               value:
+ *                 min_age: 25
+ *                 max_age: 35
+ *                 min_height: 160
+ *                 max_height: 180
+ *                 min_weight: 50
+ *                 max_weight: 70
+ *                 religion_preference: [1, 2]
+ *                 caste_preference: [5, 6]
+ *                 education_preference: ['Bachelor\'s Degree', 'Master\'s Degree']
+ *                 profession_preference: ['Software Engineer', 'Doctor']
+ *                 location_preference: ['Bangalore', 'Mumbai']
+ *                 physical_status: ['Normal']
+ *                 marital_status_preference: ['Never Married']
+ *                 diet_preference: ['Vegetarian']
+ *             basicPreferences:
+ *               summary: Basic preferences (age and location only)
+ *               value:
+ *                 min_age: 25
+ *                 max_age: 35
+ *                 location_preference: ['Bangalore', 'Hyderabad']
  *     responses:
  *       201:
  *         description: Partner preferences created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Partner preferences created successfully'
+ *                 data:
+ *                   type: object
  *       400:
- *         description: Validation error
+ *         description: Validation error (e.g., min_age >= max_age, min_weight >= max_weight)
  *       401:
  *         description: Unauthorized
  *       409:
@@ -1312,7 +1427,9 @@ router.get(
  *     tags:
  *       - Profile Management
  *     summary: Update partner preferences
- *     description: Update existing partner preferences (partial updates supported)
+ *     description: |
+ *       Update existing partner preferences (partial updates supported). Only provide fields you want to change.
+ *       Empty arrays or null values mean "open to all" for that category.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1328,15 +1445,85 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               min_age:
+ *                 type: integer
+ *               max_age:
+ *                 type: integer
+ *               min_height:
+ *                 type: integer
+ *               max_height:
+ *                 type: integer
+ *               min_weight:
+ *                 type: integer
+ *               max_weight:
+ *                 type: integer
+ *               religion_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *               caste_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *               education_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               profession_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               location_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               physical_status:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Normal, Visually Impaired, Hearing Impaired, Mobility Impaired, Other]
+ *               marital_status_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               mother_tongue_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               diet_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               drinking_habit_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               smoking_habit_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               income_preference_min:
+ *                 type: string
+ *               income_preference_max:
+ *                 type: string
  *           examples:
- *             updateAgeRange:
- *               summary: Update age range only
+ *             updateAgeAndWeight:
+ *               summary: Update age and weight range only
  *               value:
- *                 age_min: 28
- *                 age_max: 38
+ *                 min_age: 28
+ *                 max_age: 38
+ *                 min_weight: 55
+ *                 max_weight: 75
+ *             updatePhysicalStatus:
+ *               summary: Update physical status preference
+ *               value:
+ *                 physical_status: ['Normal', 'Visually Impaired']
  *     responses:
  *       200:
  *         description: Partner preferences updated successfully
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Unauthorized
  *       404:
@@ -1345,7 +1532,9 @@ router.get(
  *     tags:
  *       - Profile Management
  *     summary: Get partner preferences
- *     description: Retrieve partner preferences for matchmaking
+ *     description: |
+ *       Retrieve partner preferences for matchmaking.
+ *       Returns all preference fields including weight and physical_status.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1358,6 +1547,79 @@ router.get(
  *     responses:
  *       200:
  *         description: Partner preferences retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Partner preferences retrieved successfully'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     partner_preferences:
+ *                       type: object
+ *                       properties:
+ *                         min_age:
+ *                           type: integer
+ *                           example: 25
+ *                         max_age:
+ *                           type: integer
+ *                           example: 35
+ *                         min_height:
+ *                           type: integer
+ *                           example: 160
+ *                         max_height:
+ *                           type: integer
+ *                           example: 180
+ *                         min_weight:
+ *                           type: integer
+ *                           example: 50
+ *                         max_weight:
+ *                           type: integer
+ *                           example: 70
+ *                         religion_preference:
+ *                           type: array
+ *                           items:
+ *                             type: integer
+ *                         caste_preference:
+ *                           type: array
+ *                           items:
+ *                             type: integer
+ *                         education_preference:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                         profession_preference:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                         location_preference:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                         physical_status:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                           example: ['Normal']
+ *                         marital_status_preference:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         full_name:
+ *                           type: string
+ *                         gender:
+ *                           type: string
  *       401:
  *         description: Unauthorized
  *       404:
@@ -1393,7 +1655,15 @@ router.get(
  *     tags:
  *       - Profile Management
  *     summary: Calculate match score between user preferences and target user
- *     description: Calculate compatibility score based on user's partner preferences and target user's profile
+ *     description: |
+ *       Calculate compatibility score based on user's partner preferences and target user's profile.
+ *       
+ *       **New Scoring System (85% Base Score):**
+ *       - **Hard Filter:** Age (must match or profile excluded from results)
+ *       - **Major Categories:** Religion (17%), Location (17%), Profession (14%), Caste (11%), Education (11%)
+ *       - **Physical Attributes:** Height (5%), Weight (5%), Physical Status (5%)
+ *       
+ *       **Enhanced Scoring:** Add `?enhanced=true` query parameter for bonus scoring including marital status, diet, habits, etc.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1413,6 +1683,13 @@ router.get(
  *           format: uuid
  *         description: Target user ID to match against
  *         example: '660e8400-e29b-41d4-a716-446655440001'
+ *       - in: query
+ *         name: enhanced
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: Use enhanced scoring with bonus attributes (marital status, diet, habits)
+ *         example: false
  *     responses:
  *       200:
  *         description: Match score calculated successfully
@@ -1424,24 +1701,149 @@ router.get(
  *                 success:
  *                   type: boolean
  *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Match score calculated successfully'
  *                 data:
  *                   type: object
  *                   properties:
- *                     match_score:
- *                       type: number
- *                       minimum: 0
- *                       maximum: 100
- *                       example: 85.5
- *                     matching_criteria:
- *                       type: array
- *                       items:
- *                         type: string
- *                       example: ['age', 'education', 'religion']
- *                     non_matching_criteria:
- *                       type: array
- *                       items:
- *                         type: string
- *                       example: ['height']
+ *                     match_result:
+ *                       type: object
+ *                       properties:
+ *                         match:
+ *                           type: boolean
+ *                           example: true
+ *                         matchPercentage:
+ *                           type: integer
+ *                           minimum: 0
+ *                           maximum: 100
+ *                           example: 78
+ *                         totalScore:
+ *                           type: number
+ *                           example: 66.5
+ *                         maxScore:
+ *                           type: integer
+ *                           example: 85
+ *                         breakdown:
+ *                           type: object
+ *                           properties:
+ *                             age:
+ *                               type: object
+ *                               properties:
+ *                                 status:
+ *                                   type: string
+ *                                   example: pass
+ *                                 isHardFilter:
+ *                                   type: boolean
+ *                                   example: true
+ *                             religion:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 17
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 17
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             caste:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 11
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 11
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             education:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 0
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 11
+ *                                 status:
+ *                                   type: string
+ *                                   example: no-match
+ *                             profession:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 14
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 14
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             location:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 17
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 17
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             height:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 5
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 5
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             weight:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 2.5
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 5
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                             physical_status:
+ *                               type: object
+ *                               properties:
+ *                                 score:
+ *                                   type: number
+ *                                   example: 5
+ *                                 maxScore:
+ *                                   type: integer
+ *                                   example: 5
+ *                                 status:
+ *                                   type: string
+ *                                   example: match
+ *                         userAge:
+ *                           type: integer
+ *                           example: 28
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         full_name:
+ *                           type: string
+ *       400:
+ *         description: Partner preferences not found for user
  *       401:
  *         description: Unauthorized
  *       404:

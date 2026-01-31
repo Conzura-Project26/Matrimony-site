@@ -625,42 +625,64 @@ const partnerPreferencesSchema = z.object({
     .max(250, 'Maximum height cannot exceed 250 cm')
     .optional(),
   
-  // Religion preferences (Scored - 18%) - References Religion.id
+  // Weight preferences (Soft Score - 5%)
+  min_weight: z.number()
+    .int('Minimum weight must be a whole number')
+    .min(30, 'Minimum weight must be at least 30 kg')
+    .max(200, 'Minimum weight cannot exceed 200 kg')
+    .optional(),
+  
+  max_weight: z.number()
+    .int('Maximum weight must be a whole number')
+    .min(30, 'Maximum weight must be at least 30 kg')
+    .max(200, 'Maximum weight cannot exceed 200 kg')
+    .optional(),
+  
+  // Religion preferences (Scored - 17%) - References Religion.id
   religion_preference: z.array(
     z.number()
       .int('Religion ID must be an integer')
       .positive('Religion ID must be positive')
   ).optional(),
   
-  // Caste preferences (Scored - 12%) - References Caste.id
+  // Caste preferences (Scored - 11%) - References Caste.id
   caste_preference: z.array(
     z.number()
       .int('Caste ID must be an integer')
       .positive('Caste ID must be positive')
   ).optional(),
   
-  // Education preferences (Scored - 12%)
+  // Education preferences (Scored - 11%)
   education_preference: z.array(
     z.string()
       .min(2, 'Education preference must be at least 2 characters')
       .max(150, 'Education preference cannot exceed 150 characters')
   ).optional(),
   
-  // Profession preferences (Scored - 15%)
+  // Profession preferences (Scored - 14%)
   profession_preference: z.array(
     z.string()
       .min(2, 'Profession preference must be at least 2 characters')
       .max(150, 'Profession preference cannot exceed 150 characters')
   ).optional(),
   
-  // Location preferences (Scored - 18%)
+  // Location preferences (Scored - 17%)
   location_preference: z.array(
     z.string()
       .min(2, 'Location preference must be at least 2 characters')
       .max(150, 'Location preference cannot exceed 150 characters')
   ).optional(),
-  
-  // Marital Status preferences
+    // Physical Status preferences (Scored - 5%)
+  physical_status: z.array(
+    z.enum([
+      PhysicalStatus.NORMAL,
+      PhysicalStatus.VISUALLY_IMPAIRED,
+      PhysicalStatus.HEARING_IMPAIRED,
+      PhysicalStatus.MOBILITY_IMPAIRED,
+      PhysicalStatus.OTHER
+    ])
+  ).optional(),
+    // Marital Status preferences
   marital_status_preference: z.array(
     z.enum([
       MaritalStatus.NEVER_MARRIED,
@@ -749,6 +771,15 @@ const partnerPreferencesSchema = z.object({
 }, {
   message: 'Minimum height must be less than maximum height',
   path: ['min_height']
+}).refine((data) => {
+  // Validate: min_weight < max_weight (if both provided)
+  if (data.min_weight !== undefined && data.max_weight !== undefined) {
+    return data.min_weight < data.max_weight;
+  }
+  return true;
+}, {
+  message: 'Minimum weight must be less than maximum weight',
+  path: ['min_weight']
 });
 
 export {
