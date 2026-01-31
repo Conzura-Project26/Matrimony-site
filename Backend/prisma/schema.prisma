@@ -247,6 +247,8 @@ model PartnerPreferences {
   max_age                     Int?
   min_height                  Int?
   max_height                  Int?
+  min_weight                  Int?
+  max_weight                  Int?
   religion_preference         Int[]    @default([])
   caste_preference            Int[]    @default([])
   education_preference        String[] @default([])
@@ -254,6 +256,7 @@ model PartnerPreferences {
   location_preference         String[] @default([])
   marital_status_preference   String[] @default([])
   mother_tongue_preference    String[] @default([])
+  physical_status             String[] @default([])
   income_preference_min       String?
   income_preference_max       String?
   diet_preference             String[] @default([])
