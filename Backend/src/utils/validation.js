@@ -589,6 +589,168 @@ const professionalDetailsUpdateSchema = z.object({
  */
 const professionalDetailsPatchSchema = professionalDetailsUpdateSchema;
 
+// ============================================
+// PARTNER PREFERENCES VALIDATION (Phase 2 - Task 2.7)
+// ============================================
+
+/**
+ * Create/Update Partner Preferences Validation
+ * All fields are optional (user can have open preferences)
+ * Supports multiple values for flexible matching
+ */
+const partnerPreferencesSchema = z.object({
+  // Age preferences (Hard Filter - must match)
+  min_age: z.number()
+    .int('Minimum age must be a whole number')
+    .min(18, 'Minimum age must be at least 18')
+    .max(100, 'Minimum age cannot exceed 100')
+    .optional(),
+  
+  max_age: z.number()
+    .int('Maximum age must be a whole number')
+    .min(18, 'Maximum age must be at least 18')
+    .max(100, 'Maximum age cannot exceed 100')
+    .optional(),
+  
+  // Height preferences (Soft Score - 5%)
+  min_height: z.number()
+    .int('Minimum height must be a whole number')
+    .min(120, 'Minimum height must be at least 120 cm')
+    .max(250, 'Minimum height cannot exceed 250 cm')
+    .optional(),
+  
+  max_height: z.number()
+    .int('Maximum height must be a whole number')
+    .min(120, 'Maximum height must be at least 120 cm')
+    .max(250, 'Maximum height cannot exceed 250 cm')
+    .optional(),
+  
+  // Religion preferences (Scored - 18%) - References Religion.id
+  religion_preference: z.array(
+    z.number()
+      .int('Religion ID must be an integer')
+      .positive('Religion ID must be positive')
+  ).optional(),
+  
+  // Caste preferences (Scored - 12%) - References Caste.id
+  caste_preference: z.array(
+    z.number()
+      .int('Caste ID must be an integer')
+      .positive('Caste ID must be positive')
+  ).optional(),
+  
+  // Education preferences (Scored - 12%)
+  education_preference: z.array(
+    z.string()
+      .min(2, 'Education preference must be at least 2 characters')
+      .max(150, 'Education preference cannot exceed 150 characters')
+  ).optional(),
+  
+  // Profession preferences (Scored - 15%)
+  profession_preference: z.array(
+    z.string()
+      .min(2, 'Profession preference must be at least 2 characters')
+      .max(150, 'Profession preference cannot exceed 150 characters')
+  ).optional(),
+  
+  // Location preferences (Scored - 18%)
+  location_preference: z.array(
+    z.string()
+      .min(2, 'Location preference must be at least 2 characters')
+      .max(150, 'Location preference cannot exceed 150 characters')
+  ).optional(),
+  
+  // Marital Status preferences
+  marital_status_preference: z.array(
+    z.enum([
+      MaritalStatus.NEVER_MARRIED,
+      MaritalStatus.DIVORCED,
+      MaritalStatus.WIDOWED,
+      MaritalStatus.AWAITING_DIVORCE,
+      MaritalStatus.SEPARATED,
+      MaritalStatus.ANNULLED
+    ])
+  ).optional(),
+  
+  // Mother Tongue preferences
+  mother_tongue_preference: z.array(
+    z.string()
+      .min(2, 'Mother tongue preference must be at least 2 characters')
+      .max(50, 'Mother tongue preference cannot exceed 50 characters')
+  ).optional(),
+  
+  // Income preferences (Range)
+  income_preference_min: z.enum([
+    IncomeRange.BELOW_2L,
+    IncomeRange.L2_TO_5L,
+    IncomeRange.L5_TO_10L,
+    IncomeRange.L10_TO_15L,
+    IncomeRange.L15_TO_20L,
+    IncomeRange.L20_TO_30L,
+    IncomeRange.L30_TO_50L,
+    IncomeRange.ABOVE_50L
+  ]).optional(),
+  
+  income_preference_max: z.enum([
+    IncomeRange.BELOW_2L,
+    IncomeRange.L2_TO_5L,
+    IncomeRange.L5_TO_10L,
+    IncomeRange.L10_TO_15L,
+    IncomeRange.L15_TO_20L,
+    IncomeRange.L20_TO_30L,
+    IncomeRange.L30_TO_50L,
+    IncomeRange.ABOVE_50L
+  ]).optional(),
+  
+  // Diet preferences
+  diet_preference: z.array(
+    z.enum([
+      DietPreference.VEGETARIAN,
+      DietPreference.NON_VEGETARIAN,
+      DietPreference.EGGETARIAN,
+      DietPreference.VEGAN
+    ])
+  ).optional(),
+  
+  // Drinking habit preferences
+  drinking_habit_preference: z.array(
+    z.enum([
+      DrinkingHabit.NEVER,
+      DrinkingHabit.OCCASIONALLY,
+      DrinkingHabit.SOCIALLY,
+      DrinkingHabit.REGULARLY
+    ])
+  ).optional(),
+  
+  // Smoking habit preferences
+  smoking_habit_preference: z.array(
+    z.enum([
+      SmokingHabit.NEVER,
+      SmokingHabit.OCCASIONALLY,
+      SmokingHabit.SOCIALLY,
+      SmokingHabit.REGULARLY
+    ])
+  ).optional()
+}).refine((data) => {
+  // Validate: min_age < max_age (if both provided)
+  if (data.min_age !== undefined && data.max_age !== undefined) {
+    return data.min_age < data.max_age;
+  }
+  return true;
+}, {
+  message: 'Minimum age must be less than maximum age',
+  path: ['min_age']
+}).refine((data) => {
+  // Validate: min_height < max_height (if both provided)
+  if (data.min_height !== undefined && data.max_height !== undefined) {
+    return data.min_height < data.max_height;
+  }
+  return true;
+}, {
+  message: 'Minimum height must be less than maximum height',
+  path: ['min_height']
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -611,4 +773,5 @@ export {
   professionalDetailsCreateSchema,
   professionalDetailsUpdateSchema,
   professionalDetailsPatchSchema,
+  partnerPreferencesSchema,
 };

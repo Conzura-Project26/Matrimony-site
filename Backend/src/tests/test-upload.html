@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UploadThing Photo Upload Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .preview {
+      margin-top: 10px;
+      max-width: 100%;
+    }
+    .preview img {
+      max-width: 100%;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖼️ Photo Upload Test</h1>
+    <p style="color: #666; margin-bottom: 30px;">Test UploadThing integration for matrimony site</p>
+
+    <div class="form-group">
+      <label for="token">JWT Token:</label>
+      <input type="text" id="token" placeholder="Paste your JWT token here">
+      <small style="color: #666;">Get token from login response or /auth/login</small>
+    </div>
+
+    <div class="form-group">
+      <label for="userId">User ID:</label>
+      <input type="text" id="userId" placeholder="Enter your user ID">
+    </div>
+
+    <div class="form-group">
+      <label for="visibility">Visibility:</label>
+      <select id="visibility">
+        <option value="PUBLIC">Public</option>
+        <option value="PRIVATE">Private</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="photo">Select Photo:</label>
+      <input type="file" id="photo" accept="image/*">
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <button onclick="uploadPhoto()" id="uploadBtn">Upload Photo</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000'; // Change if your server runs on different port
+
+    // Preview selected image
+    document.getElementById('photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview').innerHTML = 
+            `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function uploadPhoto() {
+      const token = document.getElementById('token').value.trim();
+      const userId = document.getElementById('userId').value.trim();
+      const visibility = document.getElementById('visibility').value;
+      const fileInput = document.getElementById('photo');
+      const file = fileInput.files[0];
+      
+      const statusDiv = document.getElementById('status');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      // Validation
+      if (!token) {
+        showStatus('error', 'Please enter JWT token');
+        return;
+      }
+      if (!userId) {
+        showStatus('error', 'Please enter User ID');
+        return;
+      }
+      if (!file) {
+        showStatus('error', 'Please select a photo');
+        return;
+      }
+
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        showStatus('error', 'File size must be less than 5MB');
+        return;
+      }
+
+      try {
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Uploading...';
+        showStatus('info', 'Step 1: Uploading to UploadThing...');
+
+        // Step 1: Upload to UploadThing (simulated - would need uploadthing/react package)
+        // For now, we'll simulate by uploading to a free image hosting service
+        // In real implementation, this would use UploadThing SDK
+
+        // TEMPORARY: For testing, we'll use a mock URL
+        // In production, frontend would upload to UploadThing first
+        const mockFileUrl = 'https://utfs.io/f/test-' + Date.now() + '.jpg';
+        
+        showStatus('info', `Step 2: Saving photo metadata to backend...\nFile URL: ${mockFileUrl}`);
+
+        // Step 2: Save to your backend
+        const response = await fetch(`${API_BASE}/users/${userId}/photos`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileUrl: mockFileUrl,
+            visibility: visibility
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showStatus('success', 
+            `✅ Photo uploaded successfully!\n\n` +
+            `Response:\n${JSON.stringify(data, null, 2)}`
+          );
+          fileInput.value = '';
+          document.getElementById('preview').innerHTML = '';
+        } else {
+          showStatus('error', 
+            `❌ Upload failed!\n\n` +
+            `Status: ${response.status}\n` +
+            `Error: ${data.message || 'Unknown error'}\n\n` +
+            `Response:\n${JSON.stringify(data, null, 2)}`
+          );
+        }
+      } catch (error) {
+        showStatus('error', 
+          `❌ Network error!\n\n` +
+          `${error.message}\n\n` +
+          `Make sure your backend is running on ${API_BASE}`
+        );
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload Photo';
+      }
+    }
+
+    function showStatus(type, message) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.className = `status ${type}`;
+      statusDiv.innerHTML = `<pre>${message}</pre>`;
+      statusDiv.style.display = 'block';
+    }
+
+    // Auto-fill from localStorage if available
+    window.onload = function() {
+      const savedToken = localStorage.getItem('testToken');
+      const savedUserId = localStorage.getItem('testUserId');
+      if (savedToken) document.getElementById('token').value = savedToken;
+      if (savedUserId) document.getElementById('userId').value = savedUserId;
+
+      // Save on change
+      document.getElementById('token').addEventListener('change', function() {
+        localStorage.setItem('testToken', this.value);
+      });
+      document.getElementById('userId').addEventListener('change', function() {
+        localStorage.setItem('testUserId', this.value);
+      });
+    };
+  </script>
+</body>
+</html>
