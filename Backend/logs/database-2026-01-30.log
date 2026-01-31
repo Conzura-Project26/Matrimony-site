@@ -1,4 +1,0 @@
-{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-30 01:06:37"}
-{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-30 01:06:37","type":"PostgreSQL"}
-{"environment":"development","level":"info","message":"Server started on port 3000","port":3000,"timestamp":"2026-01-30 01:09:08"}
-{"host":"Supabase","level":"info","message":"Database connected successfully","timestamp":"2026-01-30 01:09:08","type":"PostgreSQL"}
