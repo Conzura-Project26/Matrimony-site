@@ -10,15 +10,15 @@
  */
 
 import express from 'express';
-import { authenticateToken } from '../middleware/auth.js';
-import { checkOwnership } from '../middleware/authorization.js';
-import asyncHandler from '../utils/asyncHandler.js';
+import { authenticateToken } from '../../middleware/auth.js';
+import { checkOwnership } from '../../middleware/authorization.js';
+import asyncHandler from '../../utils/asyncHandler.js';
 import {
   uploadPhoto,
   getUserPhotos,
   deletePhoto,
   setPrimaryPhoto,
-} from '../controllers/photoController.js';
+} from '../../controllers/photoController.js';
 
 const router = express.Router();
 

@@ -1,8 +1,8 @@
 import express from 'express';
-import profileController from '../controllers/profileController.js';
-import asyncHandler from '../utils/asyncHandler.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { authorizePermission, checkOwnership } from '../middleware/authorization.js';
+import profileController from '../../controllers/profileController.js';
+import asyncHandler from '../../utils/asyncHandler.js';
+import { authenticateToken } from '../../middleware/auth.js';
+import { authorizePermission, checkOwnership } from '../../middleware/authorization.js';
 
 const router = express.Router();
 
