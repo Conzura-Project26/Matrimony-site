@@ -1,8 +1,8 @@
 import express from 'express';
-import profileController from '../controllers/profileController.js';
-import asyncHandler from '../utils/asyncHandler.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { authorizePermission, checkOwnership } from '../middleware/authorization.js';
+import profileController from '../../controllers/profileController.js';
+import asyncHandler from '../../utils/asyncHandler.js';
+import { authenticateToken } from '../../middleware/auth.js';
+import { authorizePermission, checkOwnership } from '../../middleware/authorization.js';
 
 const router = express.Router();
 
@@ -833,5 +833,268 @@ router.get(
  *           description: Place of birth (city, state, country)
  *           example: 'Chennai, Tamil Nadu, India'
  */
+
+// ============================================
+// PARTNER PREFERENCES ROUTES (Phase 2 - Task 2.7)
+// ============================================
+
+/**
+ * @swagger
+ * /users/{userId}/preferences:
+ *   post:
+ *     tags:
+ *       - Profile Management
+ *     summary: Create partner preferences for a user
+ *     description: Create partner preferences for a user. Users can only create their own preferences. ADMIN can create for any user.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               min_age:
+ *                 type: integer
+ *                 minimum: 18
+ *                 maximum: 100
+ *               max_age:
+ *                 type: integer
+ *                 minimum: 18
+ *                 maximum: 100
+ *               min_height:
+ *                 type: integer
+ *                 minimum: 120
+ *                 maximum: 250
+ *               max_height:
+ *                 type: integer
+ *                 minimum: 120
+ *                 maximum: 250
+ *               religion_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Array of religion IDs
+ *               caste_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Array of caste IDs
+ *               education_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               profession_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               location_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               marital_status_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Never Married, Divorced, Widowed, Awaiting Divorce, Separated, Annulled]
+ *               mother_tongue_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               income_preference_min:
+ *                 type: string
+ *                 enum: [Below 2 Lakhs, 2 - 5 Lakhs, 5 - 10 Lakhs, 10 - 15 Lakhs, 15 - 20 Lakhs, 20 - 30 Lakhs, 30 - 50 Lakhs, Above 50 Lakhs]
+ *               income_preference_max:
+ *                 type: string
+ *                 enum: [Below 2 Lakhs, 2 - 5 Lakhs, 5 - 10 Lakhs, 10 - 15 Lakhs, 15 - 20 Lakhs, 20 - 30 Lakhs, 30 - 50 Lakhs, Above 50 Lakhs]
+ *               diet_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Vegetarian, Non-Vegetarian, Eggetarian, Vegan]
+ *               drinking_habit_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Never, Occasionally, Socially, Regularly]
+ *               smoking_habit_preference:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [Never, Occasionally, Socially, Regularly]
+ *     responses:
+ *       201:
+ *         description: Partner preferences created successfully
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Partner preferences already exist
+ */
+router.post(
+  '/:userId/preferences',
+  authenticateToken,
+  authorizePermission(['create_own_partner_preferences', 'manage_partner_preferences']),
+  checkOwnership('userId', { bypassRoles: ['ADMIN'], resourceType: 'partner preferences' }),
+  asyncHandler((req, res) => profileController.createPartnerPreferences(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/preferences:
+ *   put:
+ *     tags:
+ *       - Profile Management
+ *     summary: Update partner preferences for a user
+ *     description: Update partner preferences for a user. Supports partial updates. Users can only update their own preferences. ADMIN can update for any user.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               min_age:
+ *                 type: integer
+ *               max_age:
+ *                 type: integer
+ *               religion_preference:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Partner preferences updated successfully
+ *       404:
+ *         description: Partner preferences not found
+ */
+router.put(
+  '/:userId/preferences',
+  authenticateToken,
+  authorizePermission(['edit_own_partner_preferences', 'manage_partner_preferences']),
+  checkOwnership('userId', { bypassRoles: ['ADMIN'], resourceType: 'partner preferences' }),
+  asyncHandler((req, res) => profileController.updatePartnerPreferences(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/preferences:
+ *   get:
+ *     tags:
+ *       - Profile Management
+ *     summary: Get partner preferences for a user
+ *     description: Retrieve partner preferences. Viewable by user themselves, admins, and other users for matching purposes.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Partner preferences retrieved successfully
+ *       404:
+ *         description: User not found
+ */
+router.get(
+  '/:userId/preferences',
+  authenticateToken,
+  authorizePermission(['view_partner_preferences']),
+  asyncHandler((req, res) => profileController.getPartnerPreferences(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/preferences/match/{targetUserId}:
+ *   post:
+ *     tags:
+ *       - Profile Management
+ *     summary: Calculate match score between user's preferences and target user's profile
+ *     description: Calculate how well target user matches the specified user's partner preferences using weighted scoring algorithm.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User whose preferences to use
+ *       - in: path
+ *         name: targetUserId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User to check match against
+ *       - in: query
+ *         name: enhanced
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Use enhanced scoring with bonus attributes
+ *     responses:
+ *       200:
+ *         description: Match score calculated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     match_result:
+ *                       type: object
+ *                       properties:
+ *                         match:
+ *                           type: boolean
+ *                           description: Whether the match passed hard filters
+ *                         matchPercentage:
+ *                           type: integer
+ *                           description: Overall match percentage (0-100)
+ *                         totalScore:
+ *                           type: number
+ *                           description: Total score achieved
+ *                         maxScore:
+ *                           type: integer
+ *                           description: Maximum possible score
+ *                         breakdown:
+ *                           type: object
+ *                           description: Detailed breakdown by category
+ *       404:
+ *         description: User or preferences not found
+ */
+router.post(
+  '/:userId/preferences/match/:targetUserId',
+  authenticateToken,
+  authorizePermission(['view_partner_preferences', 'search_profiles']),
+  asyncHandler((req, res) => profileController.calculatePreferenceMatch(req, res))
+);
 
 export default router;

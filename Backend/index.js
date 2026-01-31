@@ -4,9 +4,9 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './src/routes/auth.js';
 import masterDataRoutes from './src/routes/masterData.js';
-import profileRoutes from './src/routes/profile.js';
-import userProfileRoutes from './src/routes/userProfile.js';
 import testErrorRoutes from './src/routes/testErrors.js';
+import userRoutes from './src/routes/userRoutes.js';
+import adminRoutes from './src/routes/admin.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -61,8 +61,8 @@ if (process.env.NODE_ENV !== 'production') {
 // Auth routes with stricter rate limiting
 app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
-app.use('/users', profileRoutes);
-app.use('/users', userProfileRoutes);
+app.use('/users', userRoutes); // Combined user routes (photos, personal, caste, education, professional, family, horoscope, preferences)
+app.use('/admin', adminRoutes);
 
 // Test routes (only in development)
 if (process.env.NODE_ENV !== 'production') {

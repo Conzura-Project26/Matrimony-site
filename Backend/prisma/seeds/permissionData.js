@@ -26,6 +26,11 @@ export const permissions = [
   { permission_name: 'edit_own_horoscope_details' },       // USER, MODERATOR, ADMIN
   { permission_name: 'view_horoscope_details' },           // USER, MODERATOR, ADMIN (for matchmaking)
   
+  // Partner Preferences Permissions (Phase 2 - Task 2.7)
+  { permission_name: 'create_own_partner_preferences' },   // USER, MODERATOR, ADMIN
+  { permission_name: 'edit_own_partner_preferences' },     // USER, MODERATOR, ADMIN
+  { permission_name: 'view_partner_preferences' },         // USER, MODERATOR, ADMIN (viewable by all for matching)
+  
   // Photo Management
   { permission_name: 'upload_photo' },                     // USER, MODERATOR, ADMIN
   { permission_name: 'delete_own_photo' },                 // USER, MODERATOR, ADMIN
@@ -63,6 +68,7 @@ export const permissions = [
   { permission_name: 'verify_profiles' },                  // ADMIN only
   { permission_name: 'manage_family_details' },            // ADMIN only (can manage any user's family details)
   { permission_name: 'manage_horoscope_details' },         // ADMIN only (can manage any user's horoscope details)
+  { permission_name: 'manage_partner_preferences' },       // ADMIN only (can manage any user's partner preferences)
   { permission_name: 'manage_subscriptions' },             // ADMIN only
   { permission_name: 'view_analytics' },                   // ADMIN only
   { permission_name: 'manage_master_data' },               // ADMIN only

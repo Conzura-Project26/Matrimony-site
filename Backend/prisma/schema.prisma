@@ -242,17 +242,29 @@ model UserPhoto {
 }
 
 model PartnerPreferences {
-  user_id               String  @id @db.Uuid
-  min_age               Int?
-  max_age               Int?
-  min_height            Int?
-  max_height            Int?
-  religion_preference   String?
-  caste_preference      String?
-  education_preference  String?
-  profession_preference String?
-  location_preference   String?
-  user                  User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id                     String   @id @db.Uuid
+  min_age                     Int?
+  max_age                     Int?
+  min_height                  Int?
+  max_height                  Int?
+  min_weight                  Int?
+  max_weight                  Int?
+  religion_preference         Int[]    @default([])
+  caste_preference            Int[]    @default([])
+  education_preference        String[] @default([])
+  profession_preference       String[] @default([])
+  location_preference         String[] @default([])
+  marital_status_preference   String[] @default([])
+  mother_tongue_preference    String[] @default([])
+  physical_status             String[] @default([])
+  income_preference_min       String?
+  income_preference_max       String?
+  diet_preference             String[] @default([])
+  drinking_habit_preference   String[] @default([])
+  smoking_habit_preference    String[] @default([])
+  created_at                  DateTime @default(now())
+  updated_at                  DateTime @default(now()) @updatedAt
+  user                        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("partner_preferences")
 }
