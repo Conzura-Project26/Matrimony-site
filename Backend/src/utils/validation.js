@@ -672,12 +672,14 @@ const partnerPreferencesSchema = z.object({
       .max(150, 'Profession preference cannot exceed 150 characters')
   ).optional(),
   
-  // Location preferences (Scored - 18%)
-  location_preference: z.array(
-    z.string()
-      .min(2, 'Location preference must be at least 2 characters')
-      .max(150, 'Location preference cannot exceed 150 characters')
-  ).optional(),
+  // Location preferences (Scored - 18%) - JSONB format: {"Karnataka": ["Bangalore", "Mysore"], "Gujarat": []}
+  // Empty array means "any city in that state"
+  preferred_location: z.record(
+    z.string().min(2, 'State name must be at least 2 characters').max(100, 'State name cannot exceed 100 characters'),
+    z.array(
+      z.string().min(2, 'City name must be at least 2 characters').max(100, 'City name cannot exceed 100 characters')
+    )
+  ).optional().nullable(),
   
   // Marital Status preferences
   marital_status_preference: z.array(

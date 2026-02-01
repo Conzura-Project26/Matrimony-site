@@ -6,6 +6,7 @@ import {
   updateHoroscopeDetailsSchema,
   partnerPreferencesSchema,
 } from '../utils/validation.js';
+import { getAllStates, validateCityInState } from '../services/locationService.js';
 import {
   BadRequestError,
   NotFoundError,
@@ -517,6 +518,30 @@ class ProfileController {
       }
     }
 
+    // Validate preferred_location if provided
+    if (preferencesData.preferred_location) {
+      const validStates = await getAllStates();
+      const locationData = preferencesData.preferred_location;
+
+      // Validate each state and its cities
+      for (const [state, cities] of Object.entries(locationData)) {
+        // Check if state is valid
+        if (!validStates.includes(state)) {
+          throw new BadRequestError(`Invalid state: ${state}`);
+        }
+
+        // Validate each city belongs to the state
+        if (cities && Array.isArray(cities)) {
+          for (const city of cities) {
+            const isValid = await validateCityInState(state, city);
+            if (!isValid) {
+              throw new BadRequestError(`City "${city}" is not valid for state "${state}"`);
+            }
+          }
+        }
+      }
+    }
+
     // Create partner preferences
     const partnerPreferences = await prisma.partnerPreferences.create({
       data: {
@@ -619,6 +644,30 @@ class ProfileController {
       }
     }
 
+    // Validate preferred_location if provided
+    if (preferencesData.preferred_location) {
+      const validStates = await getAllStates();
+      const locationData = preferencesData.preferred_location;
+
+      // Validate each state and its cities
+      for (const [state, cities] of Object.entries(locationData)) {
+        // Check if state is valid
+        if (!validStates.includes(state)) {
+          throw new BadRequestError(`Invalid state: ${state}`);
+        }
+
+        // Validate each city belongs to the state
+        if (cities && Array.isArray(cities)) {
+          for (const city of cities) {
+            const isValid = await validateCityInState(state, city);
+            if (!isValid) {
+              throw new BadRequestError(`City "${city}" is not valid for state "${state}"`);
+            }
+          }
+        }
+      }
+    }
+
     // Update partner preferences (partial update - only update provided fields)
     const updatedPreferences = await prisma.partnerPreferences.update({
       where: { user_id: userId },
@@ -687,6 +736,29 @@ class ProfileController {
       where: { user_id: userId },
     });
 
+    // Format preferred_location for display if it exists
+    let formattedPreferences = partnerPreferences;
+    if (partnerPreferences && partnerPreferences.preferred_location) {
+      const locationData = partnerPreferences.preferred_location;
+      const locationStrings = [];
+
+      for (const [state, cities] of Object.entries(locationData)) {
+        if (cities && Array.isArray(cities) && cities.length > 0) {
+          cities.forEach(city => {
+            locationStrings.push(`${city}, ${state}`);
+          });
+        } else {
+          // State without specific cities - "Any city in State"
+          locationStrings.push(`Any city in ${state}`);
+        }
+      }
+
+      formattedPreferences = {
+        ...partnerPreferences,
+        preferred_location_display: locationStrings.join('; ')
+      };
+    }
+
     logAPI.success('Partner preferences retrieved successfully', {
       userId,
       requestedBy: req.user.id,
@@ -700,7 +772,7 @@ class ProfileController {
         ? 'Partner preferences retrieved successfully'
         : 'No partner preferences found for this user',
       data: {
-        partner_preferences: partnerPreferences || {},
+        partner_preferences: formattedPreferences || {},
         user: {
           id: user.id,
           full_name: user.full_name,

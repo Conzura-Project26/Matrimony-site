@@ -255,7 +255,7 @@ model PartnerPreferences {
   caste_preference            Int[]    @default([])
   education_preference        String[] @default([])
   profession_preference       String[] @default([])
-  location_preference         String[] @default([])
+  preferred_location          Json?
   marital_status_preference   String[] @default([])
   mother_tongue_preference    String[] @default([])
   physical_status             String[] @default([])
