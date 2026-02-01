@@ -4,18 +4,44 @@
  * 
  * Scoring Breakdown:
  * - Age: Hard Filter (must match or excluded)
- * - Religion: 17% (scored)
- * - Caste: 11% (scored)
- * - Education: 11% (scored)
- * - Profession: 14% (scored)
- * - Location: 17% (scored)
+ * - Religion: 16% (scored)
+ * - Location: 16% (scored)
+ * - Profession: 13% (scored)
+ * - Education: 10% (scored)
+ * - Caste: 10% (scored)
  * - Height: 5% (soft score)
  * - Weight: 5% (soft score)
+ * - Income: 5% (soft score - overlap based)
  * - Physical Status: 5% (scored)
  * 
  * Total Base Score: 85% (100% if all match perfectly)
  * Unspecified preferences = "open to all" (full score for that category)
  */
+
+/**
+ * Income range mapping with numeric values
+ * Maps income range strings to their min/max numeric values in rupees
+ */
+const incomeRangeMap = {
+  'Below 2 Lakhs': { min: 0, max: 200000 },
+  '2 - 5 Lakhs': { min: 200000, max: 500000 },
+  '5 - 10 Lakhs': { min: 500000, max: 1000000 },
+  '10 - 15 Lakhs': { min: 1000000, max: 1500000 },
+  '15 - 20 Lakhs': { min: 1500000, max: 2000000 },
+  '20 - 30 Lakhs': { min: 2000000, max: 3000000 },
+  '30 - 50 Lakhs': { min: 3000000, max: 5000000 },
+  'Above 50 Lakhs': { min: 5000000, max: Infinity }
+};
+
+/**
+ * Get numeric values from income range string
+ * @param {string} incomeRange - Income range string (e.g., "5 - 10 Lakhs")
+ * @returns {Object|null} - {min, max} or null if invalid
+ */
+const parseIncomeRange = (incomeRange) => {
+  if (!incomeRange) return null;
+  return incomeRangeMap[incomeRange] || null;
+};
 
 /**
  * Calculate age from date of birth
@@ -215,6 +241,92 @@ const calculateWeightScore = (minWeight, maxWeight, actualWeight) => {
 };
 
 /**
+ * Calculate income match score (soft scoring with overlap-based matching)
+ * @param {string} incomePreferenceMin - Minimum preferred income range
+ * @param {string} incomePreferenceMax - Maximum preferred income range
+ * @param {string} actualIncomeRange - Actual income range
+ * @returns {number} - Score (0-5)
+ */
+const calculateIncomeScore = (incomePreferenceMin, incomePreferenceMax, actualIncomeRange) => {
+  const maxScore = 5;
+  
+  // If no income preference specified, open to all (full score)
+  if (!incomePreferenceMin && !incomePreferenceMax) {
+    return maxScore;
+  }
+  
+  // If actual income not provided, skip this preference (return null to indicate skip)
+  if (!actualIncomeRange) {
+    return null;
+  }
+  
+  // Parse income ranges
+  const userIncome = parseIncomeRange(actualIncomeRange);
+  
+  // If user income is invalid format, skip
+  if (!userIncome) {
+    return null;
+  }
+  
+  // Determine preference range boundaries
+  const preferenceMin = incomePreferenceMin ? parseIncomeRange(incomePreferenceMin) : null;
+  const preferenceMax = incomePreferenceMax ? parseIncomeRange(incomePreferenceMax) : null;
+  
+  let prefMinValue, prefMaxValue;
+  
+  // If both min and max preferences specified
+  if (preferenceMin && preferenceMax) {
+    prefMinValue = preferenceMin.min;
+    prefMaxValue = preferenceMax.max;
+  } 
+  // Only min preference specified - open upper bound
+  else if (preferenceMin) {
+    prefMinValue = preferenceMin.min;
+    prefMaxValue = Infinity;
+  } 
+  // Only max preference specified - open lower bound
+  else if (preferenceMax) {
+    prefMinValue = 0;
+    prefMaxValue = preferenceMax.max;
+  } 
+  else {
+    // No valid preference, full score
+    return maxScore;
+  }
+  
+  // Check for overlap: User's min <= Pref's max AND User's max >= Pref's min
+  const hasOverlap = userIncome.min <= prefMaxValue && userIncome.max >= prefMinValue;
+  
+  if (hasOverlap) {
+    return maxScore; // Full score for overlap
+  }
+  
+  // Calculate proximity for partial scoring
+  // If user's income is close to preference range, give partial score
+  
+  // User income is below preference range
+  if (userIncome.max < prefMinValue) {
+    const gap = prefMinValue - userIncome.max;
+    // Within 5 lakhs (500000) below minimum - 50% score
+    if (gap <= 500000) {
+      return maxScore * 0.5;
+    }
+  }
+  
+  // User income is above preference range
+  if (userIncome.min > prefMaxValue && prefMaxValue !== Infinity) {
+    const gap = userIncome.min - prefMaxValue;
+    // Within 5 lakhs (500000) above maximum - 50% score
+    if (gap <= 500000) {
+      return maxScore * 0.5;
+    }
+  }
+  
+  // No match, no proximity
+  return 0;
+};
+
+/**
  * Main function: Calculate match percentage between user and preferences
  * @param {Object} userProfile - User's complete profile data
  * @param {Object} partnerPreferences - Partner preferences
@@ -223,13 +335,14 @@ const calculateWeightScore = (minWeight, maxWeight, actualWeight) => {
 const calculateMatchScore = (userProfile, partnerPreferences) => {
   const breakdown = {
     age: { score: 0, maxScore: 0, status: 'pass', isHardFilter: true },
-    religion: { score: 0, maxScore: 17, status: 'pending' },
-    caste: { score: 0, maxScore: 11, status: 'pending' },
-    education: { score: 0, maxScore: 11, status: 'pending' },
-    profession: { score: 0, maxScore: 14, status: 'pending' },
-    location: { score: 0, maxScore: 17, status: 'pending' },
+    religion: { score: 0, maxScore: 16, status: 'pending' },
+    caste: { score: 0, maxScore: 10, status: 'pending' },
+    education: { score: 0, maxScore: 10, status: 'pending' },
+    profession: { score: 0, maxScore: 13, status: 'pending' },
+    location: { score: 0, maxScore: 16, status: 'pending' },
     height: { score: 0, maxScore: 5, status: 'pending' },
     weight: { score: 0, maxScore: 5, status: 'pending' },
+    income: { score: 0, maxScore: 5, status: 'pending' },
     physical_status: { score: 0, maxScore: 5, status: 'pending' }
   };
   
@@ -313,7 +426,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.education.status = breakdown.education.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 5. PROFESSION - 14% (Scored)
+  // 5. EMPLOYMENT_TYPE - 14% (Scored)
   // ============================================
   const userEmploymentType = userProfile.professional_details?.employment_type;
   breakdown.profession.score = calculateCategoryScore(
@@ -327,11 +440,39 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   // 6. LOCATION - 17% (Scored)
   // ============================================
   const userLocation = userProfile.professional_details?.work_location;
-  breakdown.location.score = calculateCategoryScore(
-    partnerPreferences.location_preference,
-    userLocation,
-    breakdown.location.maxScore
-  );
+  
+  // Handle preferred_location which is a JSON object {state: [cities]}
+  let locationMatches = false;
+  if (!partnerPreferences.preferred_location || Object.keys(partnerPreferences.preferred_location).length === 0) {
+    // No preference specified, open to all
+    locationMatches = true;
+  } else if (userLocation) {
+    // Check if user's work_location matches any preferred state or city
+    const preferredLocations = partnerPreferences.preferred_location;
+    
+    // Check if user location matches any state or city in preferences
+    for (const [state, cities] of Object.entries(preferredLocations)) {
+      // Match if location contains the state name
+      if (userLocation.toLowerCase().includes(state.toLowerCase())) {
+        locationMatches = true;
+        break;
+      }
+      
+      // Match if location contains any of the cities
+      if (Array.isArray(cities)) {
+        for (const city of cities) {
+          if (userLocation.toLowerCase().includes(city.toLowerCase())) {
+            locationMatches = true;
+            break;
+          }
+        }
+      }
+      
+      if (locationMatches) break;
+    }
+  }
+  
+  breakdown.location.score = locationMatches ? breakdown.location.maxScore : 0;
   breakdown.location.status = breakdown.location.score > 0 ? 'match' : 'no-match';
   
   // ============================================
@@ -357,7 +498,27 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.weight.status = breakdown.weight.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 9. PHYSICAL STATUS - 5% (Scored)
+  // 9. INCOME - 5% (Soft Score - Overlap Based)
+  // ============================================
+  const userIncome = userProfile.professional_details?.annual_income_range;
+  const incomeScore = calculateIncomeScore(
+    partnerPreferences.income_preference_min,
+    partnerPreferences.income_preference_max,
+    userIncome
+  );
+  
+  // If income score is null (user hasn't provided income), skip this category
+  if (incomeScore === null) {
+    breakdown.income.status = 'skipped';
+    breakdown.income.note = 'User income not provided - category skipped';
+    breakdown.income.isSkipped = true;
+  } else {
+    breakdown.income.score = incomeScore;
+    breakdown.income.status = breakdown.income.score > 0 ? 'match' : 'no-match';
+  }
+  
+  // ============================================
+  // 10. PHYSICAL STATUS - 5% (Scored)
   // ============================================
   const userPhysicalStatus = userProfile.personal_details?.physical_status;
   breakdown.physical_status.score = calculateCategoryScore(
@@ -371,11 +532,11 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   // CALCULATE TOTAL SCORE
   // ============================================
   const totalScore = Object.values(breakdown)
-    .filter(cat => !cat.isHardFilter)
+    .filter(cat => !cat.isHardFilter && !cat.isSkipped)
     .reduce((sum, cat) => sum + cat.score, 0);
   
   const maxScore = Object.values(breakdown)
-    .filter(cat => !cat.isHardFilter)
+    .filter(cat => !cat.isHardFilter && !cat.isSkipped)
     .reduce((sum, cat) => sum + cat.maxScore, 0);
   
   const matchPercentage = Math.round((totalScore / maxScore) * 100);
@@ -391,10 +552,11 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
       userReligionId,
       userCasteId,
       userEducation,
-      userProfession,
+      userEmploymentType,
       userLocation,
       userHeight,
       userWeight,
+      userIncome,
       userPhysicalStatus
     }
   };
@@ -501,5 +663,7 @@ export {
   isPreferenceMatch,
   calculateCategoryScore,
   calculateHeightScore,
-  calculateWeightScore
+  calculateWeightScore,
+  calculateIncomeScore,
+  parseIncomeRange
 };

@@ -47,13 +47,14 @@ model User {
   password_hash         String
   profile_created_by    String                   @db.VarChar(20)
   is_mobile_verified    Boolean                  @default(false)
-  is_email_verified     Boolean                  @default(false)
-  is_profile_verified   Boolean                  @default(false)
-  is_active             Boolean                  @default(true)
-  created_at            DateTime                 @default(now())
-  updated_at            DateTime                 @default(now()) @updatedAt
-  highest_qualification String?                  @db.VarChar(150)
-  audit_logs            AuditLog[]
+  is_email_verified              Boolean                  @default(false)
+  is_profile_verified            Boolean                  @default(false)
+  is_active                      Boolean                  @default(true)
+  created_at                     DateTime                 @default(now())
+  updated_at                     DateTime                 @default(now()) @updatedAt
+  highest_qualification          String?                  @db.VarChar(150)
+  profile_completion_percentage  Int?                     @default(0)
+  audit_logs                     AuditLog[]
   interests_received    Interest[]               @relation("InterestReceiver")
   interests_sent        Interest[]               @relation("InterestSender")
   messages_received     Message[]                @relation("MessageReceiver")

@@ -15,7 +15,7 @@ import axios from 'axios';
 // ============================================
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
-  JWT_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3YWYwY2M1My1kZTgyLTQ4YzctODcxMS0xOGU4ZGVhNmNiOWMiLCJtb2JpbGVfbnVtYmVyIjoiNjM2MjExNTk5OCIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzY5OTQ3MDU5LCJleHAiOjE3Njk5NDc5NTl9.3x-IpvSMzLJu-UUAidVMoUicqhXa3KmCUpS3vYCOrAY',
+  JWT_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3YWYwY2M1My1kZTgyLTQ4YzctODcxMS0xOGU4ZGVhNmNiOWMiLCJtb2JpbGVfbnVtYmVyIjoiNjM2MjExNTk5OCIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzY5OTUzNDQ4LCJleHAiOjE3Njk5NTQzNDh9.BzD-XyZlQsZpRDQ7qkFCwWo1uZtUHQfNLdMtDbpqzrU',
   USER_ID: '7af0cc53-de82-48c7-8711-18e8dea6cb9c',
 };
 
