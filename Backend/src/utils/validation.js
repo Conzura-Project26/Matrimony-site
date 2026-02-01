@@ -335,9 +335,28 @@ const personalDetailsSchema = z.object({
   about_me: z.string()
     .min(10, 'About me must be at least 10 characters')
     .max(1000, 'About me cannot exceed 1000 characters')
+    .optional(),
+  
+  state: z.string()
+    .min(2, 'State must be at least 2 characters')
+    .max(100, 'State cannot exceed 100 characters')
+    .optional(),
+  
+  city: z.string()
+    .min(2, 'City must be at least 2 characters')
+    .max(100, 'City cannot exceed 100 characters')
     .optional()
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'At least one field is required to update personal details'
+}).refine((data) => {
+  // If city is provided, state must also be provided
+  if (data.city && !data.state) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'State is required when city is provided',
+  path: ['state']
 });
 
 // ============================================

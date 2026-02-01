@@ -23,6 +23,8 @@ import {
   rasiOptions,
   nakshatraOptions
 } from '../../prisma/seeds/enumMasterData.js';
+import { getAllStates, getCitiesByState } from '../services/locationService.js';
+import { BadRequestError } from '../utils/errors.js';
 
 const prisma = new PrismaClient();
 
@@ -304,6 +306,81 @@ export const getReligionHierarchy = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch religion hierarchy',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get all Indian states
+ * GET /api/master/states
+ */
+export const getStates = async (req, res) => {
+  try {
+    const states = await getAllStates();
+
+    res.json({
+      success: true,
+      data: states,
+      count: states.length,
+      message: 'States retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching states:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch states',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get cities by state with optional search
+ * GET /api/master/cities?state=Karnataka&search=Bang
+ */
+export const getCities = async (req, res) => {
+  try {
+    const { state, search } = req.query;
+
+    // State is required
+    if (!state) {
+      throw new BadRequestError('State parameter is required');
+    }
+
+    // Validate state exists
+    const states = await getAllStates();
+    if (!states.includes(state)) {
+      throw new BadRequestError(`Invalid state: ${state}`);
+    }
+
+    // Get cities (with optional search filter)
+    const cities = await getCitiesByState(state, search || '');
+
+    res.json({
+      success: true,
+      data: cities,
+      count: cities.length,
+      message: search 
+        ? `Cities in ${state} matching "${search}" retrieved successfully`
+        : `Cities in ${state} retrieved successfully`,
+      filters: {
+        state,
+        search: search || null
+      }
+    });
+  } catch (error) {
+    if (error instanceof BadRequestError) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    console.error('Error fetching cities:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch cities',
       error: error.message
     });
   }

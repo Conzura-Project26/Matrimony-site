@@ -152,6 +152,8 @@ model UserPersonalDetails {
   blood_group     String?  @db.VarChar(10)
   body_type       String?  @db.VarChar(30)
   complexion      String?  @db.VarChar(30)
+  state           String?  @db.VarChar(100)
+  city            String?  @db.VarChar(100)
   created_at      DateTime @default(now())
   diet_preference String?  @db.VarChar(30)
   drinking_habit  String?  @db.VarChar(30)

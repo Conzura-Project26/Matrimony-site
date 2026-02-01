@@ -17,6 +17,7 @@ import {
   ConflictError
 } from '../utils/errors.js';
 import logger from '../config/logger.js';
+import { validateCityInState, getAllStates } from '../services/locationService.js';
 
 /**
  * User Profile Controller
@@ -245,6 +246,22 @@ class UserProfileController {
       throw new BadRequestError(errorMessage);
     }
 
+    // Additional validation: If city is provided, validate it against the state
+    if (validation.data.city && validation.data.state) {
+      const isValidCity = await validateCityInState(validation.data.state, validation.data.city);
+      if (!isValidCity) {
+        throw new BadRequestError(`City "${validation.data.city}" is not valid for state "${validation.data.state}"`);
+      }
+    }
+
+    // Additional validation: If state is provided, validate it exists
+    if (validation.data.state) {
+      const states = await getAllStates();
+      if (!states.includes(validation.data.state)) {
+        throw new BadRequestError(`Invalid state: "${validation.data.state}"`);
+      }
+    }
+
     // Check if target user exists
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -312,6 +329,22 @@ class UserProfileController {
         ? validation.error.errors.map(e => e.message).join(', ')
         : validation.error.message || 'Validation failed';
       throw new BadRequestError(errorMessage);
+    }
+
+    // Additional validation: If city is provided, validate it against the state
+    if (validation.data.city && validation.data.state) {
+      const isValidCity = await validateCityInState(validation.data.state, validation.data.city);
+      if (!isValidCity) {
+        throw new BadRequestError(`City "${validation.data.city}" is not valid for state "${validation.data.state}"`);
+      }
+    }
+
+    // Additional validation: If state is provided, validate it exists
+    if (validation.data.state) {
+      const states = await getAllStates();
+      if (!states.includes(validation.data.state)) {
+        throw new BadRequestError(`Invalid state: "${validation.data.state}"`);
+      }
     }
 
     // Check if target user exists
@@ -443,6 +476,8 @@ class UserProfileController {
         physical_status: user.personal_details.physical_status,
         mother_tongue: user.personal_details.mother_tongue,
         complexion: user.personal_details.complexion,
+        state: user.personal_details.state,
+        city: user.personal_details.city,
         body_type: user.personal_details.body_type,
         blood_group: user.personal_details.blood_group,
         diet_preference: user.personal_details.diet_preference,
