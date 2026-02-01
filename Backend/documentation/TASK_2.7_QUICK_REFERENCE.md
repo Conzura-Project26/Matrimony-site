@@ -37,7 +37,7 @@ curl -X PUT http://localhost:3000/api/users/USER_ID/preferences \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "profession_preference": ["Software Engineer", "Doctor"]
+    "employment_type_preference": ["Government Job", "Private Job"]
   }'
 ```
 
@@ -133,7 +133,7 @@ curl -X POST "http://localhost:3000/api/users/USER_ID/preferences/match/TARGET_I
 ```json
 {
   "education_preference": ["Bachelor's Degree", "Master's Degree"],
-  "profession_preference": ["Software Engineer", "Doctor"],
+  "employment_type_preference": ["Government Job", "Private Job", "Business"],
   "location_preference": ["Mumbai", "Pune", "Delhi"],
   "mother_tongue_preference": ["Hindi", "English"]
 }

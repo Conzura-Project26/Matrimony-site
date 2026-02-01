@@ -279,7 +279,7 @@ describe('PUT /users/:userId/preferences - Update Partner Preferences', () => {
   
   it('T2.7.7 - Should support partial update (only some fields)', async () => {
     const partialUpdate = {
-      profession_preference: ["Software Engineer", "Doctor", "Teacher"]
+      employment_type_preference: ["Government Job", "Private Job", "Business"]
     };
     
     const response = await makeRequest(
@@ -290,7 +290,7 @@ describe('PUT /users/:userId/preferences - Update Partner Preferences', () => {
     );
     
     expect(response.status).toBe(200);
-    expect(response.data.data.partner_preferences.profession_preference).toHaveLength(3);
+    expect(response.data.data.partner_preferences.employment_type_preference).toHaveLength(3);
     // Previous values should remain unchanged
     expect(response.data.data.partner_preferences.min_age).toBe(25);
     console.log('✅ T2.7.7 passed - Partial update successful');

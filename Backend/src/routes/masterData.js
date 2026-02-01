@@ -11,7 +11,9 @@ import {
   getCastesByReligion,
   getSubCastesByCaste,
   getAllMasterData,
-  getReligionHierarchy
+  getReligionHierarchy,
+  getStates,
+  getCities
 } from '../controllers/masterDataController.js';
 
 const router = express.Router();
@@ -241,5 +243,121 @@ router.get('/all', authenticateToken, getAllMasterData);
  *         description: Server error
  */
 router.get('/religions/:religionId/hierarchy', authenticateToken, getReligionHierarchy);
+
+/**
+ * @swagger
+ * /master/states:
+ *   get:
+ *     tags:
+ *       - Master Data
+ *     summary: Get all Indian states
+ *     description: Retrieve list of all Indian states (cached, refreshed weekly)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: States retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ['Karnataka', 'Maharashtra', 'Tamil Nadu']
+ *                 count:
+ *                   type: integer
+ *                   example: 36
+ *                 message:
+ *                   type: string
+ *                   example: 'States retrieved successfully'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/states', authenticateToken, getStates);
+
+/**
+ * @swagger
+ * /master/cities:
+ *   get:
+ *     tags:
+ *       - Master Data
+ *     summary: Get cities by state with optional search
+ *     description: Retrieve cities for a specific state, with optional search filter (cached for performance)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: state
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: State name (must be exact match from /master/states)
+ *         example: 'Karnataka'
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Optional search query to filter cities (case-insensitive partial match)
+ *         example: 'Bang'
+ *     responses:
+ *       200:
+ *         description: Cities retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ['Bangalore', 'Bangarpet', 'Bangarapet']
+ *                 count:
+ *                   type: integer
+ *                   example: 3
+ *                 message:
+ *                   type: string
+ *                   example: 'Cities in Karnataka matching "Bang" retrieved successfully'
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     state:
+ *                       type: string
+ *                       example: 'Karnataka'
+ *                     search:
+ *                       type: string
+ *                       nullable: true
+ *                       example: 'Bang'
+ *       400:
+ *         description: Bad request - State parameter required or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'State parameter is required'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/cities', authenticateToken, getCities);
 
 export default router;

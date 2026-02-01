@@ -315,10 +315,10 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   // ============================================
   // 5. PROFESSION - 14% (Scored)
   // ============================================
-  const userProfession = userProfile.professional_details?.occupation;
+  const userEmploymentType = userProfile.professional_details?.employment_type;
   breakdown.profession.score = calculateCategoryScore(
-    partnerPreferences.profession_preference,
-    userProfession,
+    partnerPreferences.employment_type_preference,
+    userEmploymentType,
     breakdown.profession.maxScore
   );
   breakdown.profession.status = breakdown.profession.score > 0 ? 'match' : 'no-match';

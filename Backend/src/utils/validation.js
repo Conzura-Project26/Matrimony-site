@@ -335,9 +335,28 @@ const personalDetailsSchema = z.object({
   about_me: z.string()
     .min(10, 'About me must be at least 10 characters')
     .max(1000, 'About me cannot exceed 1000 characters')
+    .optional(),
+  
+  state: z.string()
+    .min(2, 'State must be at least 2 characters')
+    .max(100, 'State cannot exceed 100 characters')
+    .optional(),
+  
+  city: z.string()
+    .min(2, 'City must be at least 2 characters')
+    .max(100, 'City cannot exceed 100 characters')
     .optional()
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'At least one field is required to update personal details'
+}).refine((data) => {
+  // If city is provided, state must also be provided
+  if (data.city && !data.state) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'State is required when city is provided',
+  path: ['state']
 });
 
 // ============================================
@@ -659,19 +678,29 @@ const partnerPreferencesSchema = z.object({
       .max(150, 'Education preference cannot exceed 150 characters')
   ).optional(),
   
-  // Profession preferences (Scored - 14%)
-  profession_preference: z.array(
-    z.string()
-      .min(2, 'Profession preference must be at least 2 characters')
-      .max(150, 'Profession preference cannot exceed 150 characters')
+  // Employment Type preferences (Scored - 15%)
+  employment_type_preference: z.array(
+    z.enum([
+      EmploymentType.GOVERNMENT_JOB,
+      EmploymentType.PRIVATE_JOB,
+      EmploymentType.BUSINESS,
+      EmploymentType.SELF_EMPLOYED,
+      EmploymentType.FREELANCER_CONSULTANT,
+      EmploymentType.HOMEMAKER,
+      EmploymentType.STUDENT,
+      EmploymentType.RETIRED,
+      EmploymentType.NOT_WORKING
+    ])
   ).optional(),
   
-  // Location preferences (Scored - 17%)
-  location_preference: z.array(
-    z.string()
-      .min(2, 'Location preference must be at least 2 characters')
-      .max(150, 'Location preference cannot exceed 150 characters')
-  ).optional(),
+  // Location preferences (Scored - 17%) - JSONB format: {"Karnataka": ["Bangalore", "Mysore"], "Gujarat": []}
+  // Empty array means "any city in that state"
+  preferred_location: z.record(
+    z.string().min(2, 'State name must be at least 2 characters').max(100, 'State name cannot exceed 100 characters'),
+    z.array(
+      z.string().min(2, 'City name must be at least 2 characters').max(100, 'City name cannot exceed 100 characters')
+    )
+  ).optional().nullable(),
     // Physical Status preferences (Scored - 5%)
   physical_status: z.array(
     z.enum([
