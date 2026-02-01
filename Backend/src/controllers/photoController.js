@@ -14,6 +14,7 @@ import prisma from '../config/prisma.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../utils/errors.js';
 import logger from '../config/logger.js';
 import { UTApi } from 'uploadthing/server';
+import { updateProfileCompletionCache } from '../utils/profileCompletion.js';
 
 // Initialize UploadThing API client for file deletion
 const utapi = new UTApi();
@@ -95,6 +96,9 @@ export const uploadPhoto = async (req, res) => {
     isPrimary,
     requiresApproval: true,
   });
+
+  // Update profile completion cache
+  await updateProfileCompletionCache(userId);
 
   res.status(201).json({
     success: true,
@@ -287,6 +291,9 @@ export const deletePhoto = async (req, res) => {
     roleName,
     isOwnerDeletion: isOwner,
   });
+
+  // Update profile completion cache
+  await updateProfileCompletionCache(photo.user_id);
 
   res.json({
     success: true,

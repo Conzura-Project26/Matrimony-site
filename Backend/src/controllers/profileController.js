@@ -15,6 +15,7 @@ import {
 } from '../utils/errors.js';
 import { logAPI, logDatabase } from '../utils/logUtils.js';
 import { calculateMatchScore, calculateEnhancedMatchScore } from '../utils/preferenceMatching.js';
+import { updateProfileCompletionCache } from '../utils/profileCompletion.js';
 
 /**
  * Format horoscope details for API response
@@ -105,6 +106,9 @@ class ProfileController {
       hasData: Object.keys(familyData).length > 0,
     });
 
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
+
     res.status(201).json({
       success: true,
       message: 'Family details created successfully',
@@ -172,6 +176,9 @@ class ProfileController {
       updatedBy: req.user.id,
       fieldsUpdated: Object.keys(familyData),
     });
+
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
 
     res.status(200).json({
       success: true,
@@ -308,6 +315,9 @@ class ProfileController {
       hasData: Object.keys(horoscopeData).length > 0,
     });
 
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
+
     res.status(201).json({
       success: true,
       message: 'Horoscope details created successfully',
@@ -375,6 +385,9 @@ class ProfileController {
       updatedBy: req.user.id,
       fieldsUpdated: Object.keys(horoscopeData),
     });
+
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
 
     res.status(200).json({
       success: true,
@@ -564,6 +577,9 @@ class ProfileController {
       hasData: Object.keys(preferencesData).length > 0,
     });
 
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
+
     res.status(201).json({
       success: true,
       message: 'Partner preferences created successfully',
@@ -687,6 +703,9 @@ class ProfileController {
       updatedBy: req.user.id,
       fieldsUpdated: Object.keys(preferencesData),
     });
+
+    // Update profile completion cache
+    await updateProfileCompletionCache(userId);
 
     res.status(200).json({
       success: true,

@@ -531,8 +531,354 @@ router.get('/:userId/personal',
 );
 
 // ============================================
-// PROFILE COMPLETION ROUTE
+// COMPLETE PROFILE & VERIFICATION ROUTES (Task 2.10)
 // ============================================
+
+/**
+ * @swagger
+ * /users/{userId}/profile:
+ *   get:
+ *     tags:
+ *       - User Profile
+ *     summary: Get complete user profile
+ *     description: |
+ *       Retrieve comprehensive profile with all sections including:
+ *       - Basic info, Personal details, Caste details
+ *       - Education details (all entries, sorted by year)
+ *       - Professional details, Family details, Horoscope details
+ *       - Photos (only approved, with metadata)
+ *       - Partner preferences
+ *       - Profile completion percentage
+ *       - Verification status
+ *       - Activity status and badges
+ *       
+ *       **Privacy**: Sensitive data (mobile, email, income, family details) visible only to:
+ *       - Self
+ *       - Admin
+ *       - Connected users (future feature)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *         example: '550e8400-e29b-41d4-a716-446655440000'
+ *     responses:
+ *       200:
+ *         description: Complete profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Complete profile retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     basic_info:
+ *                       type: object
+ *                       description: Basic user information
+ *                     personal_details:
+ *                       type: object
+ *                       description: Personal details section
+ *                     caste_details:
+ *                       type: object
+ *                       description: Caste and religion details
+ *                     education_details:
+ *                       type: array
+ *                       description: All education entries (sorted by year desc)
+ *                     professional_details:
+ *                       type: object
+ *                       description: Professional/career details
+ *                     family_details:
+ *                       type: object
+ *                       description: Family details (sensitive - filtered)
+ *                     horoscope_details:
+ *                       type: object
+ *                       description: Horoscope/astrology details
+ *                     photos:
+ *                       type: array
+ *                       description: Approved photos with metadata
+ *                     partner_preferences:
+ *                       type: object
+ *                       description: Partner preference criteria
+ *                     profile_completion:
+ *                       type: object
+ *                       properties:
+ *                         percentage:
+ *                           type: integer
+ *                           example: 85
+ *                         status:
+ *                           type: string
+ *                           example: Almost Complete
+ *                         readiness:
+ *                           type: object
+ *                           properties:
+ *                             is_ready_for_matching:
+ *                               type: boolean
+ *                               example: true
+ *                             is_complete:
+ *                               type: boolean
+ *                               example: false
+ *                             status:
+ *                               type: string
+ *                               example: ready
+ *                             message:
+ *                               type: string
+ *                             minimum_completion_required:
+ *                               type: integer
+ *                               example: 60
+ *                     verification_status:
+ *                       type: object
+ *                       properties:
+ *                         is_verified:
+ *                           type: boolean
+ *                           example: false
+ *                         mobile_verified:
+ *                           type: boolean
+ *                           example: true
+ *                         email_verified:
+ *                           type: boolean
+ *                           example: false
+ *                         profile_verified:
+ *                           type: boolean
+ *                           example: false
+ *                         verification_percentage:
+ *                           type: integer
+ *                           example: 33
+ *                         pending_verifications:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                           example: ["email", "profile_approval"]
+ *                     activity_status:
+ *                       type: object
+ *                       properties:
+ *                         last_active:
+ *                           type: string
+ *                           format: date-time
+ *                         profile_last_updated:
+ *                           type: string
+ *                           format: date-time
+ *                         account_age_days:
+ *                           type: integer
+ *                           example: 45
+ *                         days_since_last_update:
+ *                           type: integer
+ *                           example: 2
+ *                         activity_level:
+ *                           type: string
+ *                           example: active
+ *                     badges:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             example: verified
+ *                           label:
+ *                             type: string
+ *                             example: Verified Profile
+ *                           icon:
+ *                             type: string
+ *                             example: ✓
+ *                           color:
+ *                             type: string
+ *                             example: blue
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Profile is not active
+ *       404:
+ *         description: User not found
+ */
+router.get('/:userId/profile',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.getCompleteProfile(req, res))
+);
+
+/**
+ * @swagger
+ * /users/{userId}/verification-status:
+ *   get:
+ *     tags:
+ *       - User Profile
+ *     summary: Get detailed verification status
+ *     description: |
+ *       Get comprehensive verification status breakdown showing:
+ *       - Overall verification status (requires all 3 verifications)
+ *       - Mobile verification status
+ *       - Email verification status
+ *       - Profile verification status (admin approval)
+ *       - Verification percentage
+ *       - Pending verifications
+ *       - Next steps to complete verification
+ *       
+ *       **Authorization**: Only accessible by self or admin
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID (UUID format)
+ *         example: '550e8400-e29b-41d4-a716-446655440000'
+ *     responses:
+ *       200:
+ *         description: Verification status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Verification status retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_verified:
+ *                       type: boolean
+ *                       example: false
+ *                       description: True only when ALL three verifications are complete
+ *                     mobile_verified:
+ *                       type: boolean
+ *                       example: true
+ *                     email_verified:
+ *                       type: boolean
+ *                       example: false
+ *                     profile_verified:
+ *                       type: boolean
+ *                       example: false
+ *                     verification_percentage:
+ *                       type: integer
+ *                       example: 33
+ *                       description: Percentage of completed verifications (0-100)
+ *                     pending_verifications:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["email", "profile_approval"]
+ *                     user_info:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         full_name:
+ *                           type: string
+ *                         mobile_number:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                     verification_steps:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           step:
+ *                             type: string
+ *                             example: mobile
+ *                           label:
+ *                             type: string
+ *                             example: Mobile Verification
+ *                           status:
+ *                             type: string
+ *                             enum: [verified, pending]
+ *                             example: verified
+ *                           verified_at:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
+ *                           description:
+ *                             type: string
+ *                             example: Verify your mobile number via OTP
+ *                     next_steps:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: 
+ *                         - "Verify your email address"
+ *                         - "Wait for admin to review and verify your profile"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: You do not have permission to view verification status
+ *       404:
+ *         description: User not found
+ */
+router.get('/:userId/verification-status',
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.getVerificationStatus(req, res))
+);
+
+// ============================================
+// PROFILE COMPLETION ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /users/{userId}/completion-percentage:
+ *   get:
+ *     tags:
+ *       - User Profile
+ *     summary: Get profile completion percentage (FAST - for Dashboard)
+ *     description: |
+ *       **⚡ OPTIMIZED FOR DASHBOARD** - Returns only cached completion percentage.
+ *       
+ *       **Performance:** 50-80ms (3-4x faster than full profile)
+ *       
+ *       **Use this endpoint when:**
+ *       - Showing percentage on dashboard
+ *       - Profile cards/lists
+ *       - Any UI that only needs the number
+ *       
+ *       **Use `/profile-completion` when you need detailed breakdown**
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               message: "Profile completion percentage retrieved successfully"
+ *               data:
+ *                 completion_percentage: 75
+ *                 status: "In Progress"
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+router.get('/:userId/completion-percentage', 
+  authenticateToken,
+  asyncHandler((req, res) => userProfileController.getCompletionPercentage(req, res))
+);
 
 /**
  * @swagger
@@ -540,8 +886,9 @@ router.get('/:userId/personal',
  *   get:
  *     tags:
  *       - User Profile
- *     summary: Get detailed profile completion status
- *     description: Get section-wise completion breakdown and overall percentage
+ *     summary: Get detailed profile completion status (with breakdown)
+ *     description: |
+ *       **⚠️ SLOWER** - Returns detailed breakdown. For dashboard use `/completion-percentage` instead.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1313,7 +1660,7 @@ router.get(
  *                 items:
  *                   type: string
  *                 description: Education qualifications array (11% scoring). Empty = open to all
- *                 example: ['Bachelor\'s Degree', 'Master\'s Degree']
+ *                 example: ["Bachelor's Degree", "Master's Degree"]
  *               profession_preference:
  *                 type: array
  *                 items:
@@ -1389,7 +1736,7 @@ router.get(
  *                 max_weight: 70
  *                 religion_preference: [1, 2]
  *                 caste_preference: [5, 6]
- *                 education_preference: ['Bachelor\'s Degree', 'Master\'s Degree']
+ *                 education_preference: ["Bachelor's Degree", "Master's Degree"]
  *                 profession_preference: ['Software Engineer', 'Doctor']
  *                 location_preference: ['Bangalore', 'Mumbai']
  *                 physical_status: ['Normal']
