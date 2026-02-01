@@ -247,12 +247,12 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.education.status = breakdown.education.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 5. PROFESSION - 15% (Scored)
+  // 5. EMPLOYMENT TYPE - 15% (Scored)
   // ============================================
-  const userProfession = userProfile.professional_details?.occupation;
+  const userEmploymentType = userProfile.professional_details?.employment_type;
   breakdown.profession.score = calculateCategoryScore(
-    partnerPreferences.profession_preference,
-    userProfession,
+    partnerPreferences.employment_type_preference,
+    userEmploymentType,
     breakdown.profession.maxScore
   );
   breakdown.profession.status = breakdown.profession.score > 0 ? 'match' : 'no-match';
