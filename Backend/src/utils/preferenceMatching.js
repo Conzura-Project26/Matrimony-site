@@ -4,15 +4,16 @@
  * 
  * Scoring Breakdown:
  * - Age: Hard Filter (must match or excluded)
- * - Religion: 18% (scored)
- * - Caste: 12% (scored)
- * - Education: 12% (scored)
- * - Profession: 15% (scored)
- * - Location: 18% (scored)
+ * - Religion: 17% (scored)
+ * - Caste: 11% (scored)
+ * - Education: 11% (scored)
+ * - Profession: 14% (scored)
+ * - Location: 17% (scored)
  * - Height: 5% (soft score)
- * - Other attributes: Bonus scoring
+ * - Weight: 5% (soft score)
+ * - Physical Status: 5% (scored)
  * 
- * Total Base Score: 80% (100% if all match perfectly)
+ * Total Base Score: 85% (100% if all match perfectly)
  * Unspecified preferences = "open to all" (full score for that category)
  */
 
@@ -151,6 +152,69 @@ const calculateHeightScore = (minHeight, maxHeight, actualHeight) => {
 };
 
 /**
+ * Calculate weight match score (soft scoring)
+ * @param {number} minWeight - Minimum preferred weight (kg)
+ * @param {number} maxWeight - Maximum preferred weight (kg)
+ * @param {number} actualWeight - Actual weight (kg)
+ * @returns {number} - Score (0-5)
+ */
+const calculateWeightScore = (minWeight, maxWeight, actualWeight) => {
+  const maxScore = 5;
+  
+  // If no weight preference, full score
+  if (!minWeight && !maxWeight) {
+    return maxScore;
+  }
+  
+  // If actual weight not provided, no score
+  if (!actualWeight) {
+    return 0;
+  }
+  
+  // If within range, full score
+  if (minWeight && maxWeight) {
+    if (actualWeight >= minWeight && actualWeight <= maxWeight) {
+      return maxScore;
+    }
+    
+    // Partial score for being close (within 5 kg)
+    const distanceFromMin = Math.abs(actualWeight - minWeight);
+    const distanceFromMax = Math.abs(actualWeight - maxWeight);
+    const closestDistance = Math.min(distanceFromMin, distanceFromMax);
+    
+    if (closestDistance <= 5) {
+      return maxScore * 0.5; // 50% score if within 5 kg
+    }
+    
+    return 0;
+  }
+  
+  // Only min_weight specified
+  if (minWeight) {
+    if (actualWeight >= minWeight) {
+      return maxScore;
+    }
+    if (Math.abs(actualWeight - minWeight) <= 5) {
+      return maxScore * 0.5;
+    }
+    return 0;
+  }
+  
+  // Only max_weight specified
+  if (maxWeight) {
+    if (actualWeight <= maxWeight) {
+      return maxScore;
+    }
+    if (Math.abs(actualWeight - maxWeight) <= 5) {
+      return maxScore * 0.5;
+    }
+    return 0;
+  }
+  
+  return 0;
+};
+
+/**
  * Main function: Calculate match percentage between user and preferences
  * @param {Object} userProfile - User's complete profile data
  * @param {Object} partnerPreferences - Partner preferences
@@ -159,12 +223,14 @@ const calculateHeightScore = (minHeight, maxHeight, actualHeight) => {
 const calculateMatchScore = (userProfile, partnerPreferences) => {
   const breakdown = {
     age: { score: 0, maxScore: 0, status: 'pass', isHardFilter: true },
-    religion: { score: 0, maxScore: 18, status: 'pending' },
-    caste: { score: 0, maxScore: 12, status: 'pending' },
-    education: { score: 0, maxScore: 12, status: 'pending' },
-    profession: { score: 0, maxScore: 15, status: 'pending' },
-    location: { score: 0, maxScore: 18, status: 'pending' },
-    height: { score: 0, maxScore: 5, status: 'pending' }
+    religion: { score: 0, maxScore: 17, status: 'pending' },
+    caste: { score: 0, maxScore: 11, status: 'pending' },
+    education: { score: 0, maxScore: 11, status: 'pending' },
+    profession: { score: 0, maxScore: 14, status: 'pending' },
+    location: { score: 0, maxScore: 17, status: 'pending' },
+    height: { score: 0, maxScore: 5, status: 'pending' },
+    weight: { score: 0, maxScore: 5, status: 'pending' },
+    physical_status: { score: 0, maxScore: 5, status: 'pending' }
   };
   
   // ============================================
@@ -198,7 +264,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
           match: false,
           matchPercentage: 0,
           totalScore: 0,
-          maxScore: 80,
+          maxScore: 85,
           breakdown,
           failReason: `Age does not match hard filter criteria. User age: ${userAge}, Required: ${minAge || 'any'}-${maxAge || 'any'}`
         };
@@ -210,7 +276,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.age.userAge = userAge;
   
   // ============================================
-  // 2. RELIGION - 18% (Scored)
+  // 2. RELIGION - 17% (Scored)
   // ============================================
   const userReligionId = userProfile.caste_details?.religion_id;
   breakdown.religion.score = calculateCategoryScore(
@@ -221,7 +287,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.religion.status = breakdown.religion.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 3. CASTE - 12% (Scored)
+  // 3. CASTE - 11% (Scored)
   // ============================================
   const userCasteId = userProfile.caste_details?.caste_id;
   breakdown.caste.score = calculateCategoryScore(
@@ -232,7 +298,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.caste.status = breakdown.caste.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 4. EDUCATION - 12% (Scored)
+  // 4. EDUCATION - 11% (Scored)
   // ============================================
   // Get highest qualification from education_details array
   const userEducation = userProfile.education_details && userProfile.education_details.length > 0
@@ -247,7 +313,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.education.status = breakdown.education.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 5. EMPLOYMENT TYPE - 15% (Scored)
+  // 5. PROFESSION - 14% (Scored)
   // ============================================
   const userEmploymentType = userProfile.professional_details?.employment_type;
   breakdown.profession.score = calculateCategoryScore(
@@ -258,7 +324,7 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   breakdown.profession.status = breakdown.profession.score > 0 ? 'match' : 'no-match';
   
   // ============================================
-  // 6. LOCATION - 18% (Scored)
+  // 6. LOCATION - 17% (Scored)
   // ============================================
   const userLocation = userProfile.professional_details?.work_location;
   breakdown.location.score = calculateCategoryScore(
@@ -278,6 +344,28 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
     userHeight
   );
   breakdown.height.status = breakdown.height.score > 0 ? 'match' : 'no-match';
+  
+  // ============================================
+  // 8. WEIGHT - 5% (Soft Score)
+  // ============================================
+  const userWeight = userProfile.personal_details?.weight_kg;
+  breakdown.weight.score = calculateWeightScore(
+    partnerPreferences.min_weight,
+    partnerPreferences.max_weight,
+    userWeight
+  );
+  breakdown.weight.status = breakdown.weight.score > 0 ? 'match' : 'no-match';
+  
+  // ============================================
+  // 9. PHYSICAL STATUS - 5% (Scored)
+  // ============================================
+  const userPhysicalStatus = userProfile.personal_details?.physical_status;
+  breakdown.physical_status.score = calculateCategoryScore(
+    partnerPreferences.physical_status,
+    userPhysicalStatus,
+    breakdown.physical_status.maxScore
+  );
+  breakdown.physical_status.status = breakdown.physical_status.score > 0 ? 'match' : 'no-match';
   
   // ============================================
   // CALCULATE TOTAL SCORE
@@ -305,7 +393,9 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
       userEducation,
       userProfession,
       userLocation,
-      userHeight
+      userHeight,
+      userWeight,
+      userPhysicalStatus
     }
   };
 };
@@ -410,5 +500,6 @@ export {
   calculateAge,
   isPreferenceMatch,
   calculateCategoryScore,
-  calculateHeightScore
+  calculateHeightScore,
+  calculateWeightScore
 };
