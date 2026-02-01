@@ -75,7 +75,7 @@ model PartnerPreferences {
   religion_preference         Int[]    @default([])
   caste_preference            Int[]    @default([])
   education_preference        String[] @default([])
-  profession_preference       String[] @default([])
+  employment_type_preference  String[] @default([])
   location_preference         String[] @default([])
   marital_status_preference   String[] @default([])
   mother_tongue_preference    String[] @default([])
@@ -157,7 +157,7 @@ Content-Type: application/json
 {
   "min_age": 25,
   "max_age": 32,
-  "profession_preference": ["Software Engineer", "Doctor"]
+  "employment_type_preference": ["Government Job", "Private Job"]
 }
 ```
 

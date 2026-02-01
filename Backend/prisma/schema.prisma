@@ -152,13 +152,13 @@ model UserPersonalDetails {
   blood_group     String?  @db.VarChar(10)
   body_type       String?  @db.VarChar(30)
   complexion      String?  @db.VarChar(30)
-  state           String?  @db.VarChar(100)
-  city            String?  @db.VarChar(100)
   created_at      DateTime @default(now())
   diet_preference String?  @db.VarChar(30)
   drinking_habit  String?  @db.VarChar(30)
   smoking_habit   String?  @db.VarChar(30)
   updated_at      DateTime @default(now()) @updatedAt
+  city            String?  @db.VarChar(100)
+  state           String?  @db.VarChar(100)
   user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_personal_details")
@@ -220,7 +220,7 @@ model UserHoroscopeDetails {
   user_id        String    @id @db.Uuid
   rasi           String?   @db.VarChar(50)
   nakshatra      String?   @db.VarChar(50)
-  time_of_birth  DateTime? @db.Time()
+  time_of_birth  DateTime? @db.Time(6)
   place_of_birth String?   @db.VarChar(150)
   user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
@@ -244,29 +244,29 @@ model UserPhoto {
 }
 
 model PartnerPreferences {
-  user_id                     String   @id @db.Uuid
-  min_age                     Int?
-  max_age                     Int?
-  min_height                  Int?
-  max_height                  Int?
-  min_weight                  Int?
-  max_weight                  Int?
-  religion_preference         Int[]    @default([])
-  caste_preference            Int[]    @default([])
-  education_preference        String[] @default([])
-  profession_preference       String[] @default([])
-  preferred_location          Json?
-  marital_status_preference   String[] @default([])
-  mother_tongue_preference    String[] @default([])
-  physical_status             String[] @default([])
-  income_preference_min       String?
-  income_preference_max       String?
-  diet_preference             String[] @default([])
-  drinking_habit_preference   String[] @default([])
-  smoking_habit_preference    String[] @default([])
-  created_at                  DateTime @default(now())
-  updated_at                  DateTime @default(now()) @updatedAt
-  user                        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id                    String   @id @db.Uuid
+  min_age                    Int?
+  max_age                    Int?
+  min_height                 Int?
+  max_height                 Int?
+  created_at                 DateTime @default(now())
+  diet_preference            String[] @default([])
+  drinking_habit_preference  String[] @default([])
+  income_preference_max      String?
+  income_preference_min      String?
+  marital_status_preference  String[] @default([])
+  mother_tongue_preference   String[] @default([])
+  smoking_habit_preference   String[] @default([])
+  updated_at                 DateTime @default(now()) @updatedAt
+  religion_preference        Int[]    @default([])
+  caste_preference           Int[]    @default([])
+  education_preference       String[] @default([])
+  max_weight                 Int?
+  min_weight                 Int?
+  physical_status            String[] @default([])
+  preferred_location         Json?
+  employment_type_preference String[] @default([])
+  user                       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("partner_preferences")
 }

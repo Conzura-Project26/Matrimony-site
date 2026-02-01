@@ -665,11 +665,19 @@ const partnerPreferencesSchema = z.object({
       .max(150, 'Education preference cannot exceed 150 characters')
   ).optional(),
   
-  // Profession preferences (Scored - 15%)
-  profession_preference: z.array(
-    z.string()
-      .min(2, 'Profession preference must be at least 2 characters')
-      .max(150, 'Profession preference cannot exceed 150 characters')
+  // Employment Type preferences (Scored - 15%)
+  employment_type_preference: z.array(
+    z.enum([
+      EmploymentType.GOVERNMENT_JOB,
+      EmploymentType.PRIVATE_JOB,
+      EmploymentType.BUSINESS,
+      EmploymentType.SELF_EMPLOYED,
+      EmploymentType.FREELANCER_CONSULTANT,
+      EmploymentType.HOMEMAKER,
+      EmploymentType.STUDENT,
+      EmploymentType.RETIRED,
+      EmploymentType.NOT_WORKING
+    ])
   ).optional(),
   
   // Location preferences (Scored - 18%) - JSONB format: {"Karnataka": ["Bangalore", "Mysore"], "Gujarat": []}
