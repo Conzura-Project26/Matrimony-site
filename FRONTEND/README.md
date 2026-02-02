@@ -8,7 +8,7 @@ SarvVivah is a centralized, caste-inclusive matrimonial platform designed to ser
 
 ## Technology Stack
 
-- **Frontend:** React 18 with TypeScript
+- **Frontend:** React with JavaScript
 - **Styling:** Tailwind CSS
 - **Routing:** React Router DOM
 - **Animations:** Framer Motion
