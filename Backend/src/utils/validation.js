@@ -882,6 +882,86 @@ const partnerPreferencesSchema = z.object({
   path: ['min_weight']
 });
 
+// ========================
+// SEARCH VALIDATION SCHEMAS
+// ========================
+
+/**
+ * Simple Search Schema (GET request - query params)
+ * For basic search with limited filters
+ */
+const simpleSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+  keyword: z.string().trim().min(2).max(100).optional(),
+  mother_tongue: z.string().trim().optional(),
+  min_height: z.coerce.number().int().min(100).max(250).optional(),
+  max_height: z.coerce.number().int().min(100).max(250).optional(),
+  rasi: z.string().trim().optional(),
+  nakshatra: z.string().trim().optional(),
+}).refine((data) => {
+  // Validate: min_height <= max_height (if both provided)
+  if (data.min_height !== undefined && data.max_height !== undefined) {
+    return data.min_height <= data.max_height;
+  }
+  return true;
+}, {
+  message: 'Minimum height cannot be greater than maximum height',
+  path: ['min_height']
+});
+
+/**
+ * Advanced Search Schema (POST request - body)
+ * For complex search with multiple filters
+ */
+const advancedSearchSchema = z.object({
+  // Pagination
+  page: z.number().int().min(1).optional().default(1),
+  
+  // Height filter (numeric min/max only)
+  min_height: z.number().int().min(100).max(250).optional(),
+  max_height: z.number().int().min(100).max(250).optional(),
+  
+  // Mother tongue filter (array for multiple selection)
+  mother_tongue: z.array(z.string().trim()).min(1).max(10).optional(),
+  
+  // Horoscope filters
+  rasi: z.array(z.string().trim()).min(1).max(12).optional(),
+  nakshatra: z.array(z.string().trim()).min(1).max(27).optional(),
+  
+  // Keyword search in profile (full-text search)
+  keyword: z.string().trim().min(2).max(100).optional(),
+  
+}).refine((data) => {
+  // Validate: min_height <= max_height (if both provided)
+  if (data.min_height !== undefined && data.max_height !== undefined) {
+    return data.min_height <= data.max_height;
+  }
+  return true;
+}, {
+  message: 'Minimum height cannot be greater than maximum height',
+  path: ['min_height']
+}).refine((data) => {
+  // Ensure at least one search criterion is provided
+  const hasFilter = data.keyword || 
+                    data.mother_tongue || 
+                    data.rasi || 
+                    data.nakshatra || 
+                    data.min_height !== undefined || 
+                    data.max_height !== undefined;
+  return hasFilter;
+}, {
+  message: 'At least one search filter must be provided',
+  path: ['keyword']
+});
+
+/**
+ * Profile ID Search Schema
+ * For searching by custom profile ID
+ */
+const profileIdSearchSchema = z.object({
+  profile_id: z.string().trim().min(5).max(20),
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -905,4 +985,7 @@ export {
   professionalDetailsUpdateSchema,
   professionalDetailsPatchSchema,
   partnerPreferencesSchema,
+  simpleSearchSchema,
+  advancedSearchSchema,
+  profileIdSearchSchema,
 };
