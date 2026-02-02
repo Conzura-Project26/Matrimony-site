@@ -37,47 +37,49 @@ model RolePermission {
 }
 
 model User {
-  id                    String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  role_id               Int
-  full_name             String                   @db.VarChar(150)
-  gender                String                   @db.VarChar(10)
-  date_of_birth         DateTime                 @db.Date
-  mobile_number         String                   @unique @db.VarChar(15)
-  email                 String?                  @unique @db.VarChar(150)
-  password_hash         String
-  profile_created_by    String                   @db.VarChar(20)
-  is_mobile_verified    Boolean                  @default(false)
-  is_email_verified              Boolean                  @default(false)
-  is_profile_verified            Boolean                  @default(false)
-  is_active                      Boolean                  @default(true)
-  created_at                     DateTime                 @default(now())
-  updated_at                     DateTime                 @default(now()) @updatedAt
-  highest_qualification          String?                  @db.VarChar(150)
-  profile_completion_percentage  Int?                     @default(0)
-  audit_logs                     AuditLog[]
-  interests_received    Interest[]               @relation("InterestReceiver")
-  interests_sent        Interest[]               @relation("InterestSender")
-  messages_received     Message[]                @relation("MessageReceiver")
-  messages_sent         Message[]                @relation("MessageSender")
-  otp_logs              OtpLog[]
-  partner_preferences   PartnerPreferences?
-  refresh_tokens        RefreshToken[]
-  search_logs           SearchLog[]
-  shortlisted_by        ShortlistedProfile[]     @relation("Shortlisted")
-  shortlisted           ShortlistedProfile[]     @relation("ShortlistedBy")
-  subscriptions         Subscription[]
-  caste_details         UserCasteDetails?
-  education_details     UserEducationDetails[]
-  family_details        UserFamilyDetails?
-  horoscope_details     UserHoroscopeDetails?
-  personal_details      UserPersonalDetails?
-  approved_photos       UserPhoto[]              @relation("PhotoApprover")
-  photos                UserPhoto[]
-  professional_details  UserProfessionalDetails?
-  reports_made          UserReport[]             @relation("Reporter")
-  reports_received      UserReport[]             @relation("Reported")
-  role                  Role                     @relation(fields: [role_id], references: [id])
+  id                            String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id                    String?                  @unique @db.VarChar(20)
+  role_id                       Int
+  full_name                     String                   @db.VarChar(150)
+  gender                        String                   @db.VarChar(10)
+  date_of_birth                 DateTime                 @db.Date
+  mobile_number                 String                   @unique @db.VarChar(15)
+  email                         String?                  @unique @db.VarChar(150)
+  password_hash                 String
+  profile_created_by            String                   @db.VarChar(20)
+  is_mobile_verified            Boolean                  @default(false)
+  is_email_verified             Boolean                  @default(false)
+  is_profile_verified           Boolean                  @default(false)
+  is_active                     Boolean                  @default(true)
+  created_at                    DateTime                 @default(now())
+  updated_at                    DateTime                 @default(now()) @updatedAt
+  highest_qualification         String?                  @db.VarChar(150)
+  profile_completion_percentage Int?                     @default(0)
+  audit_logs                    AuditLog[]
+  interests_received            Interest[]               @relation("InterestReceiver")
+  interests_sent                Interest[]               @relation("InterestSender")
+  messages_received             Message[]                @relation("MessageReceiver")
+  messages_sent                 Message[]                @relation("MessageSender")
+  otp_logs                      OtpLog[]
+  partner_preferences           PartnerPreferences?
+  refresh_tokens                RefreshToken[]
+  search_logs                   SearchLog[]
+  shortlisted_by                ShortlistedProfile[]     @relation("Shortlisted")
+  shortlisted                   ShortlistedProfile[]     @relation("ShortlistedBy")
+  subscriptions                 Subscription[]
+  caste_details                 UserCasteDetails?
+  education_details             UserEducationDetails[]
+  family_details                UserFamilyDetails?
+  horoscope_details             UserHoroscopeDetails?
+  personal_details              UserPersonalDetails?
+  approved_photos               UserPhoto[]              @relation("PhotoApprover")
+  photos                        UserPhoto[]
+  professional_details          UserProfessionalDetails?
+  reports_made                  UserReport[]             @relation("Reporter")
+  reports_received              UserReport[]             @relation("Reported")
+  role                          Role                     @relation(fields: [role_id], references: [id])
 
+  @@index([profile_completion_percentage], map: "idx_users_profile_completion")
   @@map("users")
 }
 
@@ -284,11 +286,18 @@ model ShortlistedProfile {
 }
 
 model SearchLog {
-  id             Int      @id @default(autoincrement())
-  user_id        String?  @db.Uuid
-  search_filters Json?
-  searched_at    DateTime @default(now())
-  user           User?    @relation(fields: [user_id], references: [id])
+  id                Int      @id @default(autoincrement())
+  user_id           String?  @db.Uuid
+  search_filters    Json
+  result_count      Int      @default(0)
+  execution_time_ms Int      @default(0)
+  ip_address        String?  @db.VarChar(45)
+  user_agent        String?  @db.Text
+  searched_at       DateTime @default(now())
+  user              User?    @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([searched_at])
 
   @@map("search_logs")
 }
