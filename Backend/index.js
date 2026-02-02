@@ -8,6 +8,7 @@ import testErrorRoutes from './src/routes/testErrors.js';
 import userRoutes from './src/routes/userRoutes.js';
 import adminRoutes from './src/routes/admin.js';
 import searchRoutes from './src/routes/search.js';
+import profileListingRoutes from './src/routes/profileListing.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -63,6 +64,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
 app.use('/users', userRoutes); // Combined user routes (photos, personal, caste, education, professional, family, horoscope, preferences)
+app.use('/profiles', profileListingRoutes); // Profile listing with advanced filters (Task 3.1)
 app.use('/search', searchRoutes); // Search & matchmaking routes
 app.use('/admin', adminRoutes);
 

@@ -303,6 +303,12 @@ class AuthController {
       role: user.role.role_name,
     });
 
+    // Update last_active_at timestamp
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { last_active_at: new Date() },
+    });
+
     logAuth.login(identifier, true, { userId: user.id, role: user.role.role_name });
     logAuth.tokenGenerated(user.id);
 

@@ -53,6 +53,7 @@ model User {
   is_active                     Boolean                  @default(true)
   created_at                    DateTime                 @default(now())
   updated_at                    DateTime                 @default(now()) @updatedAt
+  last_active_at                DateTime?
   highest_qualification         String?                  @db.VarChar(150)
   profile_completion_percentage Int?                     @default(0)
   audit_logs                    AuditLog[]
@@ -80,6 +81,7 @@ model User {
   role                          Role                     @relation(fields: [role_id], references: [id])
 
   @@index([profile_completion_percentage], map: "idx_users_profile_completion")
+  @@index([last_active_at], map: "idx_users_last_active")
   @@map("users")
 }
 
