@@ -101,7 +101,7 @@ export function calculateProfileCompletion(user) {
 
   // Professional details - 10 points (Weighted scoring - Task 2.4)
   // Core fields (8 pts): occupation=3, employment_type=3, income=2
-  // Enrichment fields (2 pts): company_name=1, work_location=1
+  // Enrichment fields (2 pts): company_name=1, work_state/work_city=1
   if (user.professional_details) {
     let professionalScore = 0;
     
@@ -120,7 +120,8 @@ export function calculateProfileCompletion(user) {
     if (user.professional_details.company_name) {
       professionalScore += 1;
     }
-    if (user.professional_details.work_location) {
+    // Work location: award 1 point if either work_state or work_city is provided
+    if (user.professional_details.work_state || user.professional_details.work_city) {
       professionalScore += 1;
     }
     

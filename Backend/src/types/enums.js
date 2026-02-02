@@ -91,6 +91,17 @@ export const IncomeRange = {
 };
 
 /**
+ * Work Location Type options
+ */
+export const WorkLocationType = {
+  ON_SITE: 'On-Site',
+  REMOTE: 'Remote',
+  HYBRID: 'Hybrid',
+  MULTIPLE_LOCATIONS: 'Multiple Locations',
+  OVERSEAS: 'Overseas'
+};
+
+/**
  * Photo Visibility options
  */
 export const PhotoVisibility = {
@@ -192,6 +203,7 @@ export const isValidPhysicalStatus = (value) => Object.values(PhysicalStatus).in
 export const isValidEmploymentType = (value) => Object.values(EmploymentType).includes(value);
 export const isValidFamilyValues = (value) => Object.values(FamilyValues).includes(value);
 export const isValidIncomeRange = (value) => Object.values(IncomeRange).includes(value);
+export const isValidWorkLocationType = (value) => Object.values(WorkLocationType).includes(value);
 export const isValidPhotoVisibility = (value) => Object.values(PhotoVisibility).includes(value);
 export const isValidEducationLevel = (value) => Object.values(EducationLevel).includes(value);
 export const isValidDietPreference = (value) => Object.values(DietPreference).includes(value);

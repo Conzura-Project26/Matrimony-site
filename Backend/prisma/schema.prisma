@@ -198,7 +198,9 @@ model UserProfessionalDetails {
   employment_type     String?  @db.VarChar(100)
   company_name        String?  @db.VarChar(200)
   annual_income_range String?  @db.VarChar(50)
-  work_location       String?  @db.VarChar(150)
+  work_location_type  String?  @db.VarChar(50)
+  work_state          String?  @db.VarChar(100)
+  work_city           String?  @db.VarChar(100)
   created_at          DateTime @default(now())
   designation         String?  @db.VarChar(150)
   updated_at          DateTime @default(now()) @updatedAt

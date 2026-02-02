@@ -1431,6 +1431,22 @@ class UserProfileController {
       throw new BadRequestError(errorMessage);
     }
 
+    // Additional validation: If work_city is provided, validate it against the work_state
+    if (validation.data.work_city && validation.data.work_state) {
+      const isValidCity = await validateCityInState(validation.data.work_state, validation.data.work_city);
+      if (!isValidCity) {
+        throw new BadRequestError(`City "${validation.data.work_city}" is not valid for state "${validation.data.work_state}"`);
+      }
+    }
+
+    // Additional validation: If work_state is provided, validate it exists
+    if (validation.data.work_state) {
+      const states = await getAllStates();
+      if (!states.includes(validation.data.work_state)) {
+        throw new BadRequestError(`Invalid work state: "${validation.data.work_state}"`);
+      }
+    }
+
     // Check if target user exists
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -1511,6 +1527,22 @@ class UserProfileController {
         ? validation.error.errors.map(e => e.message).join(', ')
         : validation.error.message || 'Validation failed';
       throw new BadRequestError(errorMessage);
+    }
+
+    // Additional validation: If work_city is provided, validate it against the work_state
+    if (validation.data.work_city && validation.data.work_state) {
+      const isValidCity = await validateCityInState(validation.data.work_state, validation.data.work_city);
+      if (!isValidCity) {
+        throw new BadRequestError(`City "${validation.data.work_city}" is not valid for state "${validation.data.work_state}"`);
+      }
+    }
+
+    // Additional validation: If work_state is provided, validate it exists
+    if (validation.data.work_state) {
+      const states = await getAllStates();
+      if (!states.includes(validation.data.work_state)) {
+        throw new BadRequestError(`Invalid work state: "${validation.data.work_state}"`);
+      }
     }
 
     // Check if target user exists
@@ -1602,6 +1634,22 @@ class UserProfileController {
         ? validation.error.errors.map(e => e.message).join(', ')
         : validation.error.message || 'Validation failed';
       throw new BadRequestError(errorMessage);
+    }
+
+    // Additional validation: If work_city is provided, validate it against the work_state
+    if (validation.data.work_city && validation.data.work_state) {
+      const isValidCity = await validateCityInState(validation.data.work_state, validation.data.work_city);
+      if (!isValidCity) {
+        throw new BadRequestError(`City "${validation.data.work_city}" is not valid for state "${validation.data.work_state}"`);
+      }
+    }
+
+    // Additional validation: If work_state is provided, validate it exists
+    if (validation.data.work_state) {
+      const states = await getAllStates();
+      if (!states.includes(validation.data.work_state)) {
+        throw new BadRequestError(`Invalid work state: "${validation.data.work_state}"`);
+      }
     }
 
     // Check if target user exists
@@ -1723,7 +1771,7 @@ class UserProfileController {
       }
     });
 
-    const profileCompletion = this.calculateProfileCompletion(userWithAllDetails);
+    const profileCompletion = calculateProfileCompletion(userWithAllDetails);
 
     res.status(200).json({
       success: true,
