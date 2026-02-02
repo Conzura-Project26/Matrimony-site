@@ -287,3 +287,78 @@ export const getEnumKeys = (enumObj) => Object.keys(enumObj);
  * @returns {boolean} True if value exists in enum
  */
 export const isValidEnum = (enumObj, value) => Object.values(enumObj).includes(value);
+// ============================================
+// PROFILE VIEWS ENUMS (Phase 3 - Task 3.5) ✅
+// ============================================
+
+/**
+ * View Source - Where the profile view originated from
+ */
+export const ViewSource = {
+  SEARCH: 'SEARCH',             // From search results
+  MATCH: 'MATCH',               // From match recommendations
+  RECOMMENDATION: 'RECOMMENDATION',  // From matchmaking
+  DIRECT: 'DIRECT',             // Direct profile link
+  SHORTLIST: 'SHORTLIST',       // From shortlisted profiles
+  INTEREST: 'INTEREST'          // From interest sent/received
+};
+
+/**
+ * Profile View Rate Limiting Configuration
+ */
+export const ViewRateLimitConfig = {
+  MAX_VIEWS_PER_HOUR: 3,        // Max 3 view records per viewer-profile pair per hour
+  RATE_LIMIT_WINDOW_HOURS: 1,  // Window size in hours
+  MAX_DURATION_SECONDS: 600     // Cap view duration at 10 minutes
+};
+
+/**
+ * Profile View Display Configuration
+ */
+export const ViewDisplayConfig = {
+  ACTIVE_NOW_THRESHOLD_MINUTES: 5,     // "Active now" if last_active < 5 min
+  ACTIVE_TODAY_THRESHOLD_HOURS: 24,    // "Active today" if last_active < 24h
+  ACTIVE_THIS_WEEK_THRESHOLD_DAYS: 7,  // "Active this week" if last_active < 7 days
+  HIDE_AFTER_DAYS: 30,                  // Don't show last_active if > 30 days
+  DEFAULT_VIEWERS_PER_PAGE: 20,         // Default pagination size
+  MAX_VIEWERS_PER_PAGE: 50,             // Maximum pagination size
+  RECENT_VIEW_CACHE_TTL_MINUTES: 10,    // Cache recent viewers for 10 min
+  VIEW_COUNT_CACHE_TTL_HOURS: 1         // Cache view counts for 1 hour
+};
+
+/**
+ * Last Active Update Configuration
+ */
+export const LastActiveConfig = {
+  UPDATE_THROTTLE_MINUTES: 5,    // Update max once per 5 minutes
+  MEANINGFUL_ACTIONS: [           // Actions that trigger last_active update
+    'LOGIN',
+    'PROFILE_VIEW',
+    'SEARCH',
+    'MESSAGE_SEND',
+    'INTEREST_SEND',
+    'MATCH_VIEW'
+  ]
+};
+
+/**
+ * View Analytics Tracking
+ */
+export const ViewAnalyticsConfig = {
+  TRACK_DURATION: true,           // Track how long user viewed profile
+  TRACK_IP_ADDRESS: true,         // Track IP for security/analytics
+  TRACK_USER_AGENT: true,         // Track device/browser info
+  LINK_TO_SEARCH: true,           // Link views to search logs when applicable
+  ANONYMIZE_AFTER_DAYS: 90        // Anonymize old views after 90 days
+};
+
+/**
+ * Profile View Notification Settings
+ */
+export const ViewNotificationConfig = {
+  ENABLED: true,                  // Enable profile view notifications
+  TYPE: 'DAILY_DIGEST',          // REAL_TIME, DAILY_DIGEST, WEEKLY_DIGEST
+  DIGEST_TIME_HOUR: 20,          // Send daily digest at 8 PM
+  MIN_VIEWS_TO_NOTIFY: 1,        // Minimum views to trigger notification
+  INCLUDE_ANONYMOUS: false        // Include anonymous views in notifications (future)
+};
