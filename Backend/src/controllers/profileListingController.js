@@ -48,6 +48,7 @@ class ProfileListingController {
       min_height,
       max_height,
       mother_tongue,
+      physical_status,
       employment_type,
       income_range,
       qualification,
@@ -83,6 +84,7 @@ class ProfileListingController {
       min_height: min_height ? parseInt(min_height) : partnerPreferences.min_height,
       max_height: max_height ? parseInt(max_height) : partnerPreferences.max_height,
       mother_tongue: mother_tongue,
+      physical_status: physical_status,
       employment_type: employment_type,
       income_range: income_range,
       qualification: qualification,
@@ -118,6 +120,7 @@ class ProfileListingController {
                 city: true,
                 state: true,
                 mother_tongue: true,
+                physical_status: true,
               },
             },
             professional_details: {
@@ -216,6 +219,12 @@ class ProfileListingController {
             ...item.profile,
             match_score: item.match_score,
           }));
+        } else {
+          // User has no partner preferences, set default match_score to 0 for all profiles
+          formattedProfiles = formattedProfiles.map(profile => ({
+            ...profile,
+            match_score: 0,
+          }));
         }
       } else {
         // Add match scores for display (optional, even if not sorting by it)
@@ -250,6 +259,12 @@ class ProfileListingController {
               };
             })
           );
+        } else {
+          // User has no partner preferences, set default match_score to 0
+          formattedProfiles = formattedProfiles.map(profile => ({
+            ...profile,
+            match_score: 0,
+          }));
         }
       }
 
