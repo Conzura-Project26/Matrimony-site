@@ -89,13 +89,14 @@ const handleJWTError = (error) => {
  * Convert Zod validation errors to API errors
  */
 const handleZodError = (error) => {
-  const errors = (error.issues || error.errors || []).map((err) => ({
-    field: err.path.join('.'),
-    message: err.message
-  }));
+  const issues = error.issues || error.errors || [];
+  const errors = Array.isArray(issues) ? issues.map((err) => ({
+    field: (err.path || []).join('.'),
+    message: err.message || 'Validation error'
+  })) : [];
 
   return {
-    statusCode: 422,
+    statusCode: 400,
     message: 'Validation failed',
     name: 'ValidationError',
     errors
