@@ -137,6 +137,13 @@ export const buildProfileWhereClause = (filters, currentUserId) => {
     });
   }
 
+  // Physical status filter
+  if (filters.physical_status) {
+    whereConditions.AND.push({
+      personal_details: { physical_status: filters.physical_status },
+    });
+  }
+
   // Employment type filter
   if (filters.employment_type) {
     whereConditions.AND.push({
@@ -216,6 +223,7 @@ export const formatProfileForListing = (profile) => {
     city: profile.personal_details?.city || null,
     state: profile.personal_details?.state || null,
     mother_tongue: profile.personal_details?.mother_tongue || null,
+    physical_status: profile.personal_details?.physical_status || null,
     
     // Professional details
     occupation: profile.professional_details?.occupation || null,

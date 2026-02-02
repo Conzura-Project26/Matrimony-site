@@ -28,7 +28,7 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:3000';
 const TEST_USER_ID = process.env.TEST_USER_ID || 'f6ab094e-2900-497f-bb0d-000cc93a25db';
-const ACCESS_TOKEN = process.env.TEST_ACCESS_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmNmFiMDk0ZS0yOTAwLTQ5N2YtYmIwZC0wMDBjYzkzYTI1ZGIiLCJtb2JpbGVfbnVtYmVyIjoiOTM4MDI0NTQzMyIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzcwMDIwOTk2LCJleHAiOjE3NzAwMjE4OTZ9.D2VSlDh6tN-ZSrdMRbv2EdNeQKRnjfZxOs4csBtahm8';
+const ACCESS_TOKEN = process.env.TEST_ACCESS_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmNmFiMDk0ZS0yOTAwLTQ5N2YtYmIwZC0wMDBjYzkzYTI1ZGIiLCJtb2JpbGVfbnVtYmVyIjoiOTM4MDI0NTQzMyIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzcwMDIxNTgwLCJleHAiOjE3NzAwMjI0ODB9.ZbwrC4NbkS9LxytmhLS6FeRHa74HVrOaTxnF_2aERks';
 
 // Axios instance with auth
 const api = axios.create({

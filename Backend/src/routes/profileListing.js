@@ -183,6 +183,12 @@ const router = express.Router();
  *           type: string
  *         description: Filter by mother tongue
  *         example: Hindi
+ *       - in: query
+ *         name: physical_status
+ *         schema:
+ *           type: string
+ *         description: Filter by physical status
+ *         example: Normal
  *       
  *       # Professional Filters
  *       - in: query
