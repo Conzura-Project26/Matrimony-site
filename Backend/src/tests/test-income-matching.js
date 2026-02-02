@@ -180,7 +180,7 @@ function displayProfileContext(userProfile, targetProfile) {
     console.log('  Employment Type:', targetProfile.professional_details.employment_type || 'Not specified');
     console.log('  Company:', targetProfile.professional_details.company_name || 'Not specified');
     console.log('  Annual Income:', targetProfile.professional_details.annual_income_range || 'Not specified');
-    console.log('  Work Location:', targetProfile.professional_details.work_location || 'Not specified');
+    console.log('  Work Location:', (targetProfile.professional_details.work_city && targetProfile.professional_details.work_state) ? `${targetProfile.professional_details.work_city}, ${targetProfile.professional_details.work_state}` : 'Not specified');
   }
 }
 

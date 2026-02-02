@@ -439,29 +439,30 @@ const calculateMatchScore = (userProfile, partnerPreferences) => {
   // ============================================
   // 6. LOCATION - 17% (Scored)
   // ============================================
-  const userLocation = userProfile.professional_details?.work_location;
+  const userWorkState = userProfile.professional_details?.work_state;
+  const userWorkCity = userProfile.professional_details?.work_city;
   
   // Handle preferred_location which is a JSON object {state: [cities]}
   let locationMatches = false;
   if (!partnerPreferences.preferred_location || Object.keys(partnerPreferences.preferred_location).length === 0) {
     // No preference specified, open to all
     locationMatches = true;
-  } else if (userLocation) {
-    // Check if user's work_location matches any preferred state or city
+  } else if (userWorkState || userWorkCity) {
+    // Check if user's work_state/work_city matches any preferred state or city
     const preferredLocations = partnerPreferences.preferred_location;
     
     // Check if user location matches any state or city in preferences
     for (const [state, cities] of Object.entries(preferredLocations)) {
-      // Match if location contains the state name
-      if (userLocation.toLowerCase().includes(state.toLowerCase())) {
+      // Match if work_state matches the preferred state
+      if (userWorkState && userWorkState.toLowerCase() === state.toLowerCase()) {
         locationMatches = true;
         break;
       }
       
-      // Match if location contains any of the cities
-      if (Array.isArray(cities)) {
+      // Match if work_city matches any of the preferred cities for this state
+      if (userWorkCity && Array.isArray(cities)) {
         for (const city of cities) {
-          if (userLocation.toLowerCase().includes(city.toLowerCase())) {
+          if (userWorkCity.toLowerCase() === city.toLowerCase()) {
             locationMatches = true;
             break;
           }

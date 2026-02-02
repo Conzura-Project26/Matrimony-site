@@ -21,7 +21,8 @@ const userProfile = {
   ],
   professional_details: {
     employment_type: 'Private Job',
-    work_location: 'Bangalore Urban, Karnataka',
+    work_state: 'Karnataka',
+    work_city: 'Bangalore Urban',
     annual_income_range: '5-10 Lakhs'
   },
   personal_details: {
@@ -113,7 +114,8 @@ try {
     ...userProfile,
     professional_details: {
       ...userProfile.professional_details,
-      work_location: 'Mumbai, Maharashtra'
+      work_state: 'Maharashtra',
+      work_city: 'Mumbai'
     }
   };
   
@@ -136,7 +138,8 @@ try {
     ...userProfile,
     professional_details: {
       ...userProfile.professional_details,
-      work_location: 'Chennai, Tamil Nadu'
+      work_state: 'Tamil Nadu',
+      work_city: 'Chennai'
     }
   };
   

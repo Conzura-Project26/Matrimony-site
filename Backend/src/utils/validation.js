@@ -12,7 +12,8 @@ import {
   BloodGroup,
   EmploymentType,
   IncomeRange,
-  EducationLevel
+  EducationLevel,
+  WorkLocationType
 } from '../types/enums.js';
 import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
@@ -535,10 +536,45 @@ const professionalDetailsCreateSchema = z.object({
     errorMap: () => ({ message: 'Invalid income range' })
   }).optional(),
   
-  work_location: sanitizeTextInput('Work location')
-    .min(2, 'Work location must be at least 2 characters')
-    .max(150, 'Work location cannot exceed 150 characters')
+  work_location_type: z.enum([
+    WorkLocationType.ON_SITE,
+    WorkLocationType.REMOTE,
+    WorkLocationType.HYBRID,
+    WorkLocationType.MULTIPLE_LOCATIONS,
+    WorkLocationType.OVERSEAS
+  ], {
+    errorMap: () => ({ message: 'Invalid work location type' })
+  }).optional(),
+  
+  work_state: sanitizeTextInput('Work state')
+    .min(2, 'Work state must be at least 2 characters')
+    .max(100, 'Work state cannot exceed 100 characters')
+    .optional(),
+  
+  work_city: sanitizeTextInput('Work city')
+    .min(2, 'Work city must be at least 2 characters')
+    .max(100, 'Work city cannot exceed 100 characters')
     .optional()
+}).refine((data) => {
+  // If work_city is provided, work_state must also be provided
+  if (data.work_city && !data.work_state) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Work state is required when work city is provided',
+  path: ['work_state']
+}).refine((data) => {
+  // If work_location_type is REMOTE, work_state and work_city must be null/undefined
+  if (data.work_location_type === WorkLocationType.REMOTE) {
+    if (data.work_state || data.work_city) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: 'Work state and work city must not be provided when location type is Remote',
+  path: ['work_location_type']
 });
 
 /**
@@ -594,12 +630,47 @@ const professionalDetailsUpdateSchema = z.object({
     errorMap: () => ({ message: 'Invalid income range' })
   }).optional(),
   
-  work_location: sanitizeTextInput('Work location')
-    .min(2, 'Work location must be at least 2 characters')
-    .max(150, 'Work location cannot exceed 150 characters')
+  work_location_type: z.enum([
+    WorkLocationType.ON_SITE,
+    WorkLocationType.REMOTE,
+    WorkLocationType.HYBRID,
+    WorkLocationType.MULTIPLE_LOCATIONS,
+    WorkLocationType.OVERSEAS
+  ], {
+    errorMap: () => ({ message: 'Invalid work location type' })
+  }).optional(),
+  
+  work_state: sanitizeTextInput('Work state')
+    .min(2, 'Work state must be at least 2 characters')
+    .max(100, 'Work state cannot exceed 100 characters')
+    .optional(),
+  
+  work_city: sanitizeTextInput('Work city')
+    .min(2, 'Work city must be at least 2 characters')
+    .max(100, 'Work city cannot exceed 100 characters')
     .optional()
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'At least one field is required to update professional details'
+}).refine((data) => {
+  // If work_city is provided, work_state must also be provided
+  if (data.work_city && !data.work_state) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Work state is required when work city is provided',
+  path: ['work_state']
+}).refine((data) => {
+  // If work_location_type is REMOTE, work_state and work_city must be null/undefined
+  if (data.work_location_type === WorkLocationType.REMOTE) {
+    if (data.work_state || data.work_city) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: 'Work state and work city must not be provided when location type is Remote',
+  path: ['work_location_type']
 });
 
 /**
