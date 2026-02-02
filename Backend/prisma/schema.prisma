@@ -56,6 +56,7 @@ model User {
   last_active_at                DateTime?
   highest_qualification         String?                  @db.VarChar(150)
   profile_completion_percentage Int?                     @default(0)
+  profile_views_count           Int?                     @default(0)
   audit_logs                    AuditLog[]
   interests_received            Interest[]               @relation("InterestReceiver")
   interests_sent                Interest[]               @relation("InterestSender")
@@ -65,6 +66,8 @@ model User {
   messages_sent                 Message[]                @relation("MessageSender")
   otp_logs                      OtpLog[]
   partner_preferences           PartnerPreferences?
+  profile_views_made            ProfileView[]            @relation("ProfileViewer")
+  profile_views_received        ProfileView[]            @relation("ProfileViewed")
   refresh_tokens                RefreshToken[]
   search_logs                   SearchLog[]
   shortlisted_by                ShortlistedProfile[]     @relation("Shortlisted")
@@ -293,15 +296,16 @@ model ShortlistedProfile {
 }
 
 model SearchLog {
-  id                Int      @id @default(autoincrement())
-  user_id           String?  @db.Uuid
+  id                Int            @id @default(autoincrement())
+  user_id           String?        @db.Uuid
   search_filters    Json
-  result_count      Int      @default(0)
-  execution_time_ms Int      @default(0)
-  ip_address        String?  @db.VarChar(45)
-  user_agent        String?  @db.Text
-  searched_at       DateTime @default(now())
-  user              User?    @relation(fields: [user_id], references: [id])
+  result_count      Int            @default(0)
+  execution_time_ms Int            @default(0)
+  ip_address        String?        @db.VarChar(45)
+  user_agent        String?        @db.Text
+  searched_at       DateTime       @default(now())
+  user              User?          @relation(fields: [user_id], references: [id])
+  profile_views     ProfileView[]
 
   @@index([user_id])
   @@index([searched_at])
@@ -404,4 +408,36 @@ model MatchInteraction {
 
   @@index([match_id])
   @@map("match_interactions")
+}
+
+enum ViewSource {
+  SEARCH
+  MATCH
+  RECOMMENDATION
+  DIRECT
+  SHORTLIST
+  INTEREST
+}
+
+model ProfileView {
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  viewer_id           String      @db.Uuid
+  viewed_user_id      String      @db.Uuid
+  viewed_at           DateTime    @default(now())
+  view_source         ViewSource  @default(DIRECT)
+  view_duration_seconds Int?
+  search_log_id       Int?
+  ip_address          String?     @db.VarChar(45)
+  user_agent          String?     @db.Text
+  
+  viewer              User        @relation("ProfileViewer", fields: [viewer_id], references: [id], onDelete: Cascade)
+  viewed_user         User        @relation("ProfileViewed", fields: [viewed_user_id], references: [id], onDelete: Cascade)
+  search_log          SearchLog?  @relation(fields: [search_log_id], references: [id], onDelete: SetNull)
+
+  @@index([viewed_user_id, viewed_at(sort: Desc)])
+  @@index([viewer_id, viewed_at(sort: Desc)])
+  @@index([viewer_id, viewed_user_id, viewed_at(sort: Desc)])
+  @@index([view_source, viewed_at(sort: Desc)])
+  @@index([search_log_id])
+  @@map("profile_views")
 }

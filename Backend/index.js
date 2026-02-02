@@ -10,6 +10,7 @@ import adminRoutes from './src/routes/admin.js';
 import searchRoutes from './src/routes/search.js';
 import profileListingRoutes from './src/routes/profileListing.js';
 import matchmakingRoutes from './src/routes/matchmaking.js';
+import viewRoutes from './src/routes/viewRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -68,6 +69,7 @@ app.use('/users', userRoutes); // Combined user routes (photos, personal, caste,
 app.use('/profiles', profileListingRoutes); // Profile listing with advanced filters (Task 3.1)
 app.use('/search', searchRoutes); // Search & matchmaking routes
 app.use('/', matchmakingRoutes); // Matchmaking routes (Task 3.4): /profiles/recommended, /profiles/daily-matches, /matches/:id/view
+app.use('/', viewRoutes); // Profile view tracking (Task 3.5): POST /profiles/:id/view, GET /profile/viewers, GET /profile/viewed
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)
