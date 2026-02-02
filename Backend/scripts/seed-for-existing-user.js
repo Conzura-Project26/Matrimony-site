@@ -32,13 +32,53 @@ async function seedForExistingUser() {
       targetUser.profile_id = updatedUser.profile_id;
     }
 
+    // Create partner preferences for target user
+    console.log('\n📝 Creating partner preferences for target user...');
+    await prisma.partnerPreferences.upsert({
+      where: { user_id: TARGET_USER_ID },
+      update: {
+        min_age: 25,
+        max_age: 35,
+        min_height: 160,
+        max_height: 180,
+        marital_status_preference: ['Never Married', 'Divorced'],
+        religion_preference: [],  // Open to all
+        caste_preference: [],
+        mother_tongue_preference: [],
+        education_preference: [],
+        employment_type_preference: [],
+        physical_status: ['Normal'],
+        preferred_location: {}
+      },
+      create: {
+        user_id: TARGET_USER_ID,
+        min_age: 25,
+        max_age: 35,
+        min_height: 160,
+        max_height: 180,
+        marital_status_preference: ['Never Married', 'Divorced'],
+        religion_preference: [],
+        caste_preference: [],
+        mother_tongue_preference: [],
+        education_preference: [],
+        employment_type_preference: [],
+        physical_status: ['Normal'],
+        preferred_location: {}
+      },
+    });
+    console.log('✅ Partner preferences created for target user');
+
     // Create other test users for searching
     console.log('\n📝 Creating additional test profiles...\n');
 
     const testPassword = await bcrypt.hash('Test@123', 10);
     const testProfiles = [];
 
-    // Create 10 male profiles
+    // Determine opposite gender for test profiles
+    const oppositeGender = targetUser.gender === 'Male' ? 'Female' : 'Male';
+    console.log(`Target user gender: ${targetUser.gender}, Creating ${oppositeGender} profiles`);
+
+    // Create 10 profiles of opposite gender
     for (let i = 2; i <= 11; i++) {
       const profileId = `MAT${String(i).padStart(8, '0')}`;
       const mobileNumber = `900000000${i}`;
@@ -47,20 +87,26 @@ async function seedForExistingUser() {
         where: { mobile_number: mobileNumber },
         update: {
           profile_id: profileId,
-          full_name: `Test Male ${i}`,
-          gender: 'Male',
+          full_name: `Test ${oppositeGender} ${i}`,
+          gender: oppositeGender,
           date_of_birth: new Date(1995 + (i % 5), (i % 12), 15),
+          profile_completion_percentage: 85,  // High completion for matchmaking
+          is_active: true,
+          is_profile_verified: true
         },
         create: {
           profile_id: profileId,
           role_id: 2,
-          full_name: `Test Male ${i}`,
-          gender: 'Male',
+          full_name: `Test ${oppositeGender} ${i}`,
+          gender: oppositeGender,
           date_of_birth: new Date(1995 + (i % 5), (i % 12), 15),
           mobile_number: mobileNumber,
           password_hash: testPassword,
           profile_created_by: 'Self',
           is_mobile_verified: true,
+          profile_completion_percentage: 85,
+          is_active: true,
+          is_profile_verified: true
         },
       });
 
@@ -73,6 +119,8 @@ async function seedForExistingUser() {
           marital_status: i % 3 === 0 ? 'Never Married' : 'Divorced',
           mother_tongue: ['Tamil', 'Telugu', 'Hindi', 'Kannada', 'Malayalam'][i % 5],
           physical_status: 'Normal',
+          city: ['Bangalore', 'Chennai', 'Mumbai', 'Delhi', 'Hyderabad'][i % 5],
+          state: ['Karnataka', 'Tamil Nadu', 'Maharashtra', 'Delhi', 'Telangana'][i % 5]
         },
         create: {
           user_id: user.id,
@@ -81,7 +129,28 @@ async function seedForExistingUser() {
           marital_status: i % 3 === 0 ? 'Never Married' : 'Divorced',
           mother_tongue: ['Tamil', 'Telugu', 'Hindi', 'Kannada', 'Malayalam'][i % 5],
           physical_status: 'Normal',
+          city: ['Bangalore', 'Chennai', 'Mumbai', 'Delhi', 'Hyderabad'][i % 5],
+          state: ['Karnataka', 'Tamil Nadu', 'Maharashtra', 'Delhi', 'Telangana'][i % 5]
         },
+      });
+
+      // Caste details (REQUIRED for matching!)
+      // Religion IDs: 1=Hinduism, 2=Islam, 3=Christianity, 4=Sikhism, 5=Buddhism
+      // Caste IDs: 1-5 are Hindu castes
+      const religionId = (i % 5) + 1;  // Rotate through religions 1-5
+      const casteId = religionId === 1 ? ((i % 5) + 1) : null;  // Only assign caste for Hinduism
+      
+      await prisma.userCasteDetails.upsert({
+        where: { user_id: user.id },
+        update: {
+          religion_id: religionId,
+          caste_id: casteId
+        },
+        create: {
+          user_id: user.id,
+          religion_id: religionId,
+          caste_id: casteId
+        }
       });
 
       // Education details - use deleteMany + create since it has auto-increment id
@@ -101,13 +170,17 @@ async function seedForExistingUser() {
         update: {
           employment_type: ['Private Sector', 'Government', 'Business'][i % 3],
           occupation: ['Software Engineer', 'Doctor', 'Teacher', 'Businessman'][i % 4],
-          annual_income_range: `${5 + i}-${6 + i} Lakhs`,
+          annual_income_range: ['5 - 10 Lakhs', '10 - 15 Lakhs', '15 - 20 Lakhs', '20 - 30 Lakhs'][i % 4],
+          work_city: ['Bangalore', 'Chennai', 'Mumbai', 'Delhi', 'Hyderabad'][i % 5],
+          work_state: ['Karnataka', 'Tamil Nadu', 'Maharashtra', 'Delhi', 'Telangana'][i % 5]
         },
         create: {
           user_id: user.id,
           employment_type: ['Private Sector', 'Government', 'Business'][i % 3],
           occupation: ['Software Engineer', 'Doctor', 'Teacher', 'Businessman'][i % 4],
-          annual_income_range: `${5 + i}-${6 + i} Lakhs`,
+          annual_income_range: ['5 - 10 Lakhs', '10 - 15 Lakhs', '15 - 20 Lakhs', '20 - 30 Lakhs'][i % 4],
+          work_city: ['Bangalore', 'Chennai', 'Mumbai', 'Delhi', 'Hyderabad'][i % 5],
+          work_state: ['Karnataka', 'Tamil Nadu', 'Maharashtra', 'Delhi', 'Telangana'][i % 5]
         },
       });
 
@@ -122,6 +195,40 @@ async function seedForExistingUser() {
           user_id: user.id,
           rasi: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo'][i % 5],
           nakshatra: ['Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira'][i % 5],
+        },
+      });
+
+      // Partner Preferences (CRITICAL for matchmaking!)
+      await prisma.partnerPreferences.upsert({
+        where: { user_id: user.id },
+        update: {
+          min_age: 24 + (i % 3),
+          max_age: 32 + (i % 3),
+          min_height: 155,
+          max_height: 175,
+          marital_status_preference: ['Never Married'],
+          religion_preference: [],  // Open to all
+          caste_preference: [],
+          mother_tongue_preference: [],
+          education_preference: [],
+          employment_type_preference: [],
+          physical_status: ['Normal'],
+          preferred_location: {}
+        },
+        create: {
+          user_id: user.id,
+          min_age: 24 + (i % 3),
+          max_age: 32 + (i % 3),
+          min_height: 155,
+          max_height: 175,
+          marital_status_preference: ['Never Married'],
+          religion_preference: [],
+          caste_preference: [],
+          mother_tongue_preference: [],
+          education_preference: [],
+          employment_type_preference: [],
+          physical_status: ['Normal'],
+          preferred_location: {}
         },
       });
 

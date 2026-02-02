@@ -962,6 +962,35 @@ const profileIdSearchSchema = z.object({
   profile_id: z.string().trim().min(5).max(20),
 });
 
+// ============================================
+// MATCHMAKING VALIDATION SCHEMAS (Phase 3 - Task 3.4)
+// ============================================
+
+/**
+ * Get Recommended Profiles Query Schema
+ */
+const getRecommendedSchema = z.object({
+  page: z.coerce.number().min(1).optional().default(1),
+  limit: z.coerce.number().min(1).max(50).optional().default(20),
+  min_score: z.coerce.number().min(0).max(100).optional().default(50),
+  regenerate: z.coerce.boolean().optional().default(false)
+});
+
+/**
+ * Get New Matches Query Schema
+ */
+const getNewMatchesSchema = z.object({
+  page: z.coerce.number().min(1).optional().default(1),
+  limit: z.coerce.number().min(1).max(50).optional().default(20)
+});
+
+/**
+ * Record Match Interaction Params Schema
+ */
+const recordMatchViewSchema = z.object({
+  matchId: z.string().uuid('Invalid match ID format')
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -988,4 +1017,7 @@ export {
   simpleSearchSchema,
   advancedSearchSchema,
   profileIdSearchSchema,
+  getRecommendedSchema,
+  getNewMatchesSchema,
+  recordMatchViewSchema,
 };

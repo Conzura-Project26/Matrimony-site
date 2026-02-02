@@ -59,6 +59,8 @@ model User {
   audit_logs                    AuditLog[]
   interests_received            Interest[]               @relation("InterestReceiver")
   interests_sent                Interest[]               @relation("InterestSender")
+  matches_for                   Match[]                  @relation("MatchesFor")
+  matched_with                  Match[]                  @relation("MatchedWith")
   messages_received             Message[]                @relation("MessageReceiver")
   messages_sent                 Message[]                @relation("MessageSender")
   otp_logs                      OtpLog[]
@@ -82,6 +84,7 @@ model User {
 
   @@index([profile_completion_percentage], map: "idx_users_profile_completion")
   @@index([last_active_at], map: "idx_users_last_active")
+  @@index([gender, is_active, is_profile_verified], map: "idx_users_matchmaking")
   @@map("users")
 }
 
@@ -302,7 +305,6 @@ model SearchLog {
 
   @@index([user_id])
   @@index([searched_at])
-
   @@map("search_logs")
 }
 
@@ -364,4 +366,42 @@ model Subscription {
   user       User      @relation(fields: [user_id], references: [id])
 
   @@map("subscriptions")
+}
+
+enum MatchType {
+  DAILY_MATCH
+  RECOMMENDATION
+  NEW_MATCH
+}
+
+model Match {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         String             @db.Uuid
+  matched_user_id String             @db.Uuid
+  match_score     Float
+  match_type      MatchType
+  generated_at    DateTime           @default(now())
+  expires_at      DateTime?
+  user            User               @relation("MatchesFor", fields: [user_id], references: [id], onDelete: Cascade)
+  matched_user    User               @relation("MatchedWith", fields: [matched_user_id], references: [id], onDelete: Cascade)
+  interactions    MatchInteraction[]
+
+  @@unique([user_id, matched_user_id, match_type])
+  @@index([user_id, match_type])
+  @@index([generated_at])
+  @@index([expires_at])
+  @@map("matches")
+}
+
+model MatchInteraction {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  match_id  String    @db.Uuid
+  is_viewed Boolean   @default(false)
+  viewed_at DateTime?
+  action    String?   @db.VarChar(20)
+  acted_at  DateTime?
+  match     Match     @relation(fields: [match_id], references: [id], onDelete: Cascade)
+
+  @@index([match_id])
+  @@map("match_interactions")
 }

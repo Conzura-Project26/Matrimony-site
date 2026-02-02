@@ -23,6 +23,53 @@ export const InterestStatus = {
   REJECTED: 'REJECTED'
 };
 
+/**
+ * Match Type - Categorizes different types of matches
+ * Phase 3 - Task 3.4: Matchmaking Algorithm
+ */
+export const MatchType = {
+  DAILY_MATCH: 'DAILY_MATCH',       // Daily curated matches
+  RECOMMENDATION: 'RECOMMENDATION',  // General recommendations
+  NEW_MATCH: 'NEW_MATCH'            // Newly discovered matches
+};
+
+/**
+ * Match Score Thresholds - Minimum scores required for each match type
+ */
+export const MatchScoreThreshold = {
+  DAILY_MATCH: 60,      // ≥ 60% for daily matches
+  RECOMMENDATION: 50,   // ≥ 50% for recommendations
+  NEW_MATCH: 40        // ≥ 40% for new matches
+};
+
+/**
+ * Match Interaction Actions - User actions on matches
+ */
+export const MatchAction = {
+  VIEWED: 'VIEWED',
+  SKIPPED: 'SKIPPED',
+  INTERESTED: 'INTERESTED'
+};
+
+/**
+ * Profile Completion Requirements for Matchmaking
+ */
+export const ProfileCompletionRequirement = {
+  TO_APPEAR_IN_MATCHES: 70,  // Minimum 70% to appear in recommendations
+  TO_VIEW_MATCHES: 50        // Minimum 50% to view recommendations
+};
+
+/**
+ * Match Configuration Constants
+ */
+export const MatchConfig = {
+  DEFAULT_RECOMMENDATIONS_PER_PAGE: 20,
+  DAILY_MATCHES_COUNT: 10,
+  MATCH_RESHOWN_COOLDOWN_DAYS: 30,
+  MATCH_CACHE_TTL_MINUTES: 30,
+  NEW_MATCHES_LOOKBACK_DAYS: 30
+};
+
 // ============================================
 // EXTENDED ENUMS (Phase 1 - Task 1.11) ✅
 // ============================================
@@ -212,6 +259,8 @@ export const isValidSmokingHabit = (value) => Object.values(SmokingHabit).includ
 export const isValidComplexion = (value) => Object.values(Complexion).includes(value);
 export const isValidBodyType = (value) => Object.values(BodyType).includes(value);
 export const isValidBloodGroup = (value) => Object.values(BloodGroup).includes(value);
+export const isValidMatchType = (value) => Object.values(MatchType).includes(value);
+export const isValidMatchAction = (value) => Object.values(MatchAction).includes(value);
 
 // ============================================
 // UTILITY FUNCTIONS
