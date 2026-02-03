@@ -34,6 +34,28 @@ export const buildProfileWhereClause = (filters, currentUserId) => {
           },
         },
       },
+      
+      // Exclude blocked users (bidirectional)
+      {
+        NOT: {
+          blocks_received: {
+            some: {
+              blocker_id: currentUserId,
+              unblocked_at: null
+            }
+          }
+        }
+      },
+      {
+        NOT: {
+          blocks_made: {
+            some: {
+              blocked_id: currentUserId,
+              unblocked_at: null
+            }
+          }
+        }
+      },
     ],
   };
 

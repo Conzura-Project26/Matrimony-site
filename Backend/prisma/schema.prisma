@@ -66,6 +66,10 @@ model User {
   matches_for                   Match[]                  @relation("MatchesFor")
   messages_received             Message[]                @relation("MessageReceiver")
   messages_sent                 Message[]                @relation("MessageSender")
+  notifications                 Notification[]           @relation("NotificationRecipient")
+  notifications_related         Notification[]           @relation("NotificationRelatedUser")
+  blocks_made                   UserBlock[]              @relation("Blocker")
+  blocks_received               UserBlock[]              @relation("Blocked")
   otp_logs                      OtpLog[]
   partner_preferences           PartnerPreferences?
   profile_views_received        ProfileView[]            @relation("ProfileViewed")
@@ -315,14 +319,20 @@ model SearchLog {
 }
 
 model Interest {
-  id          Int      @id @default(autoincrement())
-  sender_id   String   @db.Uuid
-  receiver_id String   @db.Uuid
-  status      String   @db.VarChar(20)
-  sent_at     DateTime @default(now())
-  receiver    User     @relation("InterestReceiver", fields: [receiver_id], references: [id])
-  sender      User     @relation("InterestSender", fields: [sender_id], references: [id])
+  id           Int            @id @default(autoincrement())
+  sender_id    String         @db.Uuid
+  receiver_id  String         @db.Uuid
+  status       InterestStatus @default(PENDING)
+  sent_at      DateTime       @default(now())
+  updated_at   DateTime       @default(now()) @updatedAt
+  responded_at DateTime?
+  receiver     User           @relation("InterestReceiver", fields: [receiver_id], references: [id], onDelete: Cascade)
+  sender       User           @relation("InterestSender", fields: [sender_id], references: [id], onDelete: Cascade)
 
+  @@unique([sender_id, receiver_id])
+  @@index([sender_id, status])
+  @@index([receiver_id, status])
+  @@index([sent_at])
   @@map("interests")
 }
 
@@ -441,4 +451,56 @@ enum ViewSource {
   DIRECT
   SHORTLIST
   INTEREST
+}
+
+enum InterestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum NotificationType {
+  INTEREST_RECEIVED
+  INTEREST_ACCEPTED
+  INTEREST_REJECTED
+  MESSAGE_RECEIVED
+  PROFILE_VIEW
+  MATCH_FOUND
+}
+
+model UserBlock {
+  id           Int       @id @default(autoincrement())
+  blocker_id   String    @db.Uuid
+  blocked_id   String    @db.Uuid
+  blocked_at   DateTime  @default(now())
+  unblocked_at DateTime?
+  blocker      User      @relation("Blocker", fields: [blocker_id], references: [id], onDelete: Cascade)
+  blocked      User      @relation("Blocked", fields: [blocked_id], references: [id], onDelete: Cascade)
+
+  @@unique([blocker_id, blocked_id])
+  @@index([blocker_id])
+  @@index([blocked_id])
+  @@index([unblocked_at])
+  @@map("user_blocks")
+}
+
+model Notification {
+  id              Int              @id @default(autoincrement())
+  user_id         String           @db.Uuid
+  type            NotificationType
+  title           String           @db.VarChar(200)
+  message         String?
+  is_read         Boolean          @default(false)
+  related_user_id String?          @db.Uuid
+  related_id      Int?
+  created_at      DateTime         @default(now())
+  read_at         DateTime?
+  user            User             @relation("NotificationRecipient", fields: [user_id], references: [id], onDelete: Cascade)
+  related_user    User?            @relation("NotificationRelatedUser", fields: [related_user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, is_read])
+  @@index([user_id, created_at(sort: Desc)])
+  @@index([created_at])
+  @@map("notifications")
 }

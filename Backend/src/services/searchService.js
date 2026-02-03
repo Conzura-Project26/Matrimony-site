@@ -61,6 +61,30 @@ const buildSearchWhereClause = (filters, currentUserId) => {
     // Only show active, verified profiles
     is_active: true,
     is_profile_verified: true,
+    
+    // Exclude blocked users (bidirectional)
+    AND: [
+      {
+        NOT: {
+          blocks_received: {
+            some: {
+              blocker_id: currentUserId,
+              unblocked_at: null
+            }
+          }
+        }
+      },
+      {
+        NOT: {
+          blocks_made: {
+            some: {
+              blocked_id: currentUserId,
+              unblocked_at: null
+            }
+          }
+        }
+      }
+    ]
   };
 
   // Height range filter
@@ -277,6 +301,7 @@ const calculateAge = (dateOfBirth) => {
  */
 const formatProfileForResponse = (profile) => {
   return {
+    id: profile.id,  // UUID for interest/messaging operations
     profile_id: profile.profile_id,
     full_name: profile.full_name,
     age: calculateAge(profile.date_of_birth),

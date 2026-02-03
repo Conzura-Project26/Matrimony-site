@@ -20,7 +20,8 @@ export const ProfileCreatedBy = {
 export const InterestStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
-  REJECTED: 'REJECTED'
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
 };
 
 /**
@@ -362,3 +363,32 @@ export const ViewNotificationConfig = {
   MIN_VIEWS_TO_NOTIFY: 1,        // Minimum views to trigger notification
   INCLUDE_ANONYMOUS: false        // Include anonymous views in notifications (future)
 };
+
+// ============================================
+// INTEREST & NOTIFICATION ENUMS (Phase 4 - Task 4.1) ✅
+// ============================================
+
+/**
+ * Notification Type - Categories of in-app notifications
+ */
+export const NotificationType = {
+  INTEREST_RECEIVED: 'INTEREST_RECEIVED',
+  INTEREST_ACCEPTED: 'INTEREST_ACCEPTED',
+  INTEREST_REJECTED: 'INTEREST_REJECTED',
+  MESSAGE_RECEIVED: 'MESSAGE_RECEIVED',
+  PROFILE_VIEW: 'PROFILE_VIEW',
+  MATCH_FOUND: 'MATCH_FOUND'
+};
+
+/**
+ * Interest Configuration Constants
+ */
+export const InterestConfig = {
+  REJECTION_COOLDOWN_DAYS: 30,          // Days before can re-send after rejection
+  MIN_PROFILE_COMPLETION_TO_SEND: 60,   // Minimum 60% completion to send interest
+  AUTO_ACCEPT_MUTUAL: true,             // Auto-accept when both send interest
+  MAX_PENDING_INTERESTS: 100            // Maximum pending outgoing interests
+};
+
+// Notification Type Validator
+export const isValidNotificationType = (value) => Object.values(NotificationType).includes(value);

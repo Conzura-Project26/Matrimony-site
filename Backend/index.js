@@ -12,6 +12,8 @@ import profileListingRoutes from './src/routes/profileListing.js';
 import matchmakingRoutes from './src/routes/matchmaking.js';
 import viewRoutes from './src/routes/viewRoutes.js';
 import shortlistRoutes from './src/routes/shortlistRoutes.js';
+import interestRoutes from './src/routes/interestRoutes.js';
+import blockRoutes from './src/routes/blockRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -72,6 +74,8 @@ app.use('/search', searchRoutes); // Search & matchmaking routes
 app.use('/', matchmakingRoutes); // Matchmaking routes (Task 3.4): /profiles/recommended, /profiles/daily-matches, /matches/:id/view
 app.use('/', viewRoutes); // Profile view tracking (Task 3.5): POST /profiles/:id/view, GET /profile/viewers, GET /profile/viewed
 app.use('/', shortlistRoutes); // Shortlist management (Task 3.6): POST /shortlist/:userId, DELETE /shortlist/:userId, GET /shortlist, GET /shortlist/:userId/status, GET /shortlisted-by
+app.use('/', interestRoutes); // Interest system (Task 4.1): POST /interests/:receiverId
+app.use('/blocks', blockRoutes); // Blocking system (Task 4.x): POST /blocks/:userId, DELETE /blocks/:userId, GET /blocks
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)

@@ -1985,6 +1985,21 @@ class UserProfileController {
    */
   async getCompleteProfile(req, res) {
     const { userId } = req.params;
+    const currentUserId = req.user.userId;
+
+    // Check if users are blocked (bidirectional)
+    const blocked = await prisma.userBlock.findFirst({
+      where: {
+        OR: [
+          { blocker_id: currentUserId, blocked_id: userId, unblocked_at: null },
+          { blocker_id: userId, blocked_id: currentUserId, unblocked_at: null }
+        ]
+      }
+    });
+
+    if (blocked) {
+      throw new ForbiddenError('Profile not found or unavailable');
+    }
 
     // Fetch complete user profile with all relationships
     const user = await prisma.user.findUnique({
