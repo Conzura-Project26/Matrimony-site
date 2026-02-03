@@ -116,6 +116,30 @@ const buildMatchCandidatesFilter = async (userId, user, preferences, minScore = 
     // Opposite gender (if applicable)
     gender: getOppositeGender(user.gender) || user.gender,
     
+    // Exclude blocked users (bidirectional)
+    AND: [
+      {
+        NOT: {
+          blocks_received: {
+            some: {
+              blocker_id: userId,
+              unblocked_at: null
+            }
+          }
+        }
+      },
+      {
+        NOT: {
+          blocks_made: {
+            some: {
+              blocked_id: userId,
+              unblocked_at: null
+            }
+          }
+        }
+      }
+    ],
+    
     // Minimum profile completion
     profile_completion_percentage: {
       gte: minProfileCompletion
