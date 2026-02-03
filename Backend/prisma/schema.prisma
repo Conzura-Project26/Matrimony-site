@@ -66,10 +66,8 @@ model User {
   matches_for                   Match[]                  @relation("MatchesFor")
   messages_received             Message[]                @relation("MessageReceiver")
   messages_sent                 Message[]                @relation("MessageSender")
-  notifications                 Notification[]           @relation("NotificationRecipient")
   notifications_related         Notification[]           @relation("NotificationRelatedUser")
-  blocks_made                   UserBlock[]              @relation("Blocker")
-  blocks_received               UserBlock[]              @relation("Blocked")
+  notifications                 Notification[]           @relation("NotificationRecipient")
   otp_logs                      OtpLog[]
   partner_preferences           PartnerPreferences?
   profile_views_received        ProfileView[]            @relation("ProfileViewed")
@@ -79,6 +77,8 @@ model User {
   shortlisted_by                ShortlistedProfile[]     @relation("Shortlisted")
   shortlisted                   ShortlistedProfile[]     @relation("ShortlistedBy")
   subscriptions                 Subscription[]
+  blocks_received               UserBlock[]              @relation("Blocked")
+  blocks_made                   UserBlock[]              @relation("Blocker")
   caste_details                 UserCasteDetails?
   education_details             UserEducationDetails[]
   family_details                UserFamilyDetails?
@@ -322,10 +322,10 @@ model Interest {
   id           Int            @id @default(autoincrement())
   sender_id    String         @db.Uuid
   receiver_id  String         @db.Uuid
-  status       InterestStatus @default(PENDING)
   sent_at      DateTime       @default(now())
-  updated_at   DateTime       @default(now()) @updatedAt
   responded_at DateTime?
+  updated_at   DateTime       @default(now()) @updatedAt
+  status       InterestStatus @default(PENDING)
   receiver     User           @relation("InterestReceiver", fields: [receiver_id], references: [id], onDelete: Cascade)
   sender       User           @relation("InterestSender", fields: [sender_id], references: [id], onDelete: Cascade)
 
@@ -337,14 +337,20 @@ model Interest {
 }
 
 model Message {
-  id          Int      @id @default(autoincrement())
-  sender_id   String   @db.Uuid
-  receiver_id String   @db.Uuid
-  message     String?
-  sent_at     DateTime @default(now())
-  receiver    User     @relation("MessageReceiver", fields: [receiver_id], references: [id])
-  sender      User     @relation("MessageSender", fields: [sender_id], references: [id])
+  sender_id              String    @db.Uuid
+  receiver_id            String    @db.Uuid
+  sent_at                DateTime  @default(now())
+  id                     Int       @id @default(autoincrement())
+  content                String    @db.VarChar(1000)
+  deleted_by_receiver_at DateTime?
+  deleted_by_sender_at   DateTime?
+  read_at                DateTime?
+  receiver               User      @relation("MessageReceiver", fields: [receiver_id], references: [id], onDelete: Cascade)
+  sender                 User      @relation("MessageSender", fields: [sender_id], references: [id], onDelete: Cascade)
 
+  @@index([sender_id, sent_at])
+  @@index([receiver_id, read_at])
+  @@index([sender_id, receiver_id, sent_at])
   @@map("messages")
 }
 
@@ -438,6 +444,42 @@ model ProfileView {
   @@map("profile_views")
 }
 
+model UserBlock {
+  id           Int       @id @default(autoincrement())
+  blocker_id   String    @db.Uuid
+  blocked_id   String    @db.Uuid
+  blocked_at   DateTime  @default(now())
+  unblocked_at DateTime?
+  blocked      User      @relation("Blocked", fields: [blocked_id], references: [id], onDelete: Cascade)
+  blocker      User      @relation("Blocker", fields: [blocker_id], references: [id], onDelete: Cascade)
+
+  @@unique([blocker_id, blocked_id])
+  @@index([blocker_id])
+  @@index([blocked_id])
+  @@index([unblocked_at])
+  @@map("user_blocks")
+}
+
+model Notification {
+  id              Int              @id @default(autoincrement())
+  user_id         String           @db.Uuid
+  type            NotificationType
+  title           String           @db.VarChar(200)
+  message         String?
+  is_read         Boolean          @default(false)
+  related_user_id String?          @db.Uuid
+  related_id      Int?
+  created_at      DateTime         @default(now())
+  read_at         DateTime?
+  related_user    User?            @relation("NotificationRelatedUser", fields: [related_user_id], references: [id])
+  user            User             @relation("NotificationRecipient", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, is_read])
+  @@index([user_id, created_at(sort: Desc)])
+  @@index([created_at])
+  @@map("notifications")
+}
+
 enum MatchType {
   DAILY_MATCH
   RECOMMENDATION
@@ -467,40 +509,4 @@ enum NotificationType {
   MESSAGE_RECEIVED
   PROFILE_VIEW
   MATCH_FOUND
-}
-
-model UserBlock {
-  id           Int       @id @default(autoincrement())
-  blocker_id   String    @db.Uuid
-  blocked_id   String    @db.Uuid
-  blocked_at   DateTime  @default(now())
-  unblocked_at DateTime?
-  blocker      User      @relation("Blocker", fields: [blocker_id], references: [id], onDelete: Cascade)
-  blocked      User      @relation("Blocked", fields: [blocked_id], references: [id], onDelete: Cascade)
-
-  @@unique([blocker_id, blocked_id])
-  @@index([blocker_id])
-  @@index([blocked_id])
-  @@index([unblocked_at])
-  @@map("user_blocks")
-}
-
-model Notification {
-  id              Int              @id @default(autoincrement())
-  user_id         String           @db.Uuid
-  type            NotificationType
-  title           String           @db.VarChar(200)
-  message         String?
-  is_read         Boolean          @default(false)
-  related_user_id String?          @db.Uuid
-  related_id      Int?
-  created_at      DateTime         @default(now())
-  read_at         DateTime?
-  user            User             @relation("NotificationRecipient", fields: [user_id], references: [id], onDelete: Cascade)
-  related_user    User?            @relation("NotificationRelatedUser", fields: [related_user_id], references: [id], onDelete: SetNull)
-
-  @@index([user_id, is_read])
-  @@index([user_id, created_at(sort: Desc)])
-  @@index([created_at])
-  @@map("notifications")
 }

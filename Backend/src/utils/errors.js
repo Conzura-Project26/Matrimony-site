@@ -103,6 +103,17 @@ class DatabaseError extends ApiError {
 }
 
 /**
+ * 429 Too Many Requests
+ * Used when rate limit is exceeded
+ */
+class TooManyRequestsError extends ApiError {
+  constructor(message = 'Too many requests, please try again later') {
+    super(429, message);
+    this.name = 'TooManyRequestsError';
+  }
+}
+
+/**
  * Generic Authentication Error
  * Can be used for various auth-related issues
  */
@@ -134,6 +145,7 @@ export {
   ConflictError,
   ValidationError,
   DatabaseError,
+  TooManyRequestsError,
   AuthError,
   isOperationalError
 };
