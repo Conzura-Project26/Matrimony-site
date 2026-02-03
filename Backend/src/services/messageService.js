@@ -15,7 +15,7 @@
 
 import prisma from '../config/prisma.js';
 import blockService from './blockService.js';
-import { BadRequestError, NotFoundError, ForbiddenError } from '../utils/errors.js';
+import { BadRequestError, NotFoundError, ForbiddenError, ConflictError } from '../utils/errors.js';
 import MessageConfig from '../config/messageConfig.js';
 import logger from '../config/logger.js';
 
@@ -362,15 +362,20 @@ export async function getConversation(currentUserId, otherUserId, options = {}) 
  * Get all conversations (inbox view)
  * Returns list of users with last message and unread count
  * Ordered by latest message timestamp DESC
+ * Excludes archived conversations by default
  * 
  * @param {string} currentUserId - Current user ID
- * @param {object} options - Pagination options
+ * @param {object} options - Pagination and filter options
+ * @param {number} options.page - Page number (default: 1)
+ * @param {number} options.limit - Items per page (default: 20, max: 50)
+ * @param {boolean} options.includeArchived - Include archived conversations (default: false)
  * @returns {Promise<object>} List of conversations
  */
 export async function getConversationsList(currentUserId, options = {}) {
   const {
     page = 1,
-    limit = 20
+    limit = 20,
+    includeArchived = false
   } = options;
 
   // Validate pagination
@@ -380,41 +385,85 @@ export async function getConversationsList(currentUserId, options = {}) {
 
   // Get all unique conversation partners
   // A conversation exists if there's at least one non-deleted message
-  const conversations = await prisma.$queryRaw`
-    WITH conversation_users AS (
-      SELECT DISTINCT
-        CASE 
-          WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
-          ELSE sender_id
-        END as other_user_id,
-        MAX(sent_at) as last_message_at
-      FROM messages
-      WHERE 
-        (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL)
-        OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL)
-      GROUP BY other_user_id
-      ORDER BY last_message_at DESC
-      LIMIT ${pageSize}
-      OFFSET ${skip}
-    )
-    SELECT * FROM conversation_users
-  `;
+  let conversations, totalCountResult;
 
-  // Get total count
-  const totalCountResult = await prisma.$queryRaw`
-    SELECT COUNT(DISTINCT other_user_id)::int as total
-    FROM (
-      SELECT 
-        CASE 
-          WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
-          ELSE sender_id
-        END as other_user_id
-      FROM messages
-      WHERE 
-        (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL)
-        OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL)
-    ) as conversation_users
-  `;
+  if (includeArchived) {
+    // Include archived conversations
+    conversations = await prisma.$queryRaw`
+      WITH conversation_users AS (
+        SELECT DISTINCT
+          CASE 
+            WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
+            ELSE sender_id
+          END as other_user_id,
+          MAX(sent_at) as last_message_at
+        FROM messages
+        WHERE 
+          (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL)
+          OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL)
+        GROUP BY other_user_id
+        ORDER BY last_message_at DESC
+        LIMIT ${pageSize}
+        OFFSET ${skip}
+      )
+      SELECT * FROM conversation_users
+    `;
+
+    totalCountResult = await prisma.$queryRaw`
+      SELECT COUNT(DISTINCT other_user_id)::int as total
+      FROM (
+        SELECT 
+          CASE 
+            WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
+            ELSE sender_id
+          END as other_user_id
+        FROM messages
+        WHERE 
+          (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL)
+          OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL)
+      ) as conversation_users
+    `;
+  } else {
+    // Exclude archived conversations (default)
+    conversations = await prisma.$queryRaw`
+      WITH conversation_users AS (
+        SELECT DISTINCT
+          CASE 
+            WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
+            ELSE sender_id
+          END as other_user_id,
+          MAX(sent_at) as last_message_at
+        FROM messages
+        WHERE 
+          (
+            (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL AND archived_by_sender_at IS NULL)
+            OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL AND archived_by_receiver_at IS NULL)
+          )
+        GROUP BY other_user_id
+        ORDER BY last_message_at DESC
+        LIMIT ${pageSize}
+        OFFSET ${skip}
+      )
+      SELECT * FROM conversation_users
+    `;
+
+    totalCountResult = await prisma.$queryRaw`
+      SELECT COUNT(DISTINCT other_user_id)::int as total
+      FROM (
+        SELECT 
+          CASE 
+            WHEN sender_id = ${currentUserId}::uuid THEN receiver_id
+            ELSE sender_id
+          END as other_user_id
+        FROM messages
+        WHERE 
+          (
+            (sender_id = ${currentUserId}::uuid AND deleted_by_sender_at IS NULL AND archived_by_sender_at IS NULL)
+            OR (receiver_id = ${currentUserId}::uuid AND deleted_by_receiver_at IS NULL AND archived_by_receiver_at IS NULL)
+          )
+      ) as conversation_users
+    `;
+  }
 
   const totalCount = totalCountResult[0]?.total || 0;
 
@@ -489,6 +538,25 @@ export async function getConversationsList(currentUserId, options = {}) {
         }
       });
 
+      // Check if conversation is archived (check if there's at least one message archived by current user)
+      const archivedMessage = await prisma.message.findFirst({
+        where: {
+          OR: [
+            { 
+              sender_id: currentUserId, 
+              receiver_id: conv.other_user_id, 
+              archived_by_sender_at: { not: null }
+            },
+            { 
+              sender_id: conv.other_user_id, 
+              receiver_id: currentUserId, 
+              archived_by_receiver_at: { not: null }
+            }
+          ]
+        },
+        select: { id: true }
+      });
+
       return {
         user: {
           user_id: user.id,
@@ -504,7 +572,8 @@ export async function getConversationsList(currentUserId, options = {}) {
           is_read: !!lastMessage.read_at
         } : null,
         unread_count: unreadCount,
-        last_message_at: conv.last_message_at
+        last_message_at: conv.last_message_at,
+        is_archived: !!archivedMessage
       };
     })
   );
@@ -526,11 +595,334 @@ export async function getConversationsList(currentUserId, options = {}) {
   };
 }
 
+/**
+ * Delete entire conversation with a user (soft delete - one-sided)
+ * Updates all messages between two users to mark them as deleted for the current user
+ * 
+ * @param {string} currentUserId - Current user ID
+ * @param {string} otherUserId - Other user ID
+ * @returns {Promise<object>} Deletion result
+ */
+export async function deleteConversation(currentUserId, otherUserId) {
+  // Validate other user exists
+  const otherUser = await prisma.user.findUnique({
+    where: { id: otherUserId },
+    select: { id: true }
+  });
+
+  if (!otherUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  // Cannot delete conversation with yourself
+  if (currentUserId === otherUserId) {
+    throw new BadRequestError('Cannot delete conversation with yourself');
+  }
+
+  const deleteTimestamp = new Date();
+
+  // Soft delete all messages sent by current user
+  const deletedAsSender = await prisma.message.updateMany({
+    where: {
+      sender_id: currentUserId,
+      receiver_id: otherUserId,
+      deleted_by_sender_at: null // Only update if not already deleted
+    },
+    data: {
+      deleted_by_sender_at: deleteTimestamp
+    }
+  });
+
+  // Soft delete all messages received by current user
+  const deletedAsReceiver = await prisma.message.updateMany({
+    where: {
+      sender_id: otherUserId,
+      receiver_id: currentUserId,
+      deleted_by_receiver_at: null // Only update if not already deleted
+    },
+    data: {
+      deleted_by_receiver_at: deleteTimestamp
+    }
+  });
+
+  const totalDeleted = deletedAsSender.count + deletedAsReceiver.count;
+
+  logger.info('[MessageService] Conversation deleted', {
+    currentUserId,
+    otherUserId,
+    deletedAsSender: deletedAsSender.count,
+    deletedAsReceiver: deletedAsReceiver.count,
+    totalDeleted
+  });
+
+  return {
+    deleted_count: totalDeleted,
+    deleted_at: deleteTimestamp,
+    other_user_id: otherUserId
+  };
+}
+
+/**
+ * Delete a single message (soft delete - one-sided)
+ * Only allows deleting your own sent messages or messages you received
+ * 
+ * @param {string} currentUserId - Current user ID
+ * @param {number} messageId - Message ID
+ * @returns {Promise<object>} Deletion result
+ */
+export async function deleteSingleMessage(currentUserId, messageId) {
+  // Find the message
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      sender_id: true,
+      receiver_id: true,
+      deleted_by_sender_at: true,
+      deleted_by_receiver_at: true
+    }
+  });
+
+  if (!message) {
+    throw new NotFoundError('Message not found');
+  }
+
+  // Check if user is sender or receiver
+  const isSender = message.sender_id === currentUserId;
+  const isReceiver = message.receiver_id === currentUserId;
+
+  if (!isSender && !isReceiver) {
+    throw new ForbiddenError('You can only delete your own messages or messages sent to you');
+  }
+
+  // Check if already deleted by current user
+  if (isSender && message.deleted_by_sender_at !== null) {
+    throw new ConflictError('Message already deleted');
+  }
+
+  if (isReceiver && message.deleted_by_receiver_at !== null) {
+    throw new ConflictError('Message already deleted');
+  }
+
+  const deleteTimestamp = new Date();
+
+  // Update based on role
+  const updateData = isSender
+    ? { deleted_by_sender_at: deleteTimestamp }
+    : { deleted_by_receiver_at: deleteTimestamp };
+
+  const updatedMessage = await prisma.message.update({
+    where: { id: messageId },
+    data: updateData
+  });
+
+  logger.info('[MessageService] Single message deleted', {
+    currentUserId,
+    messageId,
+    role: isSender ? 'sender' : 'receiver',
+    deletedAt: deleteTimestamp
+  });
+
+  return {
+    message_id: messageId,
+    deleted_at: deleteTimestamp,
+    deleted_as: isSender ? 'sender' : 'receiver'
+  };
+}
+
+/**
+ * Get global unread message count across all conversations
+ * Returns total number of unread messages for the current user
+ * 
+ * @param {string} currentUserId - Current user ID
+ * @returns {Promise<number>} Total unread count
+ */
+export async function getGlobalUnreadCount(currentUserId) {
+  // Count all unread messages where current user is receiver
+  // Exclude deleted and blocked conversations
+  const unreadCount = await prisma.message.count({
+    where: {
+      receiver_id: currentUserId,
+      read_at: null,
+      deleted_by_receiver_at: null,
+      // Exclude messages from blocked users
+      sender: {
+        AND: [
+          {
+            NOT: {
+              blocks_made: {
+                some: {
+                  blocked_id: currentUserId,
+                  unblocked_at: null
+                }
+              }
+            }
+          },
+          {
+            NOT: {
+              blocks_received: {
+                some: {
+                  blocker_id: currentUserId,
+                  unblocked_at: null
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  });
+
+  logger.info('[MessageService] Global unread count retrieved', {
+    currentUserId,
+    unreadCount
+  });
+
+  return unreadCount;
+}
+
+/**
+ * Archive conversation with a user (one-sided)
+ * Hides conversation from inbox but keeps messages accessible
+ * 
+ * @param {string} currentUserId - Current user ID
+ * @param {string} otherUserId - Other user ID
+ * @returns {Promise<object>} Archive result
+ */
+export async function archiveConversation(currentUserId, otherUserId) {
+  // Validate other user exists
+  const otherUser = await prisma.user.findUnique({
+    where: { id: otherUserId },
+    select: { id: true }
+  });
+
+  if (!otherUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  // Cannot archive conversation with yourself
+  if (currentUserId === otherUserId) {
+    throw new BadRequestError('Cannot archive conversation with yourself');
+  }
+
+  const archiveTimestamp = new Date();
+
+  // Archive all messages in the conversation
+  const archivedAsSender = await prisma.message.updateMany({
+    where: {
+      sender_id: currentUserId,
+      receiver_id: otherUserId,
+      archived_by_sender_at: null,
+      deleted_by_sender_at: null // Don't archive already deleted messages
+    },
+    data: {
+      archived_by_sender_at: archiveTimestamp
+    }
+  });
+
+  const archivedAsReceiver = await prisma.message.updateMany({
+    where: {
+      sender_id: otherUserId,
+      receiver_id: currentUserId,
+      archived_by_receiver_at: null,
+      deleted_by_receiver_at: null // Don't archive already deleted messages
+    },
+    data: {
+      archived_by_receiver_at: archiveTimestamp
+    }
+  });
+
+  const totalArchived = archivedAsSender.count + archivedAsReceiver.count;
+
+  logger.info('[MessageService] Conversation archived', {
+    currentUserId,
+    otherUserId,
+    archivedAsSender: archivedAsSender.count,
+    archivedAsReceiver: archivedAsReceiver.count,
+    totalArchived
+  });
+
+  return {
+    archived_count: totalArchived,
+    archived_at: archiveTimestamp,
+    other_user_id: otherUserId
+  };
+}
+
+/**
+ * Unarchive conversation with a user (one-sided)
+ * Restores conversation to inbox
+ * 
+ * @param {string} currentUserId - Current user ID
+ * @param {string} otherUserId - Other user ID
+ * @returns {Promise<object>} Unarchive result
+ */
+export async function unarchiveConversation(currentUserId, otherUserId) {
+  // Validate other user exists
+  const otherUser = await prisma.user.findUnique({
+    where: { id: otherUserId },
+    select: { id: true }
+  });
+
+  if (!otherUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  // Cannot unarchive conversation with yourself
+  if (currentUserId === otherUserId) {
+    throw new BadRequestError('Cannot unarchive conversation with yourself');
+  }
+
+  // Unarchive all messages in the conversation
+  const unarchivedAsSender = await prisma.message.updateMany({
+    where: {
+      sender_id: currentUserId,
+      receiver_id: otherUserId,
+      archived_by_sender_at: { not: null }
+    },
+    data: {
+      archived_by_sender_at: null
+    }
+  });
+
+  const unarchivedAsReceiver = await prisma.message.updateMany({
+    where: {
+      sender_id: otherUserId,
+      receiver_id: currentUserId,
+      archived_by_receiver_at: { not: null }
+    },
+    data: {
+      archived_by_receiver_at: null
+    }
+  });
+
+  const totalUnarchived = unarchivedAsSender.count + unarchivedAsReceiver.count;
+
+  logger.info('[MessageService] Conversation unarchived', {
+    currentUserId,
+    otherUserId,
+    unarchivedAsSender: unarchivedAsSender.count,
+    unarchivedAsReceiver: unarchivedAsReceiver.count,
+    totalUnarchived
+  });
+
+  return {
+    unarchived_count: totalUnarchived,
+    other_user_id: otherUserId
+  };
+}
+
 export default {
   sendMessage,
   getConversation,
   getConversationsList,
   validateMessagingPermission,
   canUsersMessage,
-  isNewConversation
+  isNewConversation,
+  deleteConversation,
+  deleteSingleMessage,
+  getGlobalUnreadCount,
+  archiveConversation,
+  unarchiveConversation
 };
+
