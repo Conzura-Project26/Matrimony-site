@@ -185,12 +185,13 @@ export async function getConversation(req, res) {
  */
 export async function getConversationsList(req, res) {
   const currentUserId = req.user.userId;
-  const { page, limit } = req.query;
+  const { page, limit, includeArchived } = req.query;
 
   // Get conversations via service
   const result = await messageService.getConversationsList(currentUserId, {
     page,
-    limit
+    limit,
+    includeArchived: includeArchived === 'true' // Convert string to boolean
   });
 
   // Log action
@@ -199,8 +200,155 @@ export async function getConversationsList(req, res) {
   res.status(200).json(result);
 }
 
+/**
+ * Delete Conversation with a User
+ * DELETE /messages/conversations/:userId
+ * 
+ * @route DELETE /messages/conversations/:userId
+ * @access Private (Authenticated users only)
+ */
+export async function deleteConversation(req, res) {
+  const currentUserId = req.user.userId;
+  const { userId: otherUserId } = req.params;
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(otherUserId)) {
+    throw new BadRequestError('Invalid user ID format');
+  }
+
+  // Delete conversation via service
+  const result = await messageService.deleteConversation(currentUserId, otherUserId);
+
+  // Log action
+  await createAuditLog(currentUserId, `MESSAGE_CONVERSATION_DELETE:${otherUserId}`, req.ip);
+
+  res.status(200).json({
+    success: true,
+    message: 'Conversation deleted successfully',
+    data: result
+  });
+}
+
+/**
+ * Delete Single Message
+ * DELETE /messages/:messageId
+ * 
+ * @route DELETE /messages/:messageId
+ * @access Private (Authenticated users only)
+ */
+export async function deleteSingleMessage(req, res) {
+  const currentUserId = req.user.userId;
+  const { messageId } = req.params;
+
+  // Validate message ID is a number
+  const messageIdNum = parseInt(messageId);
+  if (isNaN(messageIdNum) || messageIdNum <= 0) {
+    throw new BadRequestError('Invalid message ID format');
+  }
+
+  // Delete message via service
+  const result = await messageService.deleteSingleMessage(currentUserId, messageIdNum);
+
+  // Log action
+  await createAuditLog(currentUserId, `MESSAGE_DELETE:${messageIdNum}`, req.ip);
+
+  res.status(200).json({
+    success: true,
+    message: 'Message deleted successfully',
+    data: result
+  });
+}
+
+/**
+ * Get Global Unread Message Count
+ * GET /messages/unread-count
+ * 
+ * @route GET /messages/unread-count
+ * @access Private (Authenticated users only)
+ */
+export async function getGlobalUnreadCount(req, res) {
+  const currentUserId = req.user.userId;
+
+  // Get unread count via service
+  const unreadCount = await messageService.getGlobalUnreadCount(currentUserId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Unread count retrieved successfully',
+    data: {
+      unread_count: unreadCount
+    }
+  });
+}
+
+/**
+ * Archive Conversation with a User
+ * POST /messages/conversations/:userId/archive
+ * 
+ * @route POST /messages/conversations/:userId/archive
+ * @access Private (Authenticated users only)
+ */
+export async function archiveConversation(req, res) {
+  const currentUserId = req.user.userId;
+  const { userId: otherUserId } = req.params;
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(otherUserId)) {
+    throw new BadRequestError('Invalid user ID format');
+  }
+
+  // Archive conversation via service
+  const result = await messageService.archiveConversation(currentUserId, otherUserId);
+
+  // Log action
+  await createAuditLog(currentUserId, `MESSAGE_CONVERSATION_ARCHIVE:${otherUserId}`, req.ip);
+
+  res.status(200).json({
+    success: true,
+    message: 'Conversation archived successfully',
+    data: result
+  });
+}
+
+/**
+ * Unarchive Conversation with a User
+ * DELETE /messages/conversations/:userId/archive
+ * 
+ * @route DELETE /messages/conversations/:userId/archive
+ * @access Private (Authenticated users only)
+ */
+export async function unarchiveConversation(req, res) {
+  const currentUserId = req.user.userId;
+  const { userId: otherUserId } = req.params;
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(otherUserId)) {
+    throw new BadRequestError('Invalid user ID format');
+  }
+
+  // Unarchive conversation via service
+  const result = await messageService.unarchiveConversation(currentUserId, otherUserId);
+
+  // Log action
+  await createAuditLog(currentUserId, `MESSAGE_CONVERSATION_UNARCHIVE:${otherUserId}`, req.ip);
+
+  res.status(200).json({
+    success: true,
+    message: 'Conversation unarchived successfully',
+    data: result
+  });
+}
+
 export default {
   sendMessage,
   getConversation,
-  getConversationsList
+  getConversationsList,
+  deleteConversation,
+  deleteSingleMessage,
+  getGlobalUnreadCount,
+  archiveConversation,
+  unarchiveConversation
 };

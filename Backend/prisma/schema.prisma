@@ -337,16 +337,18 @@ model Interest {
 }
 
 model Message {
-  sender_id              String    @db.Uuid
-  receiver_id            String    @db.Uuid
-  sent_at                DateTime  @default(now())
-  id                     Int       @id @default(autoincrement())
-  content                String    @db.VarChar(1000)
-  deleted_by_receiver_at DateTime?
-  deleted_by_sender_at   DateTime?
-  read_at                DateTime?
-  receiver               User      @relation("MessageReceiver", fields: [receiver_id], references: [id], onDelete: Cascade)
-  sender                 User      @relation("MessageSender", fields: [sender_id], references: [id], onDelete: Cascade)
+  sender_id               String    @db.Uuid
+  receiver_id             String    @db.Uuid
+  sent_at                 DateTime  @default(now())
+  id                      Int       @id @default(autoincrement())
+  content                 String    @db.VarChar(1000)
+  deleted_by_receiver_at  DateTime?
+  deleted_by_sender_at    DateTime?
+  read_at                 DateTime?
+  archived_by_sender_at   DateTime?
+  archived_by_receiver_at DateTime?
+  receiver                User      @relation("MessageReceiver", fields: [receiver_id], references: [id], onDelete: Cascade)
+  sender                  User      @relation("MessageSender", fields: [sender_id], references: [id], onDelete: Cascade)
 
   @@index([sender_id, sent_at])
   @@index([receiver_id, read_at])
