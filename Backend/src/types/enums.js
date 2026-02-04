@@ -25,6 +25,34 @@ export const InterestStatus = {
 };
 
 /**
+ * User Account Status - For admin user management
+ * Phase 5 - Task 5.1: Admin User Management
+ */
+export const UserStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED'
+};
+
+/**
+ * Admin Bulk Actions
+ */
+export const AdminBulkAction = {
+  ACTIVATE: 'ACTIVATE',
+  DEACTIVATE: 'DEACTIVATE',
+  SUSPEND: 'SUSPEND',
+  VERIFY_PROFILE: 'VERIFY_PROFILE'
+};
+
+/**
+ * Export Formats for Admin
+ */
+export const ExportFormat = {
+  CSV: 'CSV',
+  JSON: 'JSON'
+};
+
+/**
  * Match Type - Categorizes different types of matches
  * Phase 3 - Task 3.4: Matchmaking Algorithm
  */

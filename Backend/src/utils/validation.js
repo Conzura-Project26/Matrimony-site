@@ -13,7 +13,10 @@ import {
   EmploymentType,
   IncomeRange,
   EducationLevel,
-  WorkLocationType
+  WorkLocationType,
+  UserStatus,
+  AdminBulkAction,
+  ExportFormat
 } from '../types/enums.js';
 import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
@@ -991,6 +994,96 @@ const recordMatchViewSchema = z.object({
   matchId: z.string().uuid('Invalid match ID format')
 });
 
+// ============================================
+// ADMIN SCHEMAS (Phase 5 - Task 5.1) ✅
+// ============================================
+
+/**
+ * Admin: Get All Users - Query Filters
+ */
+const adminGetUsersSchema = z.object({
+  // Pagination
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  
+  // Text search (searches name, email, profile_id, mobile)
+  q: z.string().trim().optional(),
+  
+  // Status filters
+  is_active: z.enum(['true', 'false']).optional().transform(val => val === 'true'),
+  is_profile_verified: z.enum(['true', 'false']).optional().transform(val => val === 'true'),
+  is_email_verified: z.enum(['true', 'false']).optional().transform(val => val === 'true'),
+  is_mobile_verified: z.enum(['true', 'false']).optional().transform(val => val === 'true'),
+  
+  // Role filter
+  role: z.enum(['USER', 'ADMIN', 'MODERATOR']).optional(),
+  
+  // Date filters
+  created_from: z.string().datetime().optional(),
+  created_to: z.string().datetime().optional(),
+  last_active_from: z.string().datetime().optional(),
+  last_active_to: z.string().datetime().optional(),
+  
+  // Other filters
+  gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
+  age_min: z.coerce.number().int().min(18).max(100).optional(),
+  age_max: z.coerce.number().int().min(18).max(100).optional(),
+  profile_completion_min: z.coerce.number().int().min(0).max(100).optional(),
+  
+  // Sorting (whitelisted only)
+  sort_by: z.enum(['created_at', 'last_active_at', 'profile_completion_percentage', 'full_name']).default('created_at'),
+  sort_order: z.enum(['asc', 'desc']).default('desc')
+});
+
+/**
+ * Admin: Update User Status
+ */
+const adminUpdateUserStatusSchema = z.object({
+  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED]),
+  reason: z.string().min(10, 'Reason must be at least 10 characters').max(500)
+});
+
+/**
+ * Admin: Delete User (Soft Delete)
+ */
+const adminDeleteUserSchema = z.object({
+  reason: z.string().min(10, 'Deletion reason must be at least 10 characters').max(500)
+});
+
+/**
+ * Admin: Verify User Profile
+ */
+const adminVerifyProfileSchema = z.object({
+  is_profile_verified: z.boolean()
+});
+
+/**
+ * Admin: Export Users
+ */
+const adminExportUsersSchema = z.object({
+  format: z.enum([ExportFormat.CSV, ExportFormat.JSON]).default(ExportFormat.CSV),
+  filters: z.object({
+    is_active: z.boolean().optional(),
+    is_profile_verified: z.boolean().optional(),
+    role: z.enum(['USER', 'ADMIN', 'MODERATOR']).optional(),
+    gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional()
+  }).optional()
+});
+
+/**
+ * Admin: Bulk Operations
+ */
+const adminBulkOperationSchema = z.object({
+  action: z.enum([
+    AdminBulkAction.ACTIVATE,
+    AdminBulkAction.DEACTIVATE,
+    AdminBulkAction.SUSPEND,
+    AdminBulkAction.VERIFY_PROFILE
+  ]),
+  user_ids: z.array(z.string().uuid()).min(1, 'At least one user ID required').max(100, 'Maximum 100 users per bulk operation'),
+  reason: z.string().min(10, 'Reason must be at least 10 characters').max(500)
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -1020,4 +1113,10 @@ export {
   getRecommendedSchema,
   getNewMatchesSchema,
   recordMatchViewSchema,
+  adminGetUsersSchema,
+  adminUpdateUserStatusSchema,
+  adminDeleteUserSchema,
+  adminVerifyProfileSchema,
+  adminExportUsersSchema,
+  adminBulkOperationSchema
 };
