@@ -753,6 +753,29 @@ export async function acceptInterest(interestId, receiverId, receiverName) {
 
   const isMutual = !!(reverseInterest && reverseInterest.status === InterestStatus.ACCEPTED);
 
+  // MATCH_FOUND notification - Notify both users when mutual acceptance happens
+  if (isMutual) {
+    // Notify the sender (A) that they matched with receiver (B)
+    await createNotification(
+      interest.sender_id,
+      NotificationType.MATCH_FOUND,
+      'It\'s a Match! 💕',
+      `You and ${receiverName} (${interest.receiver.profile_id}) have mutually accepted each other's interests!`,
+      receiverId,
+      interest.id
+    );
+
+    // Notify the receiver (B) that they matched with sender (A)
+    await createNotification(
+      receiverId,
+      NotificationType.MATCH_FOUND,
+      'It\'s a Match! 💕',
+      `You and ${interest.sender.full_name} (${interest.sender.profile_id}) have mutually accepted each other's interests!`,
+      interest.sender_id,
+      interest.id
+    );
+  }
+
   return {
     success: true,
     message: `Interest accepted successfully. You can now message ${interest.sender.full_name}.`,

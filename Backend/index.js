@@ -15,6 +15,7 @@ import shortlistRoutes from './src/routes/shortlistRoutes.js';
 import interestRoutes from './src/routes/interestRoutes.js';
 import blockRoutes from './src/routes/blockRoutes.js';
 import messageRoutes from './src/routes/messageRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -24,6 +25,7 @@ import helmetConfig from './src/config/helmetConfig.js';
 import { globalRateLimiter, authRateLimiter } from './src/middleware/rateLimiter.js';
 import { sanitizeInput } from './src/middleware/sanitization.js';
 import swaggerSpec from './src/config/swagger.js';
+import { initializeCronJobs } from './src/config/cronJobs.js';
 
 dotenv.config();
 
@@ -78,6 +80,7 @@ app.use('/', shortlistRoutes); // Shortlist management (Task 3.6): POST /shortli
 app.use('/', interestRoutes); // Interest system (Task 4.1): POST /interests/:receiverId
 app.use('/blocks', blockRoutes); // Blocking system (Task 4.x): POST /blocks/:userId, DELETE /blocks/:userId, GET /blocks
 app.use('/messages', messageRoutes); // Messaging system (Task 4.3): POST /messages/:userId, GET /messages/:userId, GET /messages/conversations
+app.use('/notifications', notificationRoutes); // Notification system (Task 4.6): GET /notifications, PUT /notifications/:id/read, etc.
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)
@@ -118,6 +121,17 @@ app.listen(PORT, async () => {
     });
   } catch (error) {
     logger.error('Database connection failed', {
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+
+  // Initialize cron jobs (Task 4.6)
+  try {
+    initializeCronJobs();
+    logger.info('Cron jobs initialized successfully');
+  } catch (error) {
+    logger.error('Cron jobs initialization failed', {
       error: error.message,
       stack: error.stack,
     });
