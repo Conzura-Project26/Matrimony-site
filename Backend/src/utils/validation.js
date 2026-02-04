@@ -1084,6 +1084,63 @@ const adminBulkOperationSchema = z.object({
   reason: z.string().min(10, 'Reason must be at least 10 characters').max(500)
 });
 
+// ============================================
+// STATISTICS SCHEMAS (Phase 5 - Task 5.2) ✅
+// ============================================
+
+/**
+ * Statistics: Registrations Query
+ */
+const statsRegistrationsSchema = z.object({
+  period: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+  group_by: z.enum(['none', 'gender', 'religion', 'created_by', 'completion_bucket']).default('none'),
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional()
+}).refine((data) => {
+  // If both from and to are provided, validate range
+  if (data.from && data.to) {
+    const from = new Date(data.from);
+    const to = new Date(data.to);
+    const diffDays = (to - from) / (1000 * 60 * 60 * 24);
+    
+    // Max range: 90 days for daily, 365 days for weekly/monthly
+    if (data.period === 'daily' && diffDays > 90) {
+      return false;
+    }
+    if (data.period === 'weekly' && diffDays > 365) {
+      return false;
+    }
+    if (data.period === 'monthly' && diffDays > 730) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: 'Date range too large. Max: 90 days (daily), 365 days (weekly), 730 days (monthly)'
+});
+
+/**
+ * Statistics: Active Users Query
+ */
+const statsActiveUsersSchema = z.object({
+  window: z.enum(['1d', '7d', '30d']).default('7d')
+});
+
+/**
+ * Statistics: Active Users Trend Query
+ */
+const statsActiveUsersTrendSchema = z.object({
+  window: z.enum(['1d', '7d', '30d']).default('7d'),
+  period: z.enum(['daily', 'weekly', 'monthly']).default('daily')
+});
+
+/**
+ * Statistics: Location Query
+ */
+const statsLocationSchema = z.object({
+  top_cities: z.coerce.number().int().min(5).max(20).default(10)
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -1118,5 +1175,9 @@ export {
   adminDeleteUserSchema,
   adminVerifyProfileSchema,
   adminExportUsersSchema,
-  adminBulkOperationSchema
+  adminBulkOperationSchema,
+  statsRegistrationsSchema,
+  statsActiveUsersSchema,
+  statsActiveUsersTrendSchema,
+  statsLocationSchema
 };

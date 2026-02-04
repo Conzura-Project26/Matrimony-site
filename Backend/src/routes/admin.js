@@ -28,6 +28,7 @@ import {
   rejectPhoto,
 } from '../controllers/photoController.js';
 import adminController from '../controllers/adminController.js';
+import statisticsController from '../controllers/statisticsController.js';
 import {
   adminReadRateLimiter,
   adminWriteRateLimiter,
@@ -724,6 +725,492 @@ router.post(
   authorizeRole(['ADMIN']),
   adminDestructiveRateLimiter,
   asyncHandler(adminController.bulkOperation)
+);
+
+// ============================================
+// STATISTICS ROUTES (Task 5.2)
+// ============================================
+
+/**
+ * @swagger
+ * /admin/statistics/dashboard:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get aggregated dashboard statistics
+ *     description: Get all key statistics at once for admin dashboard (heavily cached)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/dashboard',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getDashboard)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/summary:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get user summary with breakdowns
+ *     description: Get total users with breakdowns by status, verification, role, and completion
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User summary retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/summary',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUserSummary)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/by-gender:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get user distribution by gender
+ *     description: Get user counts and percentages by gender with optional filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *       - in: query
+ *         name: is_profile_verified
+ *         schema:
+ *           type: boolean
+ *         description: Filter by profile verification status
+ *     responses:
+ *       200:
+ *         description: Gender distribution retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/by-gender',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUsersByGender)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/by-religion:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get user distribution by religion
+ *     description: Get user counts and percentages by religion with optional filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *           enum: [Male, Female, Other]
+ *         description: Filter by gender
+ *     responses:
+ *       200:
+ *         description: Religion distribution retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/by-religion',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUsersByReligion)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/by-location:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get geographic distribution
+ *     description: Get user distribution by state and top N cities
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: top_cities
+ *         schema:
+ *           type: integer
+ *           minimum: 5
+ *           maximum: 20
+ *           default: 10
+ *         description: Number of top cities to return
+ *     responses:
+ *       200:
+ *         description: Location distribution retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/by-location',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUsersByLocation)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/by-age:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get age distribution
+ *     description: Get user distribution by age buckets and average age by gender
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Age distribution retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/by-age',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUsersByAge)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/by-marital-status:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get marital status distribution
+ *     description: Get user distribution by marital status
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Marital status distribution retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/by-marital-status',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getUsersByMaritalStatus)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/profile-completion:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get profile completion statistics
+ *     description: Get average profile completion and distribution by buckets
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile completion statistics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/profile-completion',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getProfileCompletion)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/verification:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get verification statistics
+ *     description: Get email, mobile, and profile verification counts and percentages
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification statistics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/verification',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getVerificationStats)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/registrations:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get registration trends
+ *     description: Get registration time series with optional grouping by gender, religion, created_by, or completion_bucket
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *           default: daily
+ *         description: Time period granularity
+ *       - in: query
+ *         name: group_by
+ *         schema:
+ *           type: string
+ *           enum: [none, gender, religion, created_by, completion_bucket]
+ *           default: none
+ *         description: Optional grouping dimension
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date (ISO 8601)
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date (ISO 8601)
+ *     responses:
+ *       200:
+ *         description: Registration trends retrieved successfully
+ *       400:
+ *         description: Validation error (date range exceeds limits)
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/registrations',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getRegistrationTrends)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/active/summary:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get active users summary
+ *     description: Get count of users active within specified window (DAU/WAU/MAU)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: window
+ *         schema:
+ *           type: string
+ *           enum: ['1d', '7d', '30d']
+ *           default: '7d'
+ *         description: Activity window (1d = daily, 7d = weekly, 30d = monthly)
+ *     responses:
+ *       200:
+ *         description: Active users summary retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/active/summary',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getActiveUsersSummary)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/active/trend:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get active users trend
+ *     description: Get time series of active users over specified period
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: window
+ *         schema:
+ *           type: string
+ *           enum: ['1d', '7d', '30d']
+ *           default: '7d'
+ *         description: Activity window
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *           default: daily
+ *         description: Time period granularity for trend
+ *     responses:
+ *       200:
+ *         description: Active users trend retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/active/trend',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getActiveUsersTrend)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/active/demographics:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get active users demographics
+ *     description: Get demographic breakdown of active users by gender and age
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: window
+ *         schema:
+ *           type: string
+ *           enum: ['1d', '7d', '30d']
+ *           default: '7d'
+ *         description: Activity window
+ *     responses:
+ *       200:
+ *         description: Active users demographics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/active/demographics',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getActiveUsersDemographics)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/engagement:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get user engagement metrics
+ *     description: Get aggregate counts for profile views, interests, messages, and shortlists
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Engagement metrics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/engagement',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getEngagementMetrics)
+);
+
+/**
+ * @swagger
+ * /admin/statistics/users/retention:
+ *   get:
+ *     tags:
+ *       - Admin Statistics
+ *     summary: Get retention metrics
+ *     description: Get Day 1, Day 7, and Day 30 retention rates
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Retention metrics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/statistics/users/retention',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(statisticsController.getRetentionMetrics)
 );
 
 export default router;
