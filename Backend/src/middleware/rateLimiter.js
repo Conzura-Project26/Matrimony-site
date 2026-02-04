@@ -154,3 +154,40 @@ export const createRateLimiter = (max, windowMs, type = 'custom') => {
     },
   });
 };
+
+// ============================================
+// ADMIN-SPECIFIC RATE LIMITERS (Phase 5 - Task 5.1)
+// ============================================
+
+/**
+ * Admin Read Operations Rate Limiter
+ * Applied to GET requests (view users, analytics)
+ * 500 requests per hour
+ */
+export const adminReadRateLimiter = createRateLimiter(
+  500,
+  60 * 60 * 1000, // 1 hour
+  'admin-read'
+);
+
+/**
+ * Admin Write Operations Rate Limiter
+ * Applied to non-destructive updates (verify profile, status updates)
+ * 100 requests per hour
+ */
+export const adminWriteRateLimiter = createRateLimiter(
+  100,
+  60 * 60 * 1000, // 1 hour
+  'admin-write'
+);
+
+/**
+ * Admin Destructive Operations Rate Limiter
+ * Applied to delete and bulk operations
+ * 20 requests per hour
+ */
+export const adminDestructiveRateLimiter = createRateLimiter(
+  20,
+  60 * 60 * 1000, // 1 hour
+  'admin-destructive'
+);

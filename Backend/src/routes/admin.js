@@ -1,11 +1,21 @@
 /**
  * Admin Routes
- * Handles administrative operations including photo moderation
+ * Phase 5 - Task 5.1: Admin User Management
  * 
- * Routes:
+ * Photo Moderation Routes:
  * - GET    /admin/photos/pending - Get pending photos for moderation
  * - PATCH  /admin/photos/:photoId/approve - Approve a photo
  * - DELETE /admin/photos/:photoId - Reject/delete a photo
+ * 
+ * User Management Routes:
+ * - GET    /admin/users - Get all users with filters
+ * - GET    /admin/users/analytics - Get analytics/statistics
+ * - GET    /admin/users/:id - Get user details
+ * - PUT    /admin/users/:id/status - Update user status
+ * - PUT    /admin/users/:id/verify - Verify user profile
+ * - DELETE /admin/users/:id - Delete user (soft delete)
+ * - POST   /admin/users/export - Export users data
+ * - POST   /admin/users/bulk - Bulk operations
  */
 
 import express from 'express';
@@ -17,6 +27,12 @@ import {
   approvePhoto,
   rejectPhoto,
 } from '../controllers/photoController.js';
+import adminController from '../controllers/adminController.js';
+import {
+  adminReadRateLimiter,
+  adminWriteRateLimiter,
+  adminDestructiveRateLimiter
+} from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -243,6 +259,471 @@ router.delete(
   authenticateToken,
   authorizeRole(['ADMIN', 'MODERATOR']),
   asyncHandler(rejectPhoto)
+);
+
+// ============================================
+// USER MANAGEMENT ROUTES (Phase 5 - Task 5.1)
+// ============================================
+
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Get all users with filters and pagination
+ *     description: Retrieve paginated list of users with advanced filtering, sorting, and search capabilities
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Items per page (max 100)
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Search query (searches name, email, profile_id, mobile)
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *       - in: query
+ *         name: is_profile_verified
+ *         schema:
+ *           type: boolean
+ *         description: Filter by profile verification status
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [USER, ADMIN, MODERATOR]
+ *         description: Filter by role
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *           enum: [Male, Female, Other]
+ *         description: Filter by gender
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [created_at, last_active_at, profile_completion_percentage, full_name]
+ *           default: created_at
+ *         description: Sort field
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin or Moderator role
+ */
+router.get(
+  '/users',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(adminController.getAllUsers)
+);
+
+/**
+ * @swagger
+ * /admin/users/analytics:
+ *   get:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Get user analytics and statistics
+ *     description: Retrieve dashboard analytics including user counts and activity metrics
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Analytics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     counts:
+ *                       type: object
+ *                       properties:
+ *                         total_users:
+ *                           type: integer
+ *                         active_users:
+ *                           type: integer
+ *                         verified_users:
+ *                           type: integer
+ *                         inactive_users:
+ *                           type: integer
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin or Moderator role
+ */
+router.get(
+  '/users/analytics',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(adminController.getAnalytics)
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}:
+ *   get:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Get detailed user information
+ *     description: Retrieve complete user profile with all sections, photos, preferences, and statistics
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin or Moderator role
+ *       404:
+ *         description: User not found
+ */
+router.get(
+  '/users/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminReadRateLimiter,
+  asyncHandler(adminController.getUserDetails)
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}/status:
+ *   put:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Update user account status
+ *     description: Activate, deactivate, or suspend user account with reason. Revokes tokens and cancels interests for deactivated users.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *               - reason
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, SUSPENDED]
+ *                 description: New account status
+ *               reason:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 500
+ *                 description: Reason for status change (logged in audit trail)
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role or cannot modify another admin
+ *       404:
+ *         description: User not found
+ */
+router.put(
+  '/users/:id/status',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  adminWriteRateLimiter,
+  asyncHandler(adminController.updateUserStatus)
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}/verify:
+ *   put:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Verify or unverify user profile
+ *     description: Manually verify or unverify a user's profile. Logged in audit trail.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - is_profile_verified
+ *             properties:
+ *               is_profile_verified:
+ *                 type: boolean
+ *                 description: Verification status to set
+ *     responses:
+ *       200:
+ *         description: Profile verification updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role
+ *       404:
+ *         description: User not found
+ */
+router.put(
+  '/users/:id/verify',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  adminWriteRateLimiter,
+  asyncHandler(adminController.verifyUserProfile)
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}:
+ *   delete:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Delete user (soft delete)
+ *     description: Soft delete user account. Marks as inactive, revokes tokens, cancels interests, but preserves data for audit. Admins cannot delete other admins.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - reason
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 500
+ *                 description: Deletion reason (mandatory, logged in audit trail)
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role or cannot delete admin accounts
+ *       404:
+ *         description: User not found
+ */
+router.delete(
+  '/users/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  adminDestructiveRateLimiter,
+  asyncHandler(adminController.deleteUser)
+);
+
+/**
+ * @swagger
+ * /admin/users/export:
+ *   post:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Export users data (async)
+ *     description: Queue user data export job. Returns job ID. File will be generated asynchronously and admin will be notified.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               format:
+ *                 type: string
+ *                 enum: [CSV, JSON]
+ *                 default: CSV
+ *                 description: Export format
+ *               filters:
+ *                 type: object
+ *                 description: Optional filters to apply to export
+ *                 properties:
+ *                   is_active:
+ *                     type: boolean
+ *                   is_profile_verified:
+ *                     type: boolean
+ *                   role:
+ *                     type: string
+ *                     enum: [USER, ADMIN, MODERATOR]
+ *     responses:
+ *       202:
+ *         description: Export job queued successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role
+ */
+router.post(
+  '/users/export',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  adminWriteRateLimiter,
+  asyncHandler(adminController.exportUsers)
+);
+
+/**
+ * @swagger
+ * /admin/users/bulk:
+ *   post:
+ *     tags:
+ *       - Admin - User Management
+ *     summary: Perform bulk operations on users
+ *     description: Execute bulk actions (activate, deactivate, suspend, verify) on multiple users. Max 100 users per request.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *               - user_ids
+ *               - reason
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [ACTIVATE, DEACTIVATE, SUSPEND, VERIFY_PROFILE]
+ *                 description: Bulk action to perform
+ *               user_ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 minItems: 1
+ *                 maxItems: 100
+ *                 description: Array of user IDs (max 100)
+ *               reason:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 500
+ *                 description: Reason for bulk action (logged in audit trail)
+ *     responses:
+ *       200:
+ *         description: Bulk operation completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: integer
+ *                       description: Number of successful operations
+ *                     failed:
+ *                       type: integer
+ *                       description: Number of failed operations
+ *                     errors:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           user_id:
+ *                             type: string
+ *                           reason:
+ *                             type: string
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role
+ */
+router.post(
+  '/users/bulk',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  adminDestructiveRateLimiter,
+  asyncHandler(adminController.bulkOperation)
 );
 
 export default router;
