@@ -12,6 +12,7 @@
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
+import { checkFeatureRestriction } from '../middleware/checkFeatureRestrictions.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import messageController from '../controllers/messageController.js';
 import {
@@ -408,7 +409,7 @@ router.get('/unread-count', getUnreadCountRateLimiter, asyncHandler(messageContr
  *                   success: false
  *                   message: "You can only start 5 new conversations per hour. Please try again later."
  */
-router.post('/:userId', sendMessageRateLimiter, asyncHandler(messageController.sendMessage));
+router.post('/:userId', sendMessageRateLimiter, checkFeatureRestriction('CHAT'), asyncHandler(messageController.sendMessage));
 
 // ============================================
 // GET CONVERSATION

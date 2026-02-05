@@ -16,7 +16,11 @@ import {
   WorkLocationType,
   UserStatus,
   AdminBulkAction,
-  ExportFormat
+  ExportFormat,
+  ReportStatus,
+  ReportSeverity,
+  ReportCategory,
+  ReportAction
 } from '../types/enums.js';
 import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
@@ -1084,6 +1088,36 @@ const adminBulkOperationSchema = z.object({
   reason: z.string().min(10, 'Reason must be at least 10 characters').max(500)
 });
 
+/**
+ * Photo Moderation: Bulk Approve Photos
+ */
+const bulkApprovePhotosSchema = z.object({
+  photo_ids: z.array(z.number().int().positive())
+    .min(1, 'At least one photo ID required')
+    .max(50, 'Maximum 50 photos per bulk operation')
+});
+
+/**
+ * Photo Moderation: Reject Photo (Individual)
+ */
+const rejectPhotoSchema = z.object({
+  reason: z.string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason must not exceed 500 characters')
+});
+
+/**
+ * Photo Moderation: Bulk Reject Photos
+ */
+const bulkRejectPhotosSchema = z.object({
+  photo_ids: z.array(z.number().int().positive())
+    .min(1, 'At least one photo ID required')
+    .max(50, 'Maximum 50 photos per bulk operation'),
+  reason: z.string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason must not exceed 500 characters')
+});
+
 // ============================================
 // STATISTICS SCHEMAS (Phase 5 - Task 5.2) ✅
 // ============================================
@@ -1141,6 +1175,117 @@ const statsLocationSchema = z.object({
   top_cities: z.coerce.number().int().min(5).max(20).default(10)
 });
 
+// ============================================
+// REPORT MANAGEMENT SCHEMAS (Phase 5 - Task 5.4) ✅
+// ============================================
+
+/**
+ * Admin: Get All Reports - Query Filters
+ */
+const adminGetReportsSchema = z.object({
+  // Pagination
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+
+  // Status filter
+  status: z.enum([
+    ReportStatus.OPEN,
+    ReportStatus.IN_REVIEW,
+    ReportStatus.ACTION_TAKEN,
+    ReportStatus.RESOLVED,
+    ReportStatus.DISMISSED,
+    ReportStatus.ESCALATED
+  ]).optional(),
+
+  // Severity filter
+  severity: z.enum([
+    ReportSeverity.LOW,
+    ReportSeverity.MEDIUM,
+    ReportSeverity.HIGH,
+    ReportSeverity.CRITICAL
+  ]).optional(),
+
+  // Category filter
+  category: z.enum([
+    ReportCategory.FAKE_PROFILE,
+    ReportCategory.HARASSMENT,
+    ReportCategory.INAPPROPRIATE_PHOTO,
+    ReportCategory.INAPPROPRIATE_CONTENT,
+    ReportCategory.SPAM,
+    ReportCategory.SCAM,
+    ReportCategory.UNDERAGE,
+    ReportCategory.MARRIED,
+    ReportCategory.DUPLICATE_PROFILE,
+    ReportCategory.OFFENSIVE_BEHAVIOR,
+    ReportCategory.OTHER
+  ]).optional(),
+
+  // User filters
+  reported_by: z.string().uuid().optional(),
+  reported_user: z.string().uuid().optional(),
+
+  // Date filters
+  created_from: z.string().datetime().optional(),
+  created_to: z.string().datetime().optional(),
+
+  // Boolean filters
+  has_action: z.coerce.boolean().optional(), // Reports with action_taken
+  escalated: z.coerce.boolean().optional(), // Only ESCALATED status
+
+  // Text search
+  q: z.string().max(100).optional(),
+
+  // Sorting
+  sort_by: z.enum(['created_at', 'updated_at', 'severity']).default('severity'),
+  sort_order: z.enum(['asc', 'desc']).default('desc')
+});
+
+/**
+ * Admin: Update Report Status
+ */
+const adminUpdateReportStatusSchema = z.object({
+  status: z.enum([
+    ReportStatus.OPEN,
+    ReportStatus.IN_REVIEW,
+    ReportStatus.ACTION_TAKEN,
+    ReportStatus.RESOLVED,
+    ReportStatus.DISMISSED,
+    ReportStatus.ESCALATED
+  ]),
+  admin_notes: z.string().max(1000).optional()
+});
+
+/**
+ * Admin: Take Action on Reported User
+ */
+const adminTakeReportActionSchema = z.object({
+  action: z.enum([
+    ReportAction.NO_ACTION,
+    ReportAction.WARN_USER,
+    ReportAction.SUSPEND_USER,
+    ReportAction.DEACTIVATE_USER,
+    ReportAction.DELETE_CONTENT,
+    ReportAction.RESTRICT_FEATURES,
+    ReportAction.FLAG_USER
+  ]),
+  metadata: z.object({
+    // For SUSPEND_USER
+    suspension_days: z.number().int().min(1).max(365).optional(),
+    
+    // For DELETE_CONTENT
+    content_type: z.enum(['photo', 'message', 'bio', 'all']).optional(),
+    content_ids: z.array(z.number().int()).optional(),
+    
+    // For RESTRICT_FEATURES
+    restricted_features: z.array(z.enum(['chat', 'interest', 'upload', 'search'])).optional(),
+    restriction_days: z.number().int().min(1).max(90).optional(),
+    
+    // General notes
+    notes: z.string().max(1000).optional()
+  }).optional(),
+  admin_notes: z.string().max(1000).optional()
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -1176,8 +1321,14 @@ export {
   adminVerifyProfileSchema,
   adminExportUsersSchema,
   adminBulkOperationSchema,
+  bulkApprovePhotosSchema,
+  rejectPhotoSchema,
+  bulkRejectPhotosSchema,
   statsRegistrationsSchema,
   statsActiveUsersSchema,
   statsActiveUsersTrendSchema,
-  statsLocationSchema
+  statsLocationSchema,
+  adminGetReportsSchema,
+  adminUpdateReportStatusSchema,
+  adminTakeReportActionSchema
 };

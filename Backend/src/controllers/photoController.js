@@ -15,6 +15,7 @@ import { BadRequestError, NotFoundError, ForbiddenError } from '../utils/errors.
 import logger from '../config/logger.js';
 import { UTApi } from 'uploadthing/server';
 import { updateProfileCompletionCache } from '../utils/profileCompletion.js';
+import { bulkApprovePhotosSchema, rejectPhotoSchema, bulkRejectPhotosSchema } from '../utils/validation.js';
 
 // Initialize UploadThing API client for file deletion
 const utapi = new UTApi();
@@ -367,19 +368,56 @@ export const setPrimaryPhoto = async (req, res) => {
  * Get Pending Photos (Moderator)
  * GET /admin/photos/pending
  * 
- * @description Get all photos awaiting approval
+ * @description Get all photos awaiting approval with filtering and sorting
  * @access Private - Moderator/Admin only
  */
 export const getPendingPhotos = async (req, res) => {
-  const { page = 1, limit = 20 } = req.query;
+  const { 
+    page = 1, 
+    limit = 20, 
+    uploaded_from, 
+    uploaded_to, 
+    user_id,
+    sort = 'oldest' 
+  } = req.query;
+  
   const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Build where clause with filters
+  const whereClause = {
+    is_approved: false,
+  };
+
+  // Date range filters
+  if (uploaded_from || uploaded_to) {
+    whereClause.uploaded_at = {};
+    if (uploaded_from) {
+      whereClause.uploaded_at.gte = new Date(uploaded_from);
+    }
+    if (uploaded_to) {
+      // Include the entire day by setting to end of day
+      const toDate = new Date(uploaded_to);
+      toDate.setHours(23, 59, 59, 999);
+      whereClause.uploaded_at.lte = toDate;
+    }
+  }
+
+  // User ID filter (for admin troubleshooting)
+  if (user_id) {
+    whereClause.user_id = user_id;
+  }
+
+  // Determine sort order
+  const orderBy = sort === 'newest' 
+    ? { uploaded_at: 'desc' } 
+    : { uploaded_at: 'asc' }; // Default: oldest first (FIFO)
 
   const [photos, total] = await Promise.all([
     prisma.userPhoto.findMany({
-      where: { is_approved: false },
+      where: whereClause,
       skip,
       take: parseInt(limit),
-      orderBy: { uploaded_at: 'asc' }, // Oldest first (FIFO)
+      orderBy,
       include: {
         user: {
           select: {
@@ -392,7 +430,7 @@ export const getPendingPhotos = async (req, res) => {
       },
     }),
     prisma.userPhoto.count({
-      where: { is_approved: false },
+      where: whereClause,
     }),
   ]);
 
@@ -401,6 +439,7 @@ export const getPendingPhotos = async (req, res) => {
     count: photos.length,
     total,
     page,
+    filters: { uploaded_from, uploaded_to, user_id, sort },
   });
 
   res.json({
@@ -413,6 +452,12 @@ export const getPendingPhotos = async (req, res) => {
         limit: parseInt(limit),
         total,
         totalPages: Math.ceil(total / parseInt(limit)),
+      },
+      filters: {
+        uploaded_from: uploaded_from || null,
+        uploaded_to: uploaded_to || null,
+        user_id: user_id || null,
+        sort,
       },
     },
   });
@@ -490,7 +535,8 @@ export const approvePhoto = async (req, res) => {
  */
 export const rejectPhoto = async (req, res) => {
   const { photoId } = req.params;
-  const { reason = 'No reason provided' } = req.body;
+  const validatedData = rejectPhotoSchema.parse(req.body);
+  const { reason } = validatedData;
   const { userId: moderatorId, roleName } = req.user;
 
   // Find the photo
@@ -552,5 +598,240 @@ export const rejectPhoto = async (req, res) => {
   res.json({
     success: true,
     message: 'Photo rejected and deleted successfully',
+  });
+};
+
+/**
+ * Bulk Approve Photos (Moderator)
+ * PATCH /admin/photos/bulk-approve
+ * 
+ * @description Approve multiple photos at once (max 50)
+ * @access Private - Moderator/Admin only
+ */
+export const bulkApprovePhotos = async (req, res) => {
+  // Validate request body
+  const validatedData = bulkApprovePhotosSchema.parse(req.body);
+  const { photo_ids } = validatedData;
+  const { userId: moderatorId } = req.user;
+
+  const results = {
+    total: photo_ids.length,
+    processed: 0,
+    failed: 0,
+    failures: [],
+  };
+
+  // Process each photo
+  for (const photoId of photo_ids) {
+    try {
+      // Find the photo
+      const photo = await prisma.userPhoto.findUnique({
+        where: { id: parseInt(photoId) },
+        include: {
+          user: {
+            select: {
+              id: true,
+              full_name: true,
+            },
+          },
+        },
+      });
+
+      if (!photo) {
+        results.failed++;
+        results.failures.push({
+          photo_id: photoId,
+          error: 'Photo not found',
+        });
+        continue;
+      }
+
+      if (photo.is_approved) {
+        results.failed++;
+        results.failures.push({
+          photo_id: photoId,
+          error: 'Photo is already approved',
+        });
+        continue;
+      }
+
+      // Approve the photo
+      await prisma.userPhoto.update({
+        where: { id: parseInt(photoId) },
+        data: {
+          is_approved: true,
+          approved_by: moderatorId,
+        },
+      });
+
+      // Log to audit trail (one entry per photo)
+      await prisma.auditLog.create({
+        data: {
+          actor_id: moderatorId,
+          action: `Photo approved (bulk) for user: ${photo.user.full_name}`,
+          ip_address: req.ip,
+        },
+      });
+
+      results.processed++;
+      
+      logger.info('Photo approved in bulk operation', {
+        photoId,
+        userId: photo.user_id,
+        moderatorId,
+      });
+    } catch (error) {
+      results.failed++;
+      results.failures.push({
+        photo_id: photoId,
+        error: error.message || 'Failed to approve photo',
+      });
+      logger.error('Bulk approve failed for photo', {
+        photoId,
+        error: error.message,
+      });
+    }
+  }
+
+  logger.info('Bulk approve photos completed', {
+    moderatorId,
+    total: results.total,
+    processed: results.processed,
+    failed: results.failed,
+  });
+
+  res.json({
+    success: true,
+    message: `Bulk approve completed: ${results.processed} processed, ${results.failed} failed`,
+    data: {
+      summary: {
+        total: results.total,
+        processed: results.processed,
+        failed: results.failed,
+      },
+      failures: results.failures,
+    },
+  });
+};
+
+/**
+ * Bulk Reject Photos (Moderator)
+ * DELETE /admin/photos/bulk-reject
+ * 
+ * @description Reject and delete multiple photos at once (max 50)
+ * @access Private - Moderator/Admin only
+ */
+export const bulkRejectPhotos = async (req, res) => {
+  // Validate request body
+  const validatedData = bulkRejectPhotosSchema.parse(req.body);
+  const { photo_ids, reason } = validatedData;
+  const { userId: moderatorId, roleName } = req.user;
+
+  const results = {
+    total: photo_ids.length,
+    processed: 0,
+    failed: 0,
+    failures: [],
+  };
+
+  // Process each photo
+  for (const photoId of photo_ids) {
+    try {
+      // Find the photo
+      const photo = await prisma.userPhoto.findUnique({
+        where: { id: parseInt(photoId) },
+        include: {
+          user: {
+            select: {
+              id: true,
+              full_name: true,
+              mobile_number: true,
+            },
+          },
+        },
+      });
+
+      if (!photo) {
+        results.failed++;
+        results.failures.push({
+          photo_id: photoId,
+          error: 'Photo not found',
+        });
+        continue;
+      }
+
+      // Delete from UploadThing (best effort - don't fail bulk operation if this fails)
+      try {
+        const fileKey = photo.photo_url.split('/').pop();
+        await utapi.deleteFiles(fileKey);
+        
+        logger.info('Rejected photo deleted from UploadThing (bulk)', {
+          photoId,
+          fileKey,
+        });
+      } catch (error) {
+        logger.error('Failed to delete photo from UploadThing in bulk operation', {
+          photoId,
+          error: error.message,
+        });
+        // Continue with database deletion
+      }
+
+      // Delete from database
+      await prisma.userPhoto.delete({
+        where: { id: parseInt(photoId) },
+      });
+
+      // Log rejection to audit trail (one entry per photo)
+      await prisma.auditLog.create({
+        data: {
+          actor_id: moderatorId,
+          action: `Photo rejected (bulk) - User: ${photo.user.full_name} (${photo.user.mobile_number}) - Reason: ${reason}`,
+          ip_address: req.ip,
+        },
+      });
+
+      results.processed++;
+      
+      logger.warn('Photo rejected in bulk operation', {
+        photoId,
+        userId: photo.user_id,
+        moderatorId,
+        roleName,
+        reason,
+      });
+    } catch (error) {
+      results.failed++;
+      results.failures.push({
+        photo_id: photoId,
+        error: error.message || 'Failed to reject photo',
+      });
+      logger.error('Bulk reject failed for photo', {
+        photoId,
+        error: error.message,
+      });
+    }
+  }
+
+  logger.warn('Bulk reject photos completed', {
+    moderatorId,
+    roleName,
+    reason,
+    total: results.total,
+    processed: results.processed,
+    failed: results.failed,
+  });
+
+  res.json({
+    success: true,
+    message: `Bulk reject completed: ${results.processed} processed, ${results.failed} failed`,
+    data: {
+      summary: {
+        total: results.total,
+        processed: results.processed,
+        failed: results.failed,
+      },
+      failures: results.failures,
+    },
   });
 };

@@ -24,6 +24,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { authorizePermission, checkOwnership } from '../middleware/authorization.js';
+import { checkFeatureRestriction } from '../middleware/checkFeatureRestrictions.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 // Controllers
@@ -154,6 +155,7 @@ router.post(
   '/:userId/photos',
   authenticateToken,
   checkOwnership('userId', { bypassRoles: [], resourceType: 'user profile' }),
+  checkFeatureRestriction('UPLOAD'),
   asyncHandler(uploadPhoto)
 );
 

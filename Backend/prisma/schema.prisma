@@ -59,7 +59,10 @@ model User {
   profile_views_count           Int?                     @default(0)
   shortlist_count               Int?                     @default(0)
   shortlisted_by_count          Int?                     @default(0)
+  is_flagged                    Boolean                  @default(false)
+  moderation_flags              Json?
   audit_logs                    AuditLog[]
+  feature_restrictions          UserFeatureRestriction[]
   interests_received            Interest[]               @relation("InterestReceiver")
   interests_sent                Interest[]               @relation("InterestSender")
   matched_with                  Match[]                  @relation("MatchedWith")
@@ -89,6 +92,9 @@ model User {
   professional_details          UserProfessionalDetails?
   reports_made                  UserReport[]             @relation("Reporter")
   reports_received              UserReport[]             @relation("Reported")
+  reports_resolved              UserReport[]             @relation("ReportResolver")
+  report_actions_made           ReportActionLog[]        @relation("ReportActionActor")
+  report_actions_received       ReportActionLog[]        @relation("ReportActionTarget")
   role                          Role                     @relation(fields: [role_id], references: [id])
 
   @@index([profile_completion_percentage], map: "idx_users_profile_completion")
@@ -357,16 +363,47 @@ model Message {
 }
 
 model UserReport {
-  id            Int      @id @default(autoincrement())
-  reported_by   String   @db.Uuid
-  reported_user String   @db.Uuid
+  id            Int            @id @default(autoincrement())
+  reported_by   String         @db.Uuid
+  reported_user String         @db.Uuid
+  category      ReportCategory
   reason        String?
-  status        String?  @default("OPEN") @db.VarChar(20)
-  created_at    DateTime @default(now())
-  reporter      User     @relation("Reporter", fields: [reported_by], references: [id])
-  reported      User     @relation("Reported", fields: [reported_user], references: [id])
+  severity      ReportSeverity @default(MEDIUM)
+  status        ReportStatus   @default(OPEN)
+  action_taken  ReportAction?
+  admin_notes   String?
+  resolved_by   String?        @db.Uuid
+  resolved_at   DateTime?
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @default(now()) @updatedAt
+  actions       ReportActionLog[]
+  reporter      User           @relation("Reporter", fields: [reported_by], references: [id])
+  reported      User           @relation("Reported", fields: [reported_user], references: [id])
+  resolver      User?          @relation("ReportResolver", fields: [resolved_by], references: [id])
 
+  @@index([status, severity, created_at])
+  @@index([reported_user, status])
+  @@index([reported_by])
+  @@index([created_at])
   @@map("user_reports")
+}
+
+model ReportActionLog {
+  id          Int          @id @default(autoincrement())
+  report_id   Int
+  user_id     String       @db.Uuid
+  action      ReportAction
+  metadata    Json?
+  acted_by    String       @db.Uuid
+  created_at  DateTime     @default(now())
+  report      UserReport   @relation(fields: [report_id], references: [id], onDelete: Cascade)
+  actor       User         @relation("ReportActionActor", fields: [acted_by], references: [id])
+  target_user User         @relation("ReportActionTarget", fields: [user_id], references: [id])
+
+  @@index([report_id, created_at])
+  @@index([user_id])
+  @@index([acted_by])
+  @@map("report_action_logs")
 }
 
 model AuditLog {
@@ -511,4 +548,70 @@ enum NotificationType {
   MESSAGE_RECEIVED
   PROFILE_VIEW
   MATCH_FOUND
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  ACTION_TAKEN
+  RESOLVED
+  DISMISSED
+  ESCALATED
+}
+
+enum ReportSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportCategory {
+  FAKE_PROFILE
+  HARASSMENT
+  INAPPROPRIATE_PHOTO
+  INAPPROPRIATE_CONTENT
+  SPAM
+  SCAM
+  UNDERAGE
+  MARRIED
+  DUPLICATE_PROFILE
+  OFFENSIVE_BEHAVIOR
+  OTHER
+}
+
+enum ReportAction {
+  NO_ACTION
+  WARN_USER
+  SUSPEND_USER
+  DEACTIVATE_USER
+  DELETE_CONTENT
+  RESTRICT_FEATURES
+  FLAG_USER
+}
+
+enum RestrictedFeature {
+  CHAT
+  INTEREST
+  UPLOAD
+  SEARCH
+}
+
+model UserFeatureRestriction {
+  id            Int                @id @default(autoincrement())
+  user_id       String             @db.Uuid
+  feature       RestrictedFeature
+  restricted_at DateTime           @default(now())
+  expires_at    DateTime?
+  reason        String?
+  restricted_by String             @db.Uuid
+  updated_by    String?            @db.Uuid
+  updated_at    DateTime?
+  report_id     Int?
+  is_active     Boolean            @default(true)
+  user          User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, feature, is_active])
+  @@index([user_id, feature, is_active, expires_at])
+  @@map("user_feature_restrictions")
 }

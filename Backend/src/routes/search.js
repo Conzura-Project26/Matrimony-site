@@ -11,6 +11,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { authorizePermission } from '../middleware/authorization.js';
+import { checkFeatureRestriction } from '../middleware/checkFeatureRestrictions.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import {
   simpleSearch,
@@ -173,6 +174,7 @@ const router = express.Router();
 router.get(
   '/profiles',
   authenticateToken,
+  checkFeatureRestriction('SEARCH'),
   authorizePermission(['search_profiles']),
   asyncHandler(simpleSearch)
 );
@@ -284,6 +286,7 @@ router.get(
 router.post(
   '/advanced',
   authenticateToken,
+  checkFeatureRestriction('SEARCH'),
   authorizePermission(['search_profiles']),
   asyncHandler(advancedSearch)
 );

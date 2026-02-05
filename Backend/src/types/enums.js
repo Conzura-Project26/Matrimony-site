@@ -53,6 +53,62 @@ export const ExportFormat = {
 };
 
 /**
+ * Report Status - For user report management
+ * Phase 5 - Task 5.4: Report Management
+ */
+export const ReportStatus = {
+  OPEN: 'OPEN',
+  IN_REVIEW: 'IN_REVIEW',
+  ACTION_TAKEN: 'ACTION_TAKEN',
+  RESOLVED: 'RESOLVED',
+  DISMISSED: 'DISMISSED',
+  ESCALATED: 'ESCALATED'
+};
+
+/**
+ * Report Severity Levels
+ * Phase 5 - Task 5.4: Report Management
+ */
+export const ReportSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+/**
+ * Report Category - Types of user reports
+ * Phase 5 - Task 5.4: Report Management
+ */
+export const ReportCategory = {
+  FAKE_PROFILE: 'FAKE_PROFILE',
+  HARASSMENT: 'HARASSMENT',
+  INAPPROPRIATE_PHOTO: 'INAPPROPRIATE_PHOTO',
+  INAPPROPRIATE_CONTENT: 'INAPPROPRIATE_CONTENT',
+  SPAM: 'SPAM',
+  SCAM: 'SCAM',
+  UNDERAGE: 'UNDERAGE',
+  MARRIED: 'MARRIED',
+  DUPLICATE_PROFILE: 'DUPLICATE_PROFILE',
+  OFFENSIVE_BEHAVIOR: 'OFFENSIVE_BEHAVIOR',
+  OTHER: 'OTHER'
+};
+
+/**
+ * Report Actions - Moderation actions on reported users
+ * Phase 5 - Task 5.4: Report Management
+ */
+export const ReportAction = {
+  NO_ACTION: 'NO_ACTION',
+  WARN_USER: 'WARN_USER',
+  SUSPEND_USER: 'SUSPEND_USER',
+  DEACTIVATE_USER: 'DEACTIVATE_USER',
+  DELETE_CONTENT: 'DELETE_CONTENT',
+  RESTRICT_FEATURES: 'RESTRICT_FEATURES',
+  FLAG_USER: 'FLAG_USER'
+};
+
+/**
  * Match Type - Categorizes different types of matches
  * Phase 3 - Task 3.4: Matchmaking Algorithm
  */
@@ -290,6 +346,10 @@ export const isValidBodyType = (value) => Object.values(BodyType).includes(value
 export const isValidBloodGroup = (value) => Object.values(BloodGroup).includes(value);
 export const isValidMatchType = (value) => Object.values(MatchType).includes(value);
 export const isValidMatchAction = (value) => Object.values(MatchAction).includes(value);
+export const isValidReportStatus = (value) => Object.values(ReportStatus).includes(value);
+export const isValidReportSeverity = (value) => Object.values(ReportSeverity).includes(value);
+export const isValidReportCategory = (value) => Object.values(ReportCategory).includes(value);
+export const isValidReportAction = (value) => Object.values(ReportAction).includes(value);
 
 // ============================================
 // UTILITY FUNCTIONS

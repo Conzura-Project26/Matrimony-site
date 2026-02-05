@@ -16,6 +16,7 @@
 
 import cron from 'node-cron';
 import notificationService from '../services/notificationService.js';
+import { cleanupExpiredRestrictions } from '../middleware/checkFeatureRestrictions.js';
 import logger from './logger.js';
 
 /**
@@ -119,6 +120,31 @@ export function initializeCronJobs() {
   });
 
   logger.info('[CronJobs] Auto-delete old notifications scheduled (2 AM daily)');
+
+  // ============================================
+  // CLEANUP EXPIRED FEATURE RESTRICTIONS
+  // Runs every day at 3 AM (03:00)
+  // Deactivates feature restrictions that have passed their expiry date
+  // ============================================
+  cron.schedule('0 3 * * *', async () => {
+    await retryJob(
+      async () => {
+        logger.info('[CronJobs] Starting cleanup of expired feature restrictions...');
+        const result = await cleanupExpiredRestrictions();
+        logger.info('[CronJobs] Cleanup expired restrictions completed', {
+          deactivatedCount: result
+        });
+        return result;
+      },
+      'Cleanup Expired Feature Restrictions',
+      3
+    );
+  }, {
+    scheduled: true,
+    timezone
+  });
+
+  logger.info('[CronJobs] Cleanup expired restrictions scheduled (3 AM daily)');
 
   logger.info('[CronJobs] All scheduled tasks initialized successfully');
 }

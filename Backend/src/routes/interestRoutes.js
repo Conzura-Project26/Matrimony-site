@@ -16,6 +16,7 @@
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
+import { checkFeatureRestriction } from '../middleware/checkFeatureRestrictions.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import interestController from '../controllers/interestController.js';
 
@@ -208,7 +209,7 @@ router.use(authenticateToken);
  *                   success: false
  *                   message: "Cannot send interest yet. Please wait 15 more day(s) after rejection."
  */
-router.post('/interests/:receiverId', asyncHandler(interestController.sendInterest));
+router.post('/interests/:receiverId', checkFeatureRestriction('INTEREST'), asyncHandler(interestController.sendInterest));
 
 // ============================================
 // GET SENT INTERESTS

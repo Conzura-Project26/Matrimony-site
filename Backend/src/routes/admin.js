@@ -1,6 +1,7 @@
 /**
  * Admin Routes
  * Phase 5 - Task 5.1: Admin User Management
+ * Phase 5 - Task 5.4: Report Management
  * 
  * Photo Moderation Routes:
  * - GET    /admin/photos/pending - Get pending photos for moderation
@@ -16,6 +17,13 @@
  * - DELETE /admin/users/:id - Delete user (soft delete)
  * - POST   /admin/users/export - Export users data
  * - POST   /admin/users/bulk - Bulk operations
+ * 
+ * Report Management Routes:
+ * - GET    /admin/reports - Get all reports with filters
+ * - GET    /admin/reports/statistics - Get report statistics
+ * - GET    /admin/reports/:id - Get report details
+ * - PUT    /admin/reports/:id/status - Update report status
+ * - PUT    /admin/reports/:id/action - Take action on reported user
  */
 
 import express from 'express';
@@ -26,13 +34,19 @@ import {
   getPendingPhotos,
   approvePhoto,
   rejectPhoto,
+  bulkApprovePhotos,
+  bulkRejectPhotos,
 } from '../controllers/photoController.js';
 import adminController from '../controllers/adminController.js';
 import statisticsController from '../controllers/statisticsController.js';
+import reportController from '../controllers/reportController.js';
 import {
   adminReadRateLimiter,
   adminWriteRateLimiter,
-  adminDestructiveRateLimiter
+  adminDestructiveRateLimiter,
+  reportReadRateLimiter,
+  reportStatusUpdateRateLimiter,
+  reportUserActionRateLimiter
 } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
@@ -135,6 +149,187 @@ router.get(
   authenticateToken,
   authorizeRole(['ADMIN', 'MODERATOR']),
   asyncHandler(getPendingPhotos)
+);
+
+// ============================================
+// BULK OPERATIONS (must be before :photoId routes)
+// ============================================
+
+/**
+ * @swagger
+ * /admin/photos/bulk-approve:
+ *   patch:
+ *     tags:
+ *       - Admin
+ *     summary: Bulk approve multiple photos
+ *     description: Approve multiple photos at once (max 50 per request). Fault-tolerant - continues processing even if some photos fail.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - photo_ids
+ *             properties:
+ *               photo_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                   minimum: 1
+ *                 minItems: 1
+ *                 maxItems: 50
+ *                 description: Array of photo IDs to approve (1-50 photos)
+ *                 example: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+ *     responses:
+ *       200:
+ *         description: Bulk approval completed (may include partial failures)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Bulk approve completed: 8 processed, 2 failed'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           example: 10
+ *                         processed:
+ *                           type: integer
+ *                           example: 8
+ *                         failed:
+ *                           type: integer
+ *                           example: 2
+ *                     failures:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           photo_id:
+ *                             type: integer
+ *                             example: 999
+ *                           error:
+ *                             type: string
+ *                             example: 'Photo not found'
+ *       400:
+ *         description: Validation error (empty array, too many photos, invalid data)
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Requires Admin or Moderator role
+ *       500:
+ *         description: Server error
+ */
+router.patch(
+  '/photos/bulk-approve',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminWriteRateLimiter,
+  asyncHandler(bulkApprovePhotos)
+);
+
+/**
+ * @swagger
+ * /admin/photos/bulk-reject:
+ *   delete:
+ *     tags:
+ *       - Admin
+ *     summary: Bulk reject and delete multiple photos
+ *     description: Reject and delete multiple photos at once (max 50 per request). Requires reason that applies to all photos. Fault-tolerant - continues processing even if some photos fail.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - photo_ids
+ *               - reason
+ *             properties:
+ *               photo_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                   minimum: 1
+ *                 minItems: 1
+ *                 maxItems: 50
+ *                 description: Array of photo IDs to reject (1-50 photos)
+ *                 example: [11, 12, 13, 14, 15]
+ *               reason:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 500
+ *                 description: Reason for rejection (applies to ALL photos, logged in audit trail)
+ *                 example: 'Photos contain inappropriate content that violates our community standards'
+ *     responses:
+ *       200:
+ *         description: Bulk rejection completed (may include partial failures)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Bulk reject completed: 5 processed, 0 failed'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           example: 5
+ *                         processed:
+ *                           type: integer
+ *                           example: 5
+ *                         failed:
+ *                           type: integer
+ *                           example: 0
+ *                     failures:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           photo_id:
+ *                             type: integer
+ *                             example: 999
+ *                           error:
+ *                             type: string
+ *                             example: 'Photo not found'
+ *       400:
+ *         description: Validation error (empty array, too many photos, invalid reason length)
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Requires Admin or Moderator role
+ *       500:
+ *         description: Server error
+ */
+router.delete(
+  '/photos/bulk-reject',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  adminDestructiveRateLimiter,
+  asyncHandler(bulkRejectPhotos)
 );
 
 /**
@@ -1211,6 +1406,500 @@ router.get(
   authorizeRole(['ADMIN', 'MODERATOR']),
   adminReadRateLimiter,
   asyncHandler(statisticsController.getRetentionMetrics)
+);
+
+// ============================================
+// REPORT MANAGEMENT ROUTES (Phase 5 - Task 5.4) ✅
+// ============================================
+
+/**
+ * @swagger
+ * /admin/reports:
+ *   get:
+ *     tags:
+ *       - Admin Reports
+ *     summary: Get all user reports with filters
+ *     description: Retrieve all user reports with comprehensive filtering, sorting, and pagination
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [OPEN, IN_REVIEW, ACTION_TAKEN, RESOLVED, DISMISSED, ESCALATED]
+ *         description: Filter by report status
+ *       - in: query
+ *         name: severity
+ *         schema:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *         description: Filter by severity level
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: [FAKE_PROFILE, HARASSMENT, INAPPROPRIATE_PHOTO, INAPPROPRIATE_CONTENT, SPAM, SCAM, UNDERAGE, MARRIED, DUPLICATE_PROFILE, OFFENSIVE_BEHAVIOR, OTHER]
+ *         description: Filter by report category
+ *       - in: query
+ *         name: reported_by
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by reporter user ID
+ *       - in: query
+ *         name: reported_user
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by reported user ID
+ *       - in: query
+ *         name: created_from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Filter reports created from this date
+ *       - in: query
+ *         name: created_to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Filter reports created until this date
+ *       - in: query
+ *         name: has_action
+ *         schema:
+ *           type: boolean
+ *         description: Filter reports with action taken
+ *       - in: query
+ *         name: escalated
+ *         schema:
+ *           type: boolean
+ *         description: Show only escalated reports
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *         description: Search in reason, notes, reporter/reported user names
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [created_at, updated_at, severity]
+ *           default: severity
+ *         description: Sort field
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort direction
+ *     responses:
+ *       200:
+ *         description: Reports retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Reports retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     reports:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/reports',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  reportReadRateLimiter,
+  asyncHandler(reportController.getAllReports)
+);
+
+/**
+ * @swagger
+ * /admin/reports/statistics:
+ *   get:
+ *     tags:
+ *       - Admin Reports
+ *     summary: Get report statistics
+ *     description: Get overview statistics for reports dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Report statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     overview:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         open:
+ *                           type: integer
+ *                         in_review:
+ *                           type: integer
+ *                         resolved:
+ *                           type: integer
+ *                         escalated:
+ *                           type: integer
+ *                         today:
+ *                           type: integer
+ *                     by_severity:
+ *                       type: object
+ *                     by_category:
+ *                       type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ */
+router.get(
+  '/reports/statistics',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  reportReadRateLimiter,
+  asyncHandler(reportController.getReportStatistics)
+);
+
+/**
+ * @swagger
+ * /admin/reports/{id}:
+ *   get:
+ *     tags:
+ *       - Admin Reports
+ *     summary: Get detailed report information
+ *     description: Retrieve complete report details including reporter info, reported user info, action history, and related reports
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Report ID
+ *     responses:
+ *       200:
+ *         description: Report details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Report details retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     category:
+ *                       type: string
+ *                     severity:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     reason:
+ *                       type: string
+ *                     admin_notes:
+ *                       type: string
+ *                     action_taken:
+ *                       type: string
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                     resolved_at:
+ *                       type: string
+ *                       format: date-time
+ *                     reporter:
+ *                       type: object
+ *                       description: Reporter user snapshot
+ *                     reported:
+ *                       type: object
+ *                       description: Reported user snapshot with moderation history
+ *                     resolver:
+ *                       type: object
+ *                       description: Admin who resolved the report
+ *                     actions:
+ *                       type: array
+ *                       description: Action history on this report
+ *                     reported_user_stats:
+ *                       type: object
+ *                       description: Statistics about reported user
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin/Moderator role
+ *       404:
+ *         description: Report not found
+ */
+router.get(
+  '/reports/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  reportReadRateLimiter,
+  asyncHandler(reportController.getReportDetails)
+);
+
+/**
+ * @swagger
+ * /admin/reports/{id}/status:
+ *   put:
+ *     tags:
+ *       - Admin Reports
+ *     summary: Update report status
+ *     description: Update the status of a report. Moderators have limited transitions - can only move OPEN to IN_REVIEW, IN_REVIEW to ESCALATED. Admins have full access.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Report ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [OPEN, IN_REVIEW, ACTION_TAKEN, RESOLVED, DISMISSED, ESCALATED]
+ *                 description: New report status
+ *               admin_notes:
+ *                 type: string
+ *                 maxLength: 1000
+ *                 description: Optional admin notes about the status change
+ *           examples:
+ *             markInReview:
+ *               summary: Mark as in review
+ *               value:
+ *                 status: IN_REVIEW
+ *                 admin_notes: Investigating the reported profile for authenticity
+ *             markResolved:
+ *               summary: Mark as resolved
+ *               value:
+ *                 status: RESOLVED
+ *                 admin_notes: Action taken - user warned and content removed
+ *             escalate:
+ *               summary: Escalate to senior admin
+ *               value:
+ *                 status: ESCALATED
+ *                 admin_notes: Multiple similar reports - needs senior review
+ *     responses:
+ *       200:
+ *         description: Report status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Bad request - Invalid status or transition
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Moderators cannot perform this transition
+ *       404:
+ *         description: Report not found
+ */
+router.put(
+  '/reports/:id/status',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']),
+  reportStatusUpdateRateLimiter,
+  asyncHandler(reportController.updateReportStatus)
+);
+
+/**
+ * @swagger
+ * /admin/reports/{id}/action:
+ *   put:
+ *     tags:
+ *       - Admin Reports
+ *     summary: Take moderation action on reported user
+ *     description: Execute moderation actions on reported user (ADMIN only). Automatically updates report status to ACTION_TAKEN and creates action log entry.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Report ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [NO_ACTION, WARN_USER, SUSPEND_USER, DEACTIVATE_USER, DELETE_CONTENT, RESTRICT_FEATURES, FLAG_USER]
+ *                 description: Moderation action to take
+ *               metadata:
+ *                 type: object
+ *                 properties:
+ *                   suspension_days:
+ *                     type: integer
+ *                     minimum: 1
+ *                     maximum: 365
+ *                     description: Days to suspend (for SUSPEND_USER)
+ *                   content_type:
+ *                     type: string
+ *                     enum: [photo, message, bio, all]
+ *                     description: Type of content to delete (for DELETE_CONTENT)
+ *                   content_ids:
+ *                     type: array
+ *                     items:
+ *                       type: integer
+ *                     description: Specific content IDs to delete (for DELETE_CONTENT)
+ *                   restricted_features:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                       enum: [chat, interest, upload, search]
+ *                     description: Features to restrict (for RESTRICT_FEATURES)
+ *                   restriction_days:
+ *                     type: integer
+ *                     minimum: 1
+ *                     maximum: 90
+ *                     description: Days to restrict features (for RESTRICT_FEATURES)
+ *                   notes:
+ *                     type: string
+ *                     maxLength: 1000
+ *                     description: Additional notes about the action
+ *               admin_notes:
+ *                 type: string
+ *                 maxLength: 1000
+ *                 description: Admin notes about why this action was taken
+ *           examples:
+ *             warnUser:
+ *               summary: Warn user
+ *               value:
+ *                 action: WARN_USER
+ *                 admin_notes: First offense - sending warning
+ *             suspendUser:
+ *               summary: Suspend user for 7 days
+ *               value:
+ *                 action: SUSPEND_USER
+ *                 metadata:
+ *                   suspension_days: 7
+ *                   notes: Multiple harassment reports
+ *                 admin_notes: User suspended for 7 days due to harassment complaints
+ *             deleteContent:
+ *               summary: Delete inappropriate photos
+ *               value:
+ *                 action: DELETE_CONTENT
+ *                 metadata:
+ *                   content_type: photo
+ *                   content_ids: [123, 456]
+ *                 admin_notes: Removed inappropriate photos
+ *             deactivateUser:
+ *               summary: Deactivate user account
+ *               value:
+ *                 action: DEACTIVATE_USER
+ *                 admin_notes: Serious violations - profile verification fraud
+ *     responses:
+ *       200:
+ *         description: Action executed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     report:
+ *                       type: object
+ *                       description: Updated report object
+ *                     action_result:
+ *                       type: object
+ *                       description: Result of the action execution
+ *       400:
+ *         description: Bad request - Invalid action or report already resolved
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires Admin role
+ *       404:
+ *         description: Report not found
+ */
+router.put(
+  '/reports/:id/action',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only for taking actions
+  reportUserActionRateLimiter,
+  asyncHandler(reportController.takeReportAction)
 );
 
 export default router;
