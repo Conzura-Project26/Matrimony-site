@@ -1,0 +1,390 @@
+###############################################################################
+# Photo Moderation API Testing
+# Task 5.3: Photo Moderation
+# 
+# This file can be used with REST Client extension in VS Code
+# or manually copy/paste into Postman/Thunder Client
+#
+# SETUP:
+# 1. Replace {{ADMIN_TOKEN}}, {{MODERATOR_TOKEN}}, {{USER_TOKEN}} with actual tokens
+# 2. Replace {{photoId}} with actual photo IDs from your database
+# 3. Run the server: npm run dev
+# 4. Execute tests one by one
+###############################################################################
+
+@baseUrl = http://localhost:3000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjNTczNTU5Mi05YWNjLTQ2ZjgtOTY0NC1mNTVkOTY2MDU2MGUiLCJtb2JpbGVfbnVtYmVyIjoiODA3MzU1MDQ2OCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MDIxNDg1MywiZXhwIjoxNzcwMjE1NzUzfQ.zNFDP7FMwCcK4OpWycYXEcPsDmHb8T2wklfwh1lH6bE
+@moderatorToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwZWNiNDI5Ni0zZGJkLTQ0NjYtODgyMi1mZWI1ZWQyMDMxOTEiLCJtb2JpbGVfbnVtYmVyIjoiOTkwMjk2NDc4MiIsInJvbGUiOiJNT0RFUkFUT1IiLCJpYXQiOjE3NzAyMTQ4NjIsImV4cCI6MTc3MDIxNTc2Mn0.nYCuA6iOcNywn59vUuxIRs8yG1X8rSOJ94mxtFoPTkw
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmNmFiMDk0ZS0yOTAwLTQ5N2YtYmIwZC0wMDBjYzkzYTI1ZGIiLCJtb2JpbGVfbnVtYmVyIjoiOTM4MDI0NTQzMyIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzcwMjE0ODY4LCJleHAiOjE3NzAyMTU3Njh9.HbS4MSizyjohz702kQqRLwL6H2iX4GLY493SJ65mm_k
+
+###############################################################################
+# GROUP 1: GET PENDING PHOTOS
+###############################################################################
+
+### 1.1 Get Pending Photos - Basic (Default: oldest first, page 1, limit 20)
+GET {{baseUrl}}/admin/photos/pending
+Authorization: Bearer {{moderatorToken}}
+
+### 1.2 Get Pending Photos - With Pagination
+GET {{baseUrl}}/admin/photos/pending?page=2&limit=10
+Authorization: Bearer {{adminToken}}
+
+### 1.3 Get Pending Photos - Date Filter (Last Month)
+GET {{baseUrl}}/admin/photos/pending?uploaded_from=2026-01-01&uploaded_to=2026-01-31
+Authorization: Bearer {{moderatorToken}}
+
+### 1.4 Get Pending Photos - Date Filter (This Week)
+GET {{baseUrl}}/admin/photos/pending?uploaded_from=2026-01-28&uploaded_to=2026-02-04
+Authorization: Bearer {{adminToken}}
+
+### 1.5 Get Pending Photos - Filter by User ID (Replace with actual UUID)
+GET {{baseUrl}}/admin/photos/pending?user_id=550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{moderatorToken}}
+
+### 1.6 Get Pending Photos - Sort by Newest
+GET {{baseUrl}}/admin/photos/pending?sort=newest&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 1.7 Get Pending Photos - Combined Filters
+GET {{baseUrl}}/admin/photos/pending?uploaded_from=2026-02-01&sort=newest&limit=50
+Authorization: Bearer {{moderatorToken}}
+
+###############################################################################
+# GROUP 2: INDIVIDUAL APPROVE/REJECT
+###############################################################################
+
+### 2.1 Approve Single Photo (Replace 123 with actual photo ID)
+PATCH {{baseUrl}}/admin/photos/123/approve
+Authorization: Bearer {{moderatorToken}}
+
+### 2.2 Reject Single Photo (Replace 456 with actual photo ID)
+DELETE {{baseUrl}}/admin/photos/456
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "reason": "Inappropriate content violating community guidelines"
+}
+
+### 2.3 Approve Non-Existent Photo (Should return 404)
+PATCH {{baseUrl}}/admin/photos/99999/approve
+Authorization: Bearer {{moderatorToken}}
+
+### 2.4 Reject Without Reason (Should fail validation)
+DELETE {{baseUrl}}/admin/photos/789
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "reason": ""
+}
+
+###############################################################################
+# GROUP 3: BULK APPROVE PHOTOS
+###############################################################################
+
+### 3.1 Bulk Approve - Valid Photos (Replace IDs with actual pending photo IDs)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3, 4, 5]
+}
+
+### 3.2 Bulk Approve - Fault Tolerance Test (Mix valid and invalid IDs)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [10, 11, 99999, 13, 14, 88888, 16]
+}
+
+### 3.3 Bulk Approve - Maximum Allowed (50 photos)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+}
+
+### 3.4 Bulk Approve - Validation Error (Too Many - 51 photos)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+}
+
+### 3.5 Bulk Approve - Validation Error (Empty Array)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": []
+}
+
+### 3.6 Bulk Approve - Invalid Data Type (Should fail)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": "not-an-array"
+}
+
+###############################################################################
+# GROUP 4: BULK REJECT PHOTOS
+###############################################################################
+
+### 4.1 Bulk Reject - Valid Photos with Reason
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [20, 21, 22],
+  "reason": "Photos contain inappropriate content that violates our community standards"
+}
+
+### 4.2 Bulk Reject - Fault Tolerance Test
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [30, 99997, 32, 99998, 34],
+  "reason": "Test fault tolerance with mixed valid and invalid photo IDs"
+}
+
+### 4.3 Bulk Reject - Maximum Allowed (50 photos)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+  "reason": "Bulk test rejection of maximum allowed photos in single operation"
+}
+
+### 4.4 Bulk Reject - Validation Error (Reason Too Short)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3],
+  "reason": "Bad"
+}
+
+### 4.5 Bulk Reject - Validation Error (Reason Too Long)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3],
+  "reason": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}
+
+### 4.6 Bulk Reject - Validation Error (Too Many Photos - 51)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+  "reason": "Testing validation for exceeding maximum allowed photo count"
+}
+
+### 4.7 Bulk Reject - No Reason (Should use default)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [40, 41, 42]
+}
+
+### 4.8 Bulk Reject - Empty Array
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [],
+  "reason": "Test empty array validation for bulk reject operation"
+}
+
+###############################################################################
+# GROUP 5: AUTHORIZATION TESTS
+###############################################################################
+
+### 5.1 Get Pending - No Token (Should return 401)
+GET {{baseUrl}}/admin/photos/pending
+
+### 5.2 Get Pending - Regular User Token (Should return 403)
+GET {{baseUrl}}/admin/photos/pending
+Authorization: Bearer {{userToken}}
+
+### 5.3 Bulk Approve - Regular User Token (Should return 403)
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3]
+}
+
+### 5.4 Bulk Reject - Regular User Token (Should return 403)
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [1, 2, 3],
+  "reason": "Regular user should not have access to photo moderation"
+}
+
+###############################################################################
+# GROUP 6: EDGE CASES
+###############################################################################
+
+### 6.1 Get Pending - Invalid Date Format
+GET {{baseUrl}}/admin/photos/pending?uploaded_from=invalid-date
+Authorization: Bearer {{moderatorToken}}
+
+### 6.2 Get Pending - Invalid Sort Parameter
+GET {{baseUrl}}/admin/photos/pending?sort=invalid
+Authorization: Bearer {{adminToken}}
+
+### 6.3 Bulk Approve - Negative Photo IDs
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [-1, -2, -3]
+}
+
+### 6.4 Bulk Approve - String IDs instead of Numbers
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": ["abc", "def", "ghi"]
+}
+
+### 6.5 Bulk Reject - Missing photo_ids Field
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Test missing photo_ids field validation"
+}
+
+###############################################################################
+# GROUP 7: REAL-WORLD SCENARIOS
+###############################################################################
+
+### 7.1 Scenario: Moderator Reviews Morning Queue
+# Step 1: Get oldest pending photos
+GET {{baseUrl}}/admin/photos/pending?sort=oldest&limit=50
+Authorization: Bearer {{moderatorToken}}
+
+# Step 2: Bulk approve the good ones (use actual IDs from step 1)
+# PATCH {{baseUrl}}/admin/photos/bulk-approve
+# Authorization: Bearer {{moderatorToken}}
+# Content-Type: application/json
+# 
+# {
+#   "photo_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# }
+
+# Step 3: Bulk reject the inappropriate ones
+# DELETE {{baseUrl}}/admin/photos/bulk-reject
+# Authorization: Bearer {{moderatorToken}}
+# Content-Type: application/json
+# 
+# {
+#   "photo_ids": [11, 12, 13],
+#   "reason": "Photos contain inappropriate content violating community guidelines"
+# }
+
+### 7.2 Scenario: Admin Troubleshoots Specific User
+# Step 1: Get all pending photos for user
+GET {{baseUrl}}/admin/photos/pending?user_id=550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{adminToken}}
+
+# Step 2: Approve user's photos
+# PATCH {{baseUrl}}/admin/photos/bulk-approve
+# (use photo IDs from step 1)
+
+### 7.3 Scenario: Weekly Moderation Review
+# Get photos from last week, newest first
+GET {{baseUrl}}/admin/photos/pending?uploaded_from=2026-01-28&uploaded_to=2026-02-04&sort=newest&limit=100
+Authorization: Bearer {{moderatorToken}}
+
+###############################################################################
+# GROUP 8: RESPONSE VALIDATION
+###############################################################################
+
+### 8.1 Verify Response Structure - GET Pending
+# Expected response format:
+# {
+#   "success": true,
+#   "message": "Pending photos retrieved successfully",
+#   "data": {
+#     "photos": [...],
+#     "pagination": { "page": 1, "limit": 20, "total": X, "totalPages": Y },
+#     "filters": { "uploaded_from": null, "uploaded_to": null, "user_id": null, "sort": "oldest" }
+#   }
+# }
+GET {{baseUrl}}/admin/photos/pending
+Authorization: Bearer {{moderatorToken}}
+
+### 8.2 Verify Response Structure - Bulk Approve
+# Expected response format:
+# {
+#   "success": true,
+#   "message": "Bulk approve completed: X processed, Y failed",
+#   "data": {
+#     "summary": { "total": Z, "processed": X, "failed": Y },
+#     "failures": [{ "photo_id": N, "error": "..." }]
+#   }
+# }
+PATCH {{baseUrl}}/admin/photos/bulk-approve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [99990, 99991, 99992]
+}
+
+### 8.3 Verify Response Structure - Bulk Reject
+DELETE {{baseUrl}}/admin/photos/bulk-reject
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "photo_ids": [99993, 99994, 99995],
+  "reason": "Test response structure validation for bulk reject operation"
+}
+
+###############################################################################
+# NOTES
+###############################################################################
+
+# 1. Replace {{baseUrl}}, {{adminToken}}, {{moderatorToken}}, {{userToken}} with actual values
+# 2. Get tokens by calling: POST /auth/login with admin/moderator/user credentials
+# 3. Get actual photo IDs by calling: GET /admin/photos/pending first
+# 4. All bulk operations are fault-tolerant (partial success is OK)
+# 5. Bulk operations limited to 50 photos max
+# 6. Rejection reason must be 10-500 characters
+# 7. Default sort is 'oldest' (FIFO queue for fair moderation)

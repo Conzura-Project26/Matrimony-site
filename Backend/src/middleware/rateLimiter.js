@@ -191,3 +191,40 @@ export const adminDestructiveRateLimiter = createRateLimiter(
   60 * 60 * 1000, // 1 hour
   'admin-destructive'
 );
+
+// ============================================
+// REPORT MANAGEMENT RATE LIMITERS (Phase 5 - Task 5.4)
+// ============================================
+
+/**
+ * Report Read Operations Rate Limiter
+ * Applied to GET requests (view reports, report details)
+ * 2000 requests per hour
+ */
+export const reportReadRateLimiter = createRateLimiter(
+  2000,
+  60 * 60 * 1000, // 1 hour
+  'report-read'
+);
+
+/**
+ * Report Status Update Rate Limiter
+ * Applied to status update operations
+ * 500 requests per hour
+ */
+export const reportStatusUpdateRateLimiter = createRateLimiter(
+  500,
+  60 * 60 * 1000, // 1 hour
+  'report-status-update'
+);
+
+/**
+ * Report User Action Rate Limiter
+ * Applied to moderation actions on users (ADMIN only)
+ * 100 requests per hour
+ */
+export const reportUserActionRateLimiter = createRateLimiter(
+  100,
+  60 * 60 * 1000, // 1 hour
+  'report-user-action'
+);
