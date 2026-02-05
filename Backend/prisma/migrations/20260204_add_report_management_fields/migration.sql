@@ -16,20 +16,21 @@ ALTER TABLE "user_reports"
   ADD COLUMN "severity" "ReportSeverity" NOT NULL DEFAULT 'MEDIUM',
   ADD COLUMN "action_taken" "ReportAction",
   ADD COLUMN "admin_notes" TEXT,
-  ADD COLUMN "resolved_by" INTEGER,
+  ADD COLUMN "resolved_by" UUID,
   ADD COLUMN "resolved_at" TIMESTAMP(3),
   ADD COLUMN "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ALTER COLUMN "status" SET DEFAULT 'OPEN',
-  ALTER COLUMN "status" TYPE "ReportStatus" USING "status"::text::"ReportStatus";
+  ALTER COLUMN "status" DROP DEFAULT,
+  ALTER COLUMN "status" TYPE "ReportStatus" USING "status"::text::"ReportStatus",
+  ALTER COLUMN "status" SET DEFAULT 'OPEN';
 
 -- CreateTable
 CREATE TABLE "report_action_logs" (
     "id" SERIAL NOT NULL,
     "report_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
+    "user_id" UUID NOT NULL,
     "action" "ReportAction" NOT NULL,
     "metadata" JSONB,
-    "acted_by" INTEGER NOT NULL,
+    "acted_by" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "report_action_logs_pkey" PRIMARY KEY ("id")
