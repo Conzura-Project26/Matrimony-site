@@ -1,6 +1,6 @@
 /**
  * Master Data Controller
- * Handles retrieval of all master data (enums, religions, castes, etc.)
+ * Handles retrieval of all master data (enums, religions, castes, report reasons, etc.)
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -25,6 +25,7 @@ import {
 } from '../../prisma/seeds/enumMasterData.js';
 import { getAllStates, getCitiesByState } from '../services/locationService.js';
 import { BadRequestError } from '../utils/errors.js';
+import reportService from '../services/reportService.js';
 
 const prisma = new PrismaClient();
 
@@ -381,6 +382,30 @@ export const getCities = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch cities',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get report reasons/categories
+ * GET /api/master/report-reasons
+ * Phase 5 - Task 5.5: User Reporting
+ */
+export const getReportReasons = async (req, res) => {
+  try {
+    const reasons = await reportService.getReportReasons();
+
+    res.json({
+      success: true,
+      data: reasons,
+      message: 'Report reasons retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching report reasons:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch report reasons',
       error: error.message
     });
   }
