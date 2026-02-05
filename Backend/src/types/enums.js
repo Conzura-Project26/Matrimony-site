@@ -480,3 +480,97 @@ export const InterestConfig = {
 
 // Notification Type Validator
 export const isValidNotificationType = (value) => Object.values(NotificationType).includes(value);
+// ============================================
+// SUBSCRIPTION PLAN ENUMS (Phase 6 - Task 6.1) ✅
+// ============================================
+
+/**
+ * Billing Cycle - How often subscription is billed
+ */
+export const BillingCycle = {
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
+};
+
+/**
+ * Feature Type - Data type for feature values
+ */
+export const FeatureType = {
+  BOOLEAN: 'BOOLEAN',
+  NUMBER: 'NUMBER',
+  STRING: 'STRING'
+};
+
+/**
+ * Reset Period - When feature usage limits reset
+ */
+export const ResetPeriod = {
+  NONE: 'NONE',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY'
+};
+
+/**
+ * Subscription Status - Current state of user subscription
+ */
+export const SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+  TRIAL: 'TRIAL',
+  SUSPENDED: 'SUSPENDED',
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  TERMINATED_BY_ADMIN: 'TERMINATED_BY_ADMIN'
+};
+
+/**
+ * Subscription Plan Codes - Standard plan identifiers
+ */
+export const PlanCode = {
+  FREE: 'FREE',
+  BASIC: 'BASIC',
+  PREMIUM: 'PREMIUM',
+  GOLD: 'GOLD'
+};
+
+/**
+ * Feature Codes - Standard feature identifiers
+ */
+export const FeatureCode = {
+  MATCH_LIMIT: 'MATCH_LIMIT',
+  INTEREST_LIMIT: 'INTEREST_LIMIT',
+  MESSAGE_LIMIT: 'MESSAGE_LIMIT',
+  CONTACT_VIEW_LIMIT: 'CONTACT_VIEW_LIMIT',
+  PRIORITY_SUPPORT: 'PRIORITY_SUPPORT',
+  PROFILE_BOOST: 'PROFILE_BOOST',
+  ADVANCED_FILTERS: 'ADVANCED_FILTERS',
+  READ_RECEIPTS: 'READ_RECEIPTS',
+  VIP_BADGE: 'VIP_BADGE',
+  DEDICATED_MANAGER: 'DEDICATED_MANAGER',
+  PRIORITY_MATCHING: 'PRIORITY_MATCHING'
+};
+
+/**
+ * Subscription Plan Configuration
+ */
+export const SubscriptionConfig = {
+  MIN_PRICE_PAISE: 0,              // ₹0 for free plans
+  MAX_PRICE_PAISE: 10000000,       // ₹1,00,000 max
+  MAX_TRIAL_DAYS: 90,              // Maximum trial period
+  MIN_DURATION_DAYS: 1,            // Minimum subscription duration
+  MAX_DURATION_DAYS: 3650,         // Maximum 10 years
+  UNLIMITED_VALUE: -1,             // Represents unlimited feature usage
+  FREE_PLAN_PRIORITY: 0,           // Priority for free plans
+  MAX_PLAN_PRIORITY: 100           // Maximum plan priority
+};
+
+// Subscription Plan Validators
+export const isValidBillingCycle = (value) => Object.values(BillingCycle).includes(value);
+export const isValidFeatureType = (value) => Object.values(FeatureType).includes(value);
+export const isValidResetPeriod = (value) => Object.values(ResetPeriod).includes(value);
+export const isValidSubscriptionStatus = (value) => Object.values(SubscriptionStatus).includes(value);
+export const isValidPlanCode = (value) => Object.values(PlanCode).includes(value);
+export const isValidFeatureCode = (value) => Object.values(FeatureCode).includes(value);

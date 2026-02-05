@@ -212,6 +212,37 @@ class AuthController {
           },
         });
 
+        // Assign FREE plan to new user
+        const freePlan = await tx.subscriptionPlan.findFirst({
+          where: { 
+            code: 'FREE_MONTHLY',
+            is_active: true 
+          },
+        });
+
+        if (freePlan) {
+          const startDate = new Date();
+          const endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + freePlan.duration_days);
+
+          await tx.subscription.create({
+            data: {
+              user_id: user.id,
+              plan_id: freePlan.id,
+              plan_name: freePlan.display_name,
+              start_date: startDate,
+              end_date: endDate,
+              status: 'ACTIVE',
+              is_active: true,
+              auto_renew: true, // Free plan auto-renews
+              created_at: new Date(),
+              updated_at: new Date()
+            },
+          });
+
+          logger.info(`Assigned FREE plan to new user: ${user.id}`);
+        }
+
       return user;
     });
 

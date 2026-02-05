@@ -95,6 +95,7 @@ model User {
   reports_resolved              UserReport[]             @relation("ReportResolver")
   report_actions_made           ReportActionLog[]        @relation("ReportActionActor")
   report_actions_received       ReportActionLog[]        @relation("ReportActionTarget")
+  feature_usage                 FeatureUsage[]
   role                          Role                     @relation(fields: [role_id], references: [id])
 
   @@index([profile_completion_percentage], map: "idx_users_profile_completion")
@@ -417,15 +418,117 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-model Subscription {
-  id         Int       @id @default(autoincrement())
-  user_id    String    @db.Uuid
-  plan_name  String?   @db.VarChar(50)
-  start_date DateTime? @db.Date
-  end_date   DateTime? @db.Date
-  is_active  Boolean   @default(true)
-  user       User      @relation(fields: [user_id], references: [id])
+model SubscriptionPlan {
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code               String         @db.VarChar(50)
+  display_name       String         @db.VarChar(100)
+  description        String?
+  price_amount       Int            // Stored in paise (₹1 = 100 paise)
+  currency           String         @default("INR") @db.VarChar(3)
+  billing_cycle      String         @default("MONTHLY") @db.VarChar(20)
+  duration_days      Int            // Duration in days (30, 90, 365)
+  priority           Int            @default(0) // 0=Free, 1=Basic, 2=Premium, 3=Gold
+  trial_period_days  Int?           // Trial period in days (7, 14, 30)
+  is_active          Boolean        @default(true)
+  version            Int            @default(1) // Plan versioning for immutability
+  parent_plan_id     String?        @db.Uuid // Reference to original plan for versioning
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  deactivated_at     DateTime?
+  deactivated_by     String?        @db.Uuid
+  
+  parent_plan        SubscriptionPlan?  @relation("PlanVersions", fields: [parent_plan_id], references: [id])
+  plan_versions      SubscriptionPlan[] @relation("PlanVersions")
+  plan_features      PlanFeature[]
+  subscriptions      Subscription[]
+  
+  @@unique([code, version])
+  @@index([code, is_active])
+  @@index([priority, is_active])
+  @@index([is_active, billing_cycle])
+  @@map("subscription_plans")
+}
 
+model Feature {
+  id             Int           @id @default(autoincrement())
+  code           String        @unique @db.VarChar(50)
+  display_name   String        @db.VarChar(100)
+  description    String?
+  value_type     String        @default("BOOLEAN") @db.VarChar(20)
+  reset_period   String        @default("NONE") @db.VarChar(20)
+  is_active      Boolean       @default(true)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  
+  plan_features  PlanFeature[]
+  feature_usage  FeatureUsage[]
+  
+  @@index([code, is_active])
+  @@map("features")
+}
+
+model PlanFeature {
+  id                 Int              @id @default(autoincrement())
+  plan_id            String           @db.Uuid
+  feature_id         Int
+  is_enabled         Boolean          @default(true)
+  value_number       Int?             // For numeric limits (e.g., 5, 50, -1 for unlimited)
+  value_string       String?          @db.VarChar(50) // For string values (e.g., "unlimited", "priority")
+  value_boolean      Boolean?         // For boolean features
+  created_at         DateTime         @default(now())
+  updated_at         DateTime         @updatedAt
+  
+  plan               SubscriptionPlan @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+  feature            Feature          @relation(fields: [feature_id], references: [id], onDelete: Cascade)
+  
+  @@unique([plan_id, feature_id])
+  @@index([plan_id, feature_id])
+  @@map("plan_features")
+}
+
+model FeatureUsage {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String   @db.Uuid
+  feature_id     Int
+  used_count     Int      @default(0)
+  window_start   DateTime
+  window_end     DateTime
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  
+  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  feature        Feature  @relation(fields: [feature_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, feature_id, window_start])
+  @@index([user_id, feature_id, window_end])
+  @@index([window_end]) // For cleanup jobs
+  @@map("feature_usage")
+}
+
+model Subscription {
+  id                Int                 @id @default(autoincrement())
+  user_id           String              @db.Uuid
+  plan_id           String?             @db.Uuid // Nullable for migration
+  plan_name         String?             @db.VarChar(50) // Legacy field, will be removed
+  status            String              @default("ACTIVE") @db.VarChar(30)
+  start_date        DateTime?           @db.Date
+  end_date          DateTime?           @db.Date
+  trial_end_date    DateTime?           @db.Date
+  is_active         Boolean             @default(true) // Legacy field
+  auto_renew        Boolean             @default(false)
+  cancelled_at      DateTime?
+  cancelled_by      String?             @db.Uuid
+  cancellation_reason String?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  
+  user              User                @relation(fields: [user_id], references: [id])
+  plan              SubscriptionPlan?   @relation(fields: [plan_id], references: [id])
+  
+  @@index([user_id, status])
+  @@index([plan_id, status])
+  @@index([end_date])
+  @@index([status, auto_renew, end_date])
   @@map("subscriptions")
 }
 
