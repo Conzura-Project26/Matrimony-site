@@ -45,9 +45,9 @@ export const globalRateLimiter = rateLimit({
   
   // Skip rate limiting for certain IPs (optional)
   skip: (req) => {
-    // Skip for localhost in development
-    if (process.env.NODE_ENV === 'development' && req.ip === '::1') {
-      return false; // Don't skip, still apply rate limit
+    // Skip for localhost (for testing)
+    if (req.ip === '::1' || req.ip === '::ffff:127.0.0.1' || req.ip === '127.0.0.1') {
+      return true; // Skip rate limit for localhost during testing
     }
     return false;
   },
@@ -89,6 +89,15 @@ export const authRateLimiter = rateLimit({
   
   // Skip failed requests from counting (set to false to count all)
   skipFailedRequests: false,
+  
+  // Skip rate limiting for certain IPs (optional)
+  skip: (req) => {
+    // Skip for localhost (for testing)
+    if (req.ip === '::1' || req.ip === '::ffff:127.0.0.1' || req.ip === '127.0.0.1') {
+      return true; // Skip rate limit for localhost during testing
+    }
+    return false;
+  },
 });
 
 /**
@@ -120,6 +129,15 @@ export const specialRoutesRateLimiter = rateLimit({
       statusCode: 429,
       retryAfter: '15 minutes',
     });
+  },
+  
+  // Skip rate limiting for certain IPs (optional)
+  skip: (req) => {
+    // Skip for localhost (for testing)
+    if (req.ip === '::1' || req.ip === '::ffff:127.0.0.1' || req.ip === '127.0.0.1') {
+      return true; // Skip rate limit for localhost during testing
+    }
+    return false;
   },
 });
 

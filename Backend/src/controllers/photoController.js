@@ -16,6 +16,8 @@ import logger from '../config/logger.js';
 import { UTApi } from 'uploadthing/server';
 import { updateProfileCompletionCache } from '../utils/profileCompletion.js';
 import { bulkApprovePhotosSchema, rejectPhotoSchema, bulkRejectPhotosSchema } from '../utils/validation.js';
+import { checkUserFeatureAccess } from '../utils/subscriptionHelper.js';
+import { FeatureCode } from '../types/enums.js';
 import AuditService from '../services/auditService.js';
 import { AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 
@@ -138,14 +140,20 @@ export const uploadPhoto = async (req, res) => {
  * Get User Photos
  * GET /users/:userId/photos
  * 
- * @description Retrieve all photos for a user
- * @access Public (but filters based on approval and visibility)
+ * @description Retrieve all photos for a user with subscription-based protection
+ * @access Public (but filters based on approval, visibility, and subscription)
+ * 
+ * **Phase 6 - Task 6.2: Protected Photo Access**
+ * - PUBLIC photos: visible to all
+ * - PROTECTED photos: only visible if viewer has PROTECTED_PHOTO_ACCESS feature (PREMIUM/GOLD plans)
+ * - PRIVATE photos: only visible to owner
+ * - Admin/Moderator bypass
  */
 export const getUserPhotos = async (req, res) => {
   const { userId } = req.params;
   const requestingUserId = req.user?.userId;
   const isOwner = requestingUserId === userId;
-  const isAdminOrModerator = ['ADMIN', 'MODERATOR'].includes(req.user?.role);
+  const isAdminOrModerator = ['ADMIN', 'MODERATOR', 'SUPER_ADMIN'].includes(req.user?.role_name);
 
   // Build query filters
   const whereClause = {
@@ -158,7 +166,7 @@ export const getUserPhotos = async (req, res) => {
     whereClause.is_approved = true;
     whereClause.visibility = 'PUBLIC';
   } else if (isOwner) {
-    // Owner sees ALL their photos (approved/pending, public/private)
+    // Owner sees ALL their photos (approved/pending, public/private/protected)
     // No additional filters needed
   }
   // Admin/Moderator sees all photos
@@ -185,22 +193,60 @@ export const getUserPhotos = async (req, res) => {
       } : false,
     },
   });
+  
+  // Phase 6 - Task 6.2: Filter PROTECTED photos based on subscription
+  let filteredPhotos = photos;
+  let protectedPhotosHidden = 0;
+  
+  if (!isOwner && !isAdminOrModerator && requestingUserId) {
+    // Check if viewer has PROTECTED_PHOTO_ACCESS feature
+    const featureAccess = await checkUserFeatureAccess(requestingUserId, FeatureCode.PROTECTED_PHOTO_ACCESS);
+    
+    const hasProtectedAccess = featureAccess.hasAccess && featureAccess.value === true;
+    
+    if (!hasProtectedAccess) {
+      // Filter out PROTECTED photos
+      const beforeCount = filteredPhotos.length;
+      filteredPhotos = filteredPhotos.filter(photo => photo.visibility !== 'PROTECTED');
+      protectedPhotosHidden = beforeCount - filteredPhotos.length;
+      
+      logger.info('Protected photos filtered due to subscription', {
+        userId,
+        requestingUserId,
+        viewerPlan: featureAccess.plan,
+        protectedPhotosHidden
+      });
+    }
+  }
 
   logger.info('Photos retrieved', {
     userId,
     requestingUserId,
-    photoCount: photos.length,
+    photoCount: filteredPhotos.length,
     isOwner,
+    protectedPhotosHidden
   });
-
-  res.json({
+  
+  const response = {
     success: true,
     message: 'Photos retrieved successfully',
     data: {
-      total: photos.length,
-      photos,
+      total: filteredPhotos.length,
+      photos: filteredPhotos,
     },
-  });
+  };
+  
+  // Add upgrade prompt if protected photos were hidden
+  if (protectedPhotosHidden > 0) {
+    response.info = {
+      protected_photos_hidden: protectedPhotosHidden,
+      message: `${protectedPhotosHidden} protected photo(s) hidden. Upgrade to PREMIUM or GOLD plan to view.`,
+      upgrade_required: true,
+      recommended_plan: 'PREMIUM'
+    };
+  }
+
+  res.json(response);
 };
 
 /**

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma.js';
 import otpService from '../services/otpService.js';
 import tokenService from '../services/tokenService.js';
+import { ensureUserHasSubscription } from '../utils/subscriptionHelper.js';
 import {
   sendOtpSchema,
   verifyOtpSchema,
@@ -23,6 +24,7 @@ import {
   ConflictError 
 } from '../utils/errors.js';
 import { logAuth, logDatabase } from '../utils/logUtils.js';
+import logger from '../config/logger.js';
 import AuditService from '../services/auditService.js';
 
 // In-memory store for verified mobile numbers (valid for 30 minutes)
@@ -213,10 +215,11 @@ class AuthController {
           },
         });
 
-        // Assign FREE plan to new user
+        // Assign FREE plan to new user (Phase 6 - Task 6.2)
         const freePlan = await tx.subscriptionPlan.findFirst({
           where: { 
-            code: 'FREE_MONTHLY',
+            code: 'FREE',
+            version: 1,
             is_active: true 
           },
         });
@@ -224,24 +227,24 @@ class AuthController {
         if (freePlan) {
           const startDate = new Date();
           const endDate = new Date(startDate);
-          endDate.setDate(endDate.getDate() + freePlan.duration_days);
+          endDate.setFullYear(endDate.getFullYear() + 10); // 10 years for free plan
 
           await tx.subscription.create({
             data: {
               user_id: user.id,
               plan_id: freePlan.id,
-              plan_name: freePlan.display_name,
+              plan_name: freePlan.display_name,  // Populate legacy field for backward compatibility
               start_date: startDate,
               end_date: endDate,
               status: 'ACTIVE',
               is_active: true,
-              auto_renew: true, // Free plan auto-renews
-              created_at: new Date(),
-              updated_at: new Date()
+              auto_renew: false, // Free plan doesn't need auto-renew
             },
           });
 
           logger.info(`Assigned FREE plan to new user: ${user.id}`);
+        } else {
+          logger.warn('FREE plan not found during signup. User will be assigned plan on first feature access.');
         }
 
       return user;

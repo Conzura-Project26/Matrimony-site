@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:feature-gating": "node tests/featureGating.test.js",
+    "test:plans": "node tests/planManagement.test.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
