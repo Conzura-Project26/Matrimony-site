@@ -1,4 +1,4 @@
-import prisma from './src/config/prisma.js';
+import prisma from '../src/config/prisma.js';
 
 async function checkLogoutLogs() {
   console.log('=== CHECKING LOGOUT LOGS ===\n');

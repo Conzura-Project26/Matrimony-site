@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { religionData } from './seeds/religionData.js';
+import { religionData } from './religionData.js';
 import {
   hinduismCastes,
   hinduismSubCastes,
@@ -14,9 +14,9 @@ import {
   parsiCastes,
   judaismCastes,
   otherCastes
-} from './seeds/casteData.js';
-import { permissions } from './seeds/permissionData.js';
-import { roles, rolePermissions } from './seeds/roleData.js';
+} from './casteData.js';
+import { permissions } from './permissionData.js';
+import { roles, rolePermissions } from './roleData.js';
 
 const prisma = new PrismaClient();
 
