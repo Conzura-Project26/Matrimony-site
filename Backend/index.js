@@ -16,6 +16,7 @@ import interestRoutes from './src/routes/interestRoutes.js';
 import blockRoutes from './src/routes/blockRoutes.js';
 import messageRoutes from './src/routes/messageRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import reportRoutes from './src/routes/reportRoutes.js';
 import planRoutes from './src/routes/plans.js';
 import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import prisma from './src/config/prisma.js';
@@ -85,6 +86,7 @@ app.use('/', interestRoutes); // Interest system (Task 4.1): POST /interests/:re
 app.use('/blocks', blockRoutes); // Blocking system (Task 4.x): POST /blocks/:userId, DELETE /blocks/:userId, GET /blocks
 app.use('/messages', messageRoutes); // Messaging system (Task 4.3): POST /messages/:userId, GET /messages/:userId, GET /messages/conversations
 app.use('/notifications', notificationRoutes); // Notification system (Task 4.6): GET /notifications, PUT /notifications/:id/read, etc.
+app.use('/reports', reportRoutes); // User reporting system (Task 5.5): POST /reports/:userId, GET /reports/reasons, GET /reports/my-reports
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)

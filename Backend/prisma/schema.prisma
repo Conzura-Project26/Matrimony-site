@@ -651,6 +651,7 @@ enum NotificationType {
   MESSAGE_RECEIVED
   PROFILE_VIEW
   MATCH_FOUND
+  NEW_REPORT
 }
 
 enum ReportStatus {

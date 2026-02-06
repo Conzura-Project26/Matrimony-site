@@ -1286,6 +1286,77 @@ const adminTakeReportActionSchema = z.object({
   admin_notes: z.string().max(1000).optional()
 });
 
+// ============================================
+// USER REPORTING VALIDATION SCHEMAS (Task 5.5)
+// ============================================
+
+/**
+ * User: Create Report
+ */
+const userCreateReportSchema = z.object({
+  category: z.enum([
+    ReportCategory.FAKE_PROFILE,
+    ReportCategory.HARASSMENT,
+    ReportCategory.INAPPROPRIATE_PHOTO,
+    ReportCategory.INAPPROPRIATE_CONTENT,
+    ReportCategory.SPAM,
+    ReportCategory.SCAM,
+    ReportCategory.UNDERAGE,
+    ReportCategory.MARRIED,
+    ReportCategory.DUPLICATE_PROFILE,
+    ReportCategory.OFFENSIVE_BEHAVIOR,
+    ReportCategory.OTHER
+  ]),
+  reason: z.string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(1000, 'Reason must not exceed 1000 characters')
+});
+
+/**
+ * User: Get My Reports
+ */
+const userGetMyReportsSchema = z.object({
+  // Report type filter
+  type: z.enum(['made', 'received', 'all']).default('all'),
+
+  // Pagination
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+
+  // Status filter
+  status: z.enum([
+    ReportStatus.OPEN,
+    ReportStatus.IN_REVIEW,
+    ReportStatus.ACTION_TAKEN,
+    ReportStatus.RESOLVED,
+    ReportStatus.DISMISSED,
+    ReportStatus.ESCALATED
+  ]).optional(),
+
+  // Category filter
+  category: z.enum([
+    ReportCategory.FAKE_PROFILE,
+    ReportCategory.HARASSMENT,
+    ReportCategory.INAPPROPRIATE_PHOTO,
+    ReportCategory.INAPPROPRIATE_CONTENT,
+    ReportCategory.SPAM,
+    ReportCategory.SCAM,
+    ReportCategory.UNDERAGE,
+    ReportCategory.MARRIED,
+    ReportCategory.DUPLICATE_PROFILE,
+    ReportCategory.OFFENSIVE_BEHAVIOR,
+    ReportCategory.OTHER
+  ]).optional(),
+
+  // Date filters
+  created_from: z.string().datetime().optional(),
+  created_to: z.string().datetime().optional(),
+
+  // Sorting
+  sort_by: z.enum(['created_at', 'updated_at']).default('created_at'),
+  sort_order: z.enum(['asc', 'desc']).default('desc')
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -1330,5 +1401,8 @@ export {
   statsLocationSchema,
   adminGetReportsSchema,
   adminUpdateReportStatusSchema,
-  adminTakeReportActionSchema
+  adminTakeReportActionSchema,
+  userCreateReportSchema,
+  userGetMyReportsSchema
 };
+
