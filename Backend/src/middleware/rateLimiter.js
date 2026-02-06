@@ -251,3 +251,42 @@ export const userReportRateLimiter = createRateLimiter(
   'user-report',
   'You have exceeded the maximum number of reports. Please try again later.'
 );
+
+// ============================================
+// AUDIT LOG RATE LIMITERS (Phase 5 - Task 5.6)
+// ============================================
+
+/**
+ * Audit Log Read Operations Rate Limiter
+ * Applied to GET /admin/audit-logs
+ * 200 requests per hour (admin only)
+ */
+export const auditLogReadRateLimiter = createRateLimiter(
+  200,
+  60 * 60 * 1000, // 1 hour
+  'audit-log-read'
+);
+
+/**
+ * Audit Log Export Rate Limiter
+ * Applied to GET /admin/audit-logs/export
+ * 10 requests per hour (export is resource-intensive)
+ */
+export const auditLogExportRateLimiter = createRateLimiter(
+  10,
+  60 * 60 * 1000, // 1 hour
+  'audit-log-export'
+);
+
+/**
+ * Audit Log Cleanup Rate Limiter
+ * Applied to DELETE /admin/audit-logs/cleanup
+ * 5 requests per day (manual cleanup should be rare)
+ */
+export const auditLogCleanupRateLimiter = createRateLimiter(
+  5,
+  24 * 60 * 60 * 1000, // 24 hours
+  'audit-log-cleanup',
+  'Audit log cleanup can only be performed 5 times per day.'
+);
+

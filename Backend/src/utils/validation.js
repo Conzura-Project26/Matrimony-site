@@ -20,7 +20,10 @@ import {
   ReportStatus,
   ReportSeverity,
   ReportCategory,
-  ReportAction
+  ReportAction,
+  AuditActionType,
+  AuditResourceType,
+  AuditStatus
 } from '../types/enums.js';
 import { rasiOptions, nakshatraOptions } from '../../prisma/seeds/enumMasterData.js';
 
@@ -1357,6 +1360,56 @@ const userGetMyReportsSchema = z.object({
   sort_order: z.enum(['asc', 'desc']).default('desc')
 });
 
+/**
+ * Audit Logs: Get Audit Logs
+ * Phase 5 - Task 5.6: Audit Logging
+ */
+const getAuditLogsSchema = z.object({
+  // Filters
+  action_type: z.enum(['ADMIN_ACTION', 'USER_ACTION', 'SYSTEM_ACTION', 'AUTH_EVENT']).optional(),
+  action: z.string().max(255).optional(),
+  actor_id: z.string().uuid().optional(),
+  target_user_id: z.string().uuid().optional(),
+  resource_type: z.enum([
+    'USER', 'PHOTO', 'REPORT', 'SUBSCRIPTION', 'INTEREST', 
+    'MESSAGE', 'PROFILE', 'SHORTLIST', 'BLOCK', 'MATCH', 
+    'PLAN', 'SESSION', 'SYSTEM'
+  ]).optional(),
+  resource_id: z.string().max(100).optional(),
+  status: z.enum(['SUCCESS', 'FAILURE', 'PARTIAL']).optional(),
+  ip_address: z.string().max(45).optional(),
+  search: z.string().max(255).optional(),
+
+  // Date filters
+  date_from: z.string().datetime().optional(),
+  date_to: z.string().datetime().optional(),
+
+  // Pagination
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+
+  // Sorting
+  sort_by: z.enum(['created_at', 'action_type', 'action', 'status']).default('created_at'),
+  sort_order: z.enum(['asc', 'desc']).default('desc')
+});
+
+/**
+ * Audit Logs: Get Statistics
+ * Phase 5 - Task 5.6: Audit Logging
+ */
+const getAuditStatisticsSchema = z.object({
+  date_from: z.string().datetime().optional(),
+  date_to: z.string().datetime().optional()
+});
+
+/**
+ * Audit Logs: Cleanup Old Logs
+ * Phase 5 - Task 5.6: Audit Logging
+ */
+const cleanupAuditLogsSchema = z.object({
+  retention_months: z.number().int().min(12).max(36).default(24)
+});
+
 export {
   sendOtpSchema,
   verifyOtpSchema,
@@ -1403,6 +1456,9 @@ export {
   adminUpdateReportStatusSchema,
   adminTakeReportActionSchema,
   userCreateReportSchema,
-  userGetMyReportsSchema
+  userGetMyReportsSchema,
+  getAuditLogsSchema,
+  getAuditStatisticsSchema,
+  cleanupAuditLogsSchema
 };
 

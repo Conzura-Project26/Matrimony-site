@@ -16,6 +16,8 @@ import logger from '../config/logger.js';
 import { UTApi } from 'uploadthing/server';
 import { updateProfileCompletionCache } from '../utils/profileCompletion.js';
 import { bulkApprovePhotosSchema, rejectPhotoSchema, bulkRejectPhotosSchema } from '../utils/validation.js';
+import AuditService from '../services/auditService.js';
+import { AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 
 // Initialize UploadThing API client for file deletion
 const utapi = new UTApi();
@@ -96,6 +98,23 @@ export const uploadPhoto = async (req, res) => {
     visibility,
     isPrimary,
     requiresApproval: true,
+  });
+
+  // Audit log for photo upload
+  await AuditService.log({
+    action: AuditAction.PROFILE_PHOTO_UPLOADED,
+    actionType: AuditActionType.USER_ACTION,
+    actorId: userId,
+    resourceType: AuditResourceType.PHOTO,
+    resourceId: String(photo.id),
+    metadata: {
+      visibility,
+      is_primary: isPrimary,
+      requires_approval: true
+    },
+    ipAddress: req.auditContext?.ipAddress,
+    userAgent: req.auditContext?.userAgent,
+    status: AuditStatus.SUCCESS
   });
 
   // Update profile completion cache
@@ -291,6 +310,25 @@ export const deletePhoto = async (req, res) => {
     deletedBy: requestingUserId,
     roleName,
     isOwnerDeletion: isOwner,
+  });
+
+  // Audit log for photo deletion
+  await AuditService.log({
+    action: isOwner ? AuditAction.PROFILE_PHOTO_DELETED : AuditAction.ADMIN_PHOTO_DELETED,
+    actionType: isOwner ? AuditActionType.USER_ACTION : AuditActionType.ADMIN_ACTION,
+    actorId: requestingUserId,
+    targetUserId: photo.user_id,
+    resourceType: AuditResourceType.PHOTO,
+    resourceId: photoId,
+    metadata: {
+      was_primary: wasPrimary,
+      deleted_by_owner: isOwner,
+      moderator_action: isAdminOrModerator && !isOwner,
+      role: roleName
+    },
+    ipAddress: req.auditContext?.ipAddress,
+    userAgent: req.auditContext?.userAgent,
+    status: AuditStatus.SUCCESS
   });
 
   // Update profile completion cache
@@ -505,12 +543,20 @@ export const approvePhoto = async (req, res) => {
   });
 
   // Log to audit trail
-  await prisma.auditLog.create({
-    data: {
-      actor_id: moderatorId,
-      action: `Photo approved for user: ${photo.user.full_name}`,
-      ip_address: req.ip,
+  await AuditService.log({
+    action: AuditAction.ADMIN_PHOTO_APPROVED,
+    actionType: AuditActionType.ADMIN_ACTION,
+    actorId: moderatorId,
+    targetUserId: photo.user_id,
+    resourceType: AuditResourceType.PHOTO,
+    resourceId: photoId,
+    metadata: {
+      user_name: photo.user.full_name,
+      photo_url: photo.photo_url
     },
+    ipAddress: req.auditContext?.ipAddress,
+    userAgent: req.auditContext?.userAgent,
+    status: AuditStatus.SUCCESS
   });
 
   logger.info('Photo approved', {
@@ -579,12 +625,22 @@ export const rejectPhoto = async (req, res) => {
   });
 
   // Log rejection to audit trail with reason
-  await prisma.auditLog.create({
-    data: {
-      actor_id: moderatorId,
-      action: `Photo rejected and deleted - User: ${photo.user.full_name} (${photo.user.mobile_number}) - Reason: ${reason}`,
-      ip_address: req.ip,
+  await AuditService.log({
+    action: AuditAction.ADMIN_PHOTO_REJECTED,
+    actionType: AuditActionType.ADMIN_ACTION,
+    actorId: moderatorId,
+    targetUserId: photo.user_id,
+    resourceType: AuditResourceType.PHOTO,
+    resourceId: photoId,
+    metadata: {
+      user_name: photo.user.full_name,
+      mobile_number: photo.user.mobile_number,
+      rejection_reason: reason,
+      photo_url: photo.photo_url
     },
+    ipAddress: req.auditContext?.ipAddress,
+    userAgent: req.auditContext?.userAgent,
+    status: AuditStatus.SUCCESS
   });
 
   logger.warn('Photo rejected and deleted', {

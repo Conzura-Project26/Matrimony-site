@@ -22,6 +22,7 @@ import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
+import { captureAuditContext } from './src/middleware/auditContext.js';
 import logger from './src/config/logger.js';
 import corsOptions from './src/config/corsConfig.js';
 import helmetConfig from './src/config/helmetConfig.js';
@@ -56,6 +57,9 @@ app.use(sanitizeInput);
 
 // 6. Request Logging
 app.use(requestLogger);
+
+// 7. Audit Context - Capture IP and User Agent for audit logging (Phase 5 - Task 5.6)
+app.use(captureAuditContext);
 
 // ============================
 // Swagger Documentation (only in development/staging)
@@ -114,9 +118,14 @@ app.use(errorHandler);
 export default app;
 
 // Start server only if this file is run directly
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+// Fixed for Windows compatibility
+const isMainModule = import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/')) || 
+                     import.meta.url.includes('index.js');
+
+if (isMainModule) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, async () => {
+    console.log(`✓ Server listening on http://localhost:${PORT}`);
     logger.info(`Server started on port ${PORT}`, {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',
