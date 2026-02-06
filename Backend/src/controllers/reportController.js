@@ -17,6 +17,8 @@ import {
   userGetMyReportsSchema
 } from '../utils/validation.js';
 import logger from '../config/logger.js';
+import AuditService from '../services/auditService.js';
+import { AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 
 class ReportController {
   /**
@@ -105,6 +107,23 @@ class ReportController {
       status: validatedData.status
     });
 
+    // Audit log for report status update
+    await AuditService.log({
+      action: AuditAction.ADMIN_REPORT_STATUS_UPDATED,
+      actionType: AuditActionType.ADMIN_ACTION,
+      actorId: currentAdminId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: reportId.toString(),
+      metadata: {
+        new_status: validatedData.status,
+        admin_notes: validatedData.admin_notes,
+        admin_role: currentAdminRole
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
+
     res.status(200).json({
       success: true,
       message: `Report status updated to ${validatedData.status} successfully`,
@@ -141,6 +160,23 @@ class ReportController {
       adminId: currentAdminId,
       reportId,
       action: validatedData.action
+    });
+
+    // Audit log for report action
+    await AuditService.log({
+      action: AuditAction.ADMIN_REPORT_ACTION_TAKEN,
+      actionType: AuditActionType.ADMIN_ACTION,
+      actorId: currentAdminId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: reportId.toString(),
+      metadata: {
+        action_type: validatedData.action,
+        admin_notes: validatedData.admin_notes,
+        action_metadata: validatedData.metadata
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
     });
 
     res.status(200).json({
@@ -197,6 +233,23 @@ class ReportController {
       reportedUserId,
       category: validatedData.category,
       reportId: result.report_id
+    });
+
+    // Audit log for user report submission
+    await AuditService.log({
+      action: AuditAction.USER_REPORTED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: reporterId,
+      targetUserId: reportedUserId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: result.report_id.toString(),
+      metadata: {
+        category: validatedData.category,
+        reason_length: validatedData.reason.length
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
     });
 
     res.status(201).json({

@@ -2,6 +2,7 @@
  * Admin Routes
  * Phase 5 - Task 5.1: Admin User Management
  * Phase 5 - Task 5.4: Report Management
+ * Phase 5 - Task 5.6: Audit Logging
  * 
  * Photo Moderation Routes:
  * - GET    /admin/photos/pending - Get pending photos for moderation
@@ -24,6 +25,13 @@
  * - GET    /admin/reports/:id - Get report details
  * - PUT    /admin/reports/:id/status - Update report status
  * - PUT    /admin/reports/:id/action - Take action on reported user
+ * 
+ * Audit Logging Routes:
+ * - GET    /admin/audit-logs - Get audit logs with filters
+ * - GET    /admin/audit-logs/statistics - Get audit statistics
+ * - GET    /admin/audit-logs/export - Export audit logs (CSV)
+ * - GET    /admin/audit-logs/:id - Get single audit log
+ * - DELETE /admin/audit-logs/cleanup - Cleanup old logs (manual)
  */
 
 import express from 'express';
@@ -41,13 +49,17 @@ import adminController from '../controllers/adminController.js';
 import statisticsController from '../controllers/statisticsController.js';
 import reportController from '../controllers/reportController.js';
 import adminPlanController from '../controllers/adminPlanController.js';
+import auditController from '../controllers/auditController.js';
 import {
   adminReadRateLimiter,
   adminWriteRateLimiter,
   adminDestructiveRateLimiter,
   reportReadRateLimiter,
   reportStatusUpdateRateLimiter,
-  reportUserActionRateLimiter
+  reportUserActionRateLimiter,
+  auditLogReadRateLimiter,
+  auditLogExportRateLimiter,
+  auditLogCleanupRateLimiter
 } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
@@ -2011,6 +2023,371 @@ router.post(
   authorizeRole(['ADMIN']), // ADMIN only
   adminWriteRateLimiter,
   asyncHandler(adminPlanController.createFeature)
+);
+
+// ============================================
+// AUDIT LOG ROUTES (Phase 5 - Task 5.6)
+// ============================================
+
+/**
+ * @swagger
+ * /admin/audit-logs:
+ *   get:
+ *     tags:
+ *       - Admin - Audit Logs
+ *     summary: Get audit logs with filters
+ *     description: Retrieve audit logs with comprehensive filtering, pagination, and sorting. ADMIN only access. Logs all admin actions, user sensitive actions, and system events.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: action_type
+ *         schema:
+ *           type: string
+ *           enum: [ADMIN_ACTION, USER_ACTION, SYSTEM_ACTION, AUTH_EVENT]
+ *         description: Filter by action type category
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *         description: Filter by specific action (e.g., LOGIN_SUCCESS, ADMIN_USER_DELETED)
+ *       - in: query
+ *         name: actor_id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by user who performed the action
+ *       - in: query
+ *         name: target_user_id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by user affected by the action
+ *       - in: query
+ *         name: resource_type
+ *         schema:
+ *           type: string
+ *           enum: [USER, PHOTO, REPORT, SUBSCRIPTION, INTEREST, MESSAGE, PROFILE, SHORTLIST, BLOCK, MATCH, PLAN, SESSION, SYSTEM]
+ *         description: Filter by resource type
+ *       - in: query
+ *         name: resource_id
+ *         schema:
+ *           type: string
+ *         description: Filter by resource ID
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [SUCCESS, FAILURE, PARTIAL]
+ *         description: Filter by action status
+ *       - in: query
+ *         name: ip_address
+ *         schema:
+ *           type: string
+ *         description: Filter by IP address
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Text search in action field
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date filter (ISO 8601 format)
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date filter (ISO 8601 format)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Records per page (max 100)
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [created_at, action_type, action, status]
+ *           default: created_at
+ *         description: Sort field
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort direction
+ *     responses:
+ *       200:
+ *         description: Audit logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       action_type:
+ *                         type: string
+ *                       action:
+ *                         type: string
+ *                       actor:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           full_name:
+ *                             type: string
+ *                           role:
+ *                             type: object
+ *                       target_user:
+ *                         type: object
+ *                       resource_type:
+ *                         type: string
+ *                       resource_id:
+ *                         type: string
+ *                       metadata:
+ *                         type: object
+ *                         description: PII-masked metadata
+ *                       ip_address:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *       400:
+ *         description: Invalid query parameters
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires ADMIN role
+ *       429:
+ *         description: Too many requests
+ */
+router.get(
+  '/audit-logs',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  auditLogReadRateLimiter,
+  asyncHandler(auditController.getAuditLogs)
+);
+
+/**
+ * @swagger
+ * /admin/audit-logs/statistics:
+ *   get:
+ *     tags:
+ *       - Admin - Audit Logs
+ *     summary: Get audit log statistics
+ *     description: Retrieve aggregated statistics for audit logs (counts by type, status, resource, top actors). ADMIN only.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date filter
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date filter
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Requires ADMIN role
+ */
+router.get(
+  '/audit-logs/statistics',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  auditLogReadRateLimiter,
+  asyncHandler(auditController.getAuditStatistics)
+);
+
+/**
+ * @swagger
+ * /admin/audit-logs/export:
+ *   get:
+ *     tags:
+ *       - Admin - Audit Logs
+ *     summary: Export audit logs to CSV
+ *     description: Export audit logs matching filters to CSV file. ADMIN only. Rate limited to 10/hour.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: action_type
+ *         schema:
+ *           type: string
+ *         description: Filter by action type
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date filter
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date filter
+ *     responses:
+ *       200:
+ *         description: CSV file download
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       429:
+ *         description: Too many export requests
+ */
+router.get(
+  '/audit-logs/export',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  auditLogExportRateLimiter,
+  asyncHandler(auditController.exportAuditLogs)
+);
+
+/**
+ * @swagger
+ * /admin/audit-logs/{id}:
+ *   get:
+ *     tags:
+ *       - Admin - Audit Logs
+ *     summary: Get single audit log by ID
+ *     description: Retrieve detailed information for a specific audit log entry. ADMIN only.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Audit log ID
+ *     responses:
+ *       200:
+ *         description: Audit log retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Audit log not found
+ */
+router.get(
+  '/audit-logs/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  auditLogReadRateLimiter,
+  asyncHandler(auditController.getAuditLogById)
+);
+
+/**
+ * @swagger
+ * /admin/audit-logs/cleanup:
+ *   delete:
+ *     tags:
+ *       - Admin - Audit Logs
+ *     summary: Cleanup old audit logs (manual trigger)
+ *     description: Manually trigger cleanup of audit logs older than specified retention period. ADMIN only. Rate limited to 5/day.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               retention_months:
+ *                 type: integer
+ *                 minimum: 12
+ *                 maximum: 36
+ *                 default: 24
+ *                 description: Delete logs older than this many months
+ *     responses:
+ *       200:
+ *         description: Cleanup completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deleted_count:
+ *                       type: integer
+ *                     retention_months:
+ *                       type: integer
+ *       400:
+ *         description: Invalid retention period
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       429:
+ *         description: Too many cleanup requests
+ */
+router.delete(
+  '/audit-logs/cleanup',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  auditLogCleanupRateLimiter,
+  asyncHandler(auditController.cleanupOldLogs)
 );
 
 export default router;

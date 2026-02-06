@@ -546,7 +546,7 @@ router.post('/refresh-token', (req, res) => authController.refreshToken(req, res
  *       500:
  *         description: Server error
  */
-router.post('/logout', (req, res) => authController.logout(req, res));
+router.post('/logout', authenticateToken, (req, res) => authController.logout(req, res));
 
 /**
  * @swagger

@@ -15,7 +15,7 @@ import {
   changePasswordSchema,
   refreshTokenSchema,
 } from '../utils/validation.js';
-import { Gender, ProfileCreatedBy } from '../types/enums.js';
+import { Gender, ProfileCreatedBy, AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 import { 
   BadRequestError, 
   UnauthorizedError, 
@@ -23,6 +23,7 @@ import {
   ConflictError 
 } from '../utils/errors.js';
 import { logAuth, logDatabase } from '../utils/logUtils.js';
+import AuditService from '../services/auditService.js';
 
 // In-memory store for verified mobile numbers (valid for 30 minutes)
 // In production, use Redis for this
@@ -251,6 +252,23 @@ class AuthController {
 
     logAuth.signup(mobile_number, true, { userId: newUser.id, fullName: newUser.full_name });
 
+    // Audit log for user registration
+    await AuditService.log({
+      action: AuditAction.PERSONAL_DETAILS_UPDATED,
+      actorId: newUser.id,
+      resourceType: AuditResourceType.USER,
+      resourceId: newUser.id,
+      metadata: {
+        mobile_number: newUser.mobile_number,
+        full_name: newUser.full_name,
+        gender: newUser.gender,
+        profile_created_by: newUser.profile_created_by
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
+
     // Generate access token and refresh token
     const tokens = await tokenService.generateTokenPair({
       id: newUser.id,
@@ -342,6 +360,23 @@ class AuthController {
 
     logAuth.login(identifier, true, { userId: user.id, role: user.role.role_name });
     logAuth.tokenGenerated(user.id);
+
+    // Audit log for successful login
+    await AuditService.log({
+      action: 'LOGIN_SUCCESS',
+      actionType: 'AUTH_EVENT',
+      actorId: user.id,
+      resourceType: 'AUTH',
+      status: 'SUCCESS',
+      metadata: {
+        login_method: isEmail ? 'email' : 'mobile',
+        identifier: isEmail ? identifier : `MASKED_${identifier.slice(-4)}`,
+        role: user.role.role_name,
+        timestamp: new Date().toISOString()
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent
+    });
 
     // Remove password_hash from response
     const { password_hash, ...userWithoutPassword } = user;
@@ -695,6 +730,21 @@ class AuthController {
       // Remove from verified forgot password map
       verifiedForgotPassword.delete(mobile_number);
 
+      // Audit log for password reset
+      await AuditService.log({
+        action: AuditAction.PASSWORD_RESET_SUCCESS,
+        actorId: user.id,
+        resourceType: AuditResourceType.USER,
+        resourceId: user.id,
+        metadata: {
+          mobile_number: mobile_number,
+          reset_method: 'forgot_password_otp'
+        },
+        ipAddress: req.auditContext?.ipAddress,
+        userAgent: req.auditContext?.userAgent,
+        status: AuditStatus.SUCCESS
+      });
+
       // Send notification SMS
       try {
         const notificationMessage = `Your SARVVIVAH account password has been changed successfully. If you did not make this change, please contact support immediately.`;
@@ -783,6 +833,21 @@ class AuthController {
 
       // Revoke all refresh tokens for this user (force re-login on all devices)
       await tokenService.revokeAllUserTokens(userId);
+
+      // Audit log for password change
+      await AuditService.log({
+        action: AuditAction.PASSWORD_CHANGED,
+        actorId: userId,
+        resourceType: AuditResourceType.USER,
+        resourceId: userId,
+        metadata: {
+          mobile_number: user.mobile_number,
+          change_method: 'authenticated_user'
+        },
+        ipAddress: req.auditContext?.ipAddress,
+        userAgent: req.auditContext?.userAgent,
+        status: AuditStatus.SUCCESS
+      });
 
       // Send notification SMS
       try {
@@ -884,6 +949,22 @@ class AuthController {
       // Revoke the refresh token
       await tokenService.revokeToken(refresh_token);
 
+      // Audit log for logout
+      if (req.user?.userId) {
+        await AuditService.log({
+          action: AuditAction.LOGOUT,
+          actionType: AuditActionType.AUTH_EVENT,
+          actorId: req.user.userId,
+          resourceType: AuditResourceType.SESSION,
+          metadata: {
+            logout_type: 'single_device'
+          },
+          ipAddress: req.auditContext?.ipAddress,
+          userAgent: req.auditContext?.userAgent,
+          status: AuditStatus.SUCCESS
+        });
+      }
+
       res.status(200).json({
         success: true,
         message: 'Logged out successfully',
@@ -915,6 +996,21 @@ class AuthController {
 
       // Revoke all refresh tokens for this user
       const count = await tokenService.revokeAllUserTokens(userId);
+
+      // Audit log for logout all devices
+      await AuditService.log({
+        action: AuditAction.LOGOUT,
+        actionType: AuditActionType.AUTH_EVENT,
+        actorId: userId,
+        resourceType: AuditResourceType.SESSION,
+        metadata: {
+          logout_type: 'all_devices',
+          sessions_revoked: count
+        },
+        ipAddress: req.auditContext?.ipAddress,
+        userAgent: req.auditContext?.userAgent,
+        status: AuditStatus.SUCCESS
+      });
 
       res.status(200).json({
         success: true,
