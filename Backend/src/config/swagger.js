@@ -211,6 +211,136 @@ const options = {
             },
           },
         },
+        SubscriptionPlan: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              example: 'f7b3c5a1-8d2e-4f9b-a3c7-d6e8f9a0b1c2',
+            },
+            code: {
+              type: 'string',
+              example: 'GOLD',
+            },
+            display_name: {
+              type: 'string',
+              example: 'Gold Plan',
+            },
+            description: {
+              type: 'string',
+              example: 'All Premium features plus VIP badge and dedicated manager',
+            },
+            price: {
+              type: 'object',
+              properties: {
+                amount: {
+                  type: 'integer',
+                  example: 499900,
+                  description: 'Price in paise',
+                },
+                amount_inr: {
+                  type: 'string',
+                  example: '4999.00',
+                  description: 'Price in rupees',
+                },
+                currency: {
+                  type: 'string',
+                  example: 'INR',
+                },
+                formatted: {
+                  type: 'string',
+                  example: '₹4,999',
+                },
+              },
+            },
+            billing_cycle: {
+              type: 'string',
+              enum: ['MONTHLY', 'QUARTERLY', 'YEARLY'],
+              example: 'MONTHLY',
+            },
+            duration_days: {
+              type: 'integer',
+              example: 30,
+            },
+            priority: {
+              type: 'integer',
+              example: 3,
+              description: '0=Free, 1=Basic, 2=Premium, 3=Gold',
+            },
+            trial_period_days: {
+              type: 'integer',
+              nullable: true,
+              example: 7,
+            },
+            is_active: {
+              type: 'boolean',
+              example: true,
+            },
+            version: {
+              type: 'integer',
+              example: 1,
+            },
+            features: {
+              type: 'object',
+              additionalProperties: {
+                type: 'object',
+                properties: {
+                  enabled: {
+                    type: 'boolean',
+                  },
+                  value: {
+                    oneOf: [
+                      { type: 'number' },
+                      { type: 'string' },
+                      { type: 'boolean' },
+                    ],
+                  },
+                  type: {
+                    type: 'string',
+                    enum: ['BOOLEAN', 'NUMBER', 'STRING'],
+                  },
+                  reset_period: {
+                    type: 'string',
+                    enum: ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'],
+                  },
+                  display_name: {
+                    type: 'string',
+                  },
+                },
+              },
+              example: {
+                MATCH_LIMIT: {
+                  enabled: true,
+                  value: -1,
+                  type: 'NUMBER',
+                  reset_period: 'DAILY',
+                  display_name: 'Daily Match Limit',
+                },
+                VIP_BADGE: {
+                  enabled: true,
+                  value: true,
+                  type: 'BOOLEAN',
+                  reset_period: 'NONE',
+                  display_name: 'VIP Badge',
+                },
+              },
+            },
+            created_at: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updated_at: {
+              type: 'string',
+              format: 'date-time',
+            },
+            deactivated_at: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+            },
+          },
+        },
       },
     },
     tags: [
@@ -221,6 +351,18 @@ const options = {
       {
         name: 'Master Data',
         description: 'Static reference data (religions, castes, enums)',
+      },
+      {
+        name: 'Subscription Plans',
+        description: 'Public subscription plan viewing endpoints',
+      },
+      {
+        name: 'Admin - Subscription Plans',
+        description: 'Admin-only plan management (create, update, deactivate, version)',
+      },
+      {
+        name: 'Admin - Features',
+        description: 'Admin-only feature management for subscription plans',
       },
     ],
   },

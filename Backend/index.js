@@ -17,6 +17,8 @@ import blockRoutes from './src/routes/blockRoutes.js';
 import messageRoutes from './src/routes/messageRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import reportRoutes from './src/routes/reportRoutes.js';
+import planRoutes from './src/routes/plans.js';
+import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -72,6 +74,8 @@ if (process.env.NODE_ENV !== 'production') {
 // Auth routes with stricter rate limiting
 app.use('/auth', authRateLimiter, authRoutes);
 app.use('/master', masterDataRoutes);
+app.use('/plans', planRoutes); // Subscription plans (Task 6.1): GET /plans, GET /plans/:id, GET /plans/code/:code
+app.use('/subscriptions', subscriptionRoutes); // User subscriptions (Task 6.2): GET /subscriptions/current, POST /subscriptions/subscribe
 app.use('/users', userRoutes); // Combined user routes (photos, personal, caste, education, professional, family, horoscope, preferences)
 app.use('/profiles', profileListingRoutes); // Profile listing with advanced filters (Task 3.1)
 app.use('/search', searchRoutes); // Search & matchmaking routes
@@ -106,36 +110,41 @@ app.use(notFoundHandler);
 // Global Error Handler - Must be last
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
-  logger.info(`Server started on port ${PORT}`, {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-  });
-  
-  // Check database connection
-  try {
-    await prisma.$connect();
-    logger.info('Database connected successfully', {
-      type: 'PostgreSQL',
-      host: 'Supabase',
-    });
-  } catch (error) {
-    logger.error('Database connection failed', {
-      error: error.message,
-      stack: error.stack,
-    });
-  }
+// Export app for testing
+export default app;
 
-  // Initialize cron jobs (Task 4.6)
-  try {
-    initializeCronJobs();
-    logger.info('Cron jobs initialized successfully');
-  } catch (error) {
-    logger.error('Cron jobs initialization failed', {
-      error: error.message,
-      stack: error.stack,
+// Start server only if this file is run directly
+if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, async () => {
+    logger.info(`Server started on port ${PORT}`, {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
     });
-  }
-});
+    
+    // Check database connection
+    try {
+      await prisma.$connect();
+      logger.info('Database connected successfully', {
+        type: 'PostgreSQL',
+        host: 'Supabase',
+      });
+    } catch (error) {
+      logger.error('Database connection failed', {
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+
+    // Initialize cron jobs (Task 4.6)
+    try {
+      initializeCronJobs();
+      logger.info('Cron jobs initialized successfully');
+    } catch (error) {
+      logger.error('Cron jobs initialization failed', {
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  });
+}

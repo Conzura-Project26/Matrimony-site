@@ -40,6 +40,7 @@ import {
 import adminController from '../controllers/adminController.js';
 import statisticsController from '../controllers/statisticsController.js';
 import reportController from '../controllers/reportController.js';
+import adminPlanController from '../controllers/adminPlanController.js';
 import {
   adminReadRateLimiter,
   adminWriteRateLimiter,
@@ -1900,6 +1901,116 @@ router.put(
   authorizeRole(['ADMIN']), // ADMIN only for taking actions
   reportUserActionRateLimiter,
   asyncHandler(reportController.takeReportAction)
+);
+
+// ==========================================
+// SUBSCRIPTION PLAN MANAGEMENT ROUTES
+// Phase 6 - Task 6.1: Plan Management
+// ==========================================
+
+/**
+ * @swagger
+ * /api/admin/plans:
+ *   post:
+ *     tags: [Admin - Subscription Plans]
+ *     summary: Create a new subscription plan
+ */
+router.post(
+  '/plans',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminWriteRateLimiter,
+  asyncHandler(adminPlanController.createPlan)
+);
+
+/**
+ * @swagger
+ * /api/admin/plans/{planId}:
+ *   put:
+ *     tags: [Admin - Subscription Plans]
+ *     summary: Update a subscription plan
+ */
+router.put(
+  '/plans/:planId',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminWriteRateLimiter,
+  asyncHandler(adminPlanController.updatePlan)
+);
+
+/**
+ * @swagger
+ * /api/admin/plans/{planId}:
+ *   delete:
+ *     tags: [Admin - Subscription Plans]
+ *     summary: Deactivate a subscription plan
+ */
+router.delete(
+  '/plans/:planId',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminDestructiveRateLimiter,
+  asyncHandler(adminPlanController.deactivatePlan)
+);
+
+/**
+ * @swagger
+ * /api/admin/plans/{planId}/reactivate:
+ *   patch:
+ *     tags: [Admin - Subscription Plans]
+ *     summary: Reactivate a deactivated plan
+ */
+router.patch(
+  '/plans/:planId/reactivate',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminWriteRateLimiter,
+  asyncHandler(adminPlanController.reactivatePlan)
+);
+
+/**
+ * @swagger
+ * /api/admin/plans/{planId}/version:
+ *   post:
+ *     tags: [Admin - Subscription Plans]
+ *     summary: Create a new version of an existing plan
+ */
+router.post(
+  '/plans/:planId/version',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminWriteRateLimiter,
+  asyncHandler(adminPlanController.createPlanVersion)
+);
+
+/**
+ * @swagger
+ * /api/admin/features:
+ *   get:
+ *     tags: [Admin - Features]
+ *     summary: Get all features (ADMIN/MODERATOR read-only)
+ */
+router.get(
+  '/features',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'MODERATOR']), // ADMIN and MODERATOR can view
+  adminReadRateLimiter,
+  asyncHandler(adminPlanController.getAllFeatures)
+);
+
+/**
+ * @swagger
+ * /api/admin/features:
+ *   post:
+ *     tags: [Admin - Features]
+ *     summary: Create a new feature (ADMIN only)
+ */
+router.post(
+  '/features',
+  authenticateToken,
+  authorizeRole(['ADMIN']), // ADMIN only
+  adminWriteRateLimiter,
+  asyncHandler(adminPlanController.createFeature)
 );
 
 export default router;
