@@ -12,6 +12,8 @@ import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { authorizePermission } from '../middleware/authorization.js';
 import { checkFeatureRestriction } from '../middleware/checkFeatureRestrictions.js';
+import { checkFeatureAccess } from '../middleware/featureGating.js';
+import { FeatureCode, FeatureFlag } from '../types/enums.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import {
   simpleSearch,
@@ -185,8 +187,20 @@ router.get(
  *   post:
  *     tags:
  *       - Search
- *     summary: Advanced profile search (POST)
- *     description: Search profiles with complex filters using request body. Supports multiple values for each filter.
+ *     summary: Advanced profile search (POST) - Premium Feature
+ *     description: |
+ *       Search profiles with complex filters using request body. Supports multiple values for each filter.
+ *       
+ *       **Phase 6 - Task 6.2: Feature Gating**
+ *       This is a **PREMIUM FEATURE** - requires ADVANCED_FILTERS access
+ *       
+ *       **Subscription Requirements:**
+ *       - FREE: ❌ Not available
+ *       - BASIC: ❌ Not available
+ *       - PREMIUM: ✅ Available
+ *       - GOLD: ✅ Available
+ *       
+ *       **Phase 1 - Hard-gated** (Premium discovery feature)
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -280,13 +294,40 @@ router.get(
  *         description: Bad request - validation error
  *       401:
  *         description: Unauthorized - authentication required
+ *       403:
+ *         description: Feature not available - upgrade required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error_code:
+ *                   type: string
+ *                   example: "FEATURE_NOT_AVAILABLE"
+ *                 message:
+ *                   type: string
+ *                   example: "Advanced filters require PREMIUM plan"
+ *                 upgrade_required:
+ *                   type: boolean
+ *                   example: true
+ *                 recommended_plan:
+ *                   type: string
+ *                   example: "PREMIUM"
  *       500:
  *         description: Server error
  */
 router.post(
   '/advanced',
   authenticateToken,
-  checkFeatureRestriction('SEARCH'),
+  checkFeatureAccess(FeatureCode.ADVANCED_FILTERS, {
+    increment: 0,              // No usage increment (boolean feature)
+    softGate: false,           // Hard-gate (block when not available)
+    flagKey: FeatureFlag.GATE_ADVANCED_FILTERS  // Phase 1 feature flag
+  }),
+  checkFeatureRestriction('SEARCH'),  // Also check admin restrictions
   authorizePermission(['search_profiles']),
   asyncHandler(advancedSearch)
 );

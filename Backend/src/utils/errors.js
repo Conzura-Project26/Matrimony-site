@@ -50,9 +50,12 @@ class UnauthorizedError extends ApiError {
  * Used when user is authenticated but doesn't have permission
  */
 class ForbiddenError extends ApiError {
-  constructor(message = 'Forbidden - You do not have permission to access this resource') {
+  constructor(message = 'Forbidden - You do not have permission to access this resource', additionalData = null) {
     super(403, message);
     this.name = 'ForbiddenError';
+    if (additionalData) {
+      Object.assign(this, additionalData);
+    }
   }
 }
 

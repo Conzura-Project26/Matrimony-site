@@ -118,6 +118,28 @@ const formatErrorResponse = (error, includeStack = false) => {
     }
   };
 
+  // Include feature gating specific fields if present
+  if (error.error_code) {
+    response.errorType = error.error_code;
+  }
+  if (error.limit || error.used) {
+    response.usage = {
+      ...(error.limit && { limit: error.limit }),
+      ...(error.used && { used: error.used }),
+      ...(error.reset_period && { resetPeriod: error.reset_period }),
+      ...(error.window_end && { windowEnd: error.window_end })
+    };
+  }
+  if (error.upgrade_required || error.suggested_plan || error.recommended_plan) {
+    response.upgrade = {
+      required: error.upgrade_required || false,
+      currentPlan: error.current_plan,
+      suggestedPlan: error.suggested_plan || error.recommended_plan,
+      ...(error.upgrade_message && { message: error.upgrade_message }),
+      ...(error.benefit_increase && { benefitIncrease: error.benefit_increase })
+    };
+  }
+
   // Include stack trace only in development
   if (includeStack && error.stack) {
     response.error.stack = error.stack;

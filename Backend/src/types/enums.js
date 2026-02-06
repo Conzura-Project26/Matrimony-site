@@ -538,19 +538,62 @@ export const PlanCode = {
 
 /**
  * Feature Codes - Standard feature identifiers
+ * Phase 6 - Task 6.2: Feature Gating
  */
 export const FeatureCode = {
-  MATCH_LIMIT: 'MATCH_LIMIT',
-  INTEREST_LIMIT: 'INTEREST_LIMIT',
-  MESSAGE_LIMIT: 'MESSAGE_LIMIT',
-  CONTACT_VIEW_LIMIT: 'CONTACT_VIEW_LIMIT',
+  // Engagement Limits (Daily reset)
+  PROFILE_VIEW_LIMIT_DAILY: 'PROFILE_VIEW_LIMIT_DAILY',
+  INTEREST_LIMIT_DAILY: 'INTEREST_LIMIT_DAILY',
+  MESSAGE_LIMIT_DAILY: 'MESSAGE_LIMIT_DAILY',
+  DAILY_MATCH_LIMIT: 'DAILY_MATCH_LIMIT',
+  
+  // High-Value Limits (Monthly reset)
+  CONTACT_VIEW_LIMIT_MONTHLY: 'CONTACT_VIEW_LIMIT_MONTHLY',
+  
+  // Boolean Premium Features
+  PROTECTED_PHOTO_ACCESS: 'PROTECTED_PHOTO_ACCESS',
+  ADVANCED_FILTERS: 'ADVANCED_FILTERS',
+  UNLIMITED_CHAT: 'UNLIMITED_CHAT',
   PRIORITY_SUPPORT: 'PRIORITY_SUPPORT',
   PROFILE_BOOST: 'PROFILE_BOOST',
-  ADVANCED_FILTERS: 'ADVANCED_FILTERS',
   READ_RECEIPTS: 'READ_RECEIPTS',
   VIP_BADGE: 'VIP_BADGE',
   DEDICATED_MANAGER: 'DEDICATED_MANAGER',
   PRIORITY_MATCHING: 'PRIORITY_MATCHING'
+};
+
+/**
+ * Feature Gating Error Codes
+ * Phase 6 - Task 6.2: Feature Gating
+ */
+export const FeatureGatingError = {
+  FEATURE_NOT_AVAILABLE: 'FEATURE_NOT_AVAILABLE',           // Feature not in plan
+  FEATURE_LIMIT_REACHED: 'FEATURE_LIMIT_REACHED',           // Limit exceeded
+  PLAN_RESTRICTION: 'PLAN_RESTRICTION',                     // Plan doesn't allow this
+  NO_ACTIVE_SUBSCRIPTION: 'NO_ACTIVE_SUBSCRIPTION',         // User has no subscription
+  SUBSCRIPTION_EXPIRED: 'SUBSCRIPTION_EXPIRED'              // Subscription expired
+};
+
+/**
+ * Feature Flags - Phased Rollout Control
+ * Phase 6 - Task 6.2: Feature Gating
+ */
+export const FeatureFlag = {
+  // Phase 0 - Logging only
+  LOGGING_ONLY: 'LOGGING_ONLY',
+  
+  // Phase 1 - Hard-gated features
+  GATE_CONTACT_VIEWS: 'GATE_CONTACT_VIEWS',
+  GATE_PROTECTED_PHOTOS: 'GATE_PROTECTED_PHOTOS',
+  GATE_ADVANCED_FILTERS: 'GATE_ADVANCED_FILTERS',
+  
+  // Phase 2 - Soft-gated features
+  GATE_INTERESTS: 'GATE_INTERESTS',
+  GATE_MESSAGING: 'GATE_MESSAGING',
+  GATE_PROFILE_VIEWS: 'GATE_PROFILE_VIEWS',
+  
+  // Phase 3 - Additional features
+  GATE_DAILY_MATCHES: 'GATE_DAILY_MATCHES'
 };
 
 /**
@@ -567,6 +610,53 @@ export const SubscriptionConfig = {
   MAX_PLAN_PRIORITY: 100           // Maximum plan priority
 };
 
+/**
+ * Feature Limits by Plan
+ * Phase 6 - Task 6.2: Feature Gating
+ */
+export const FeatureLimits = {
+  FREE: {
+    PROFILE_VIEWS_DAILY: 50,
+    CONTACT_VIEWS_MONTHLY: 5,  // Give free users a taste
+    INTERESTS_DAILY: 5,
+    MESSAGES_DAILY: 10,
+    DAILY_MATCHES: 10,
+    PROTECTED_PHOTOS: false,
+    ADVANCED_FILTERS: false,
+    UNLIMITED_CHAT: false
+  },
+  BASIC: {
+    PROFILE_VIEWS_DAILY: 200,
+    CONTACT_VIEWS_MONTHLY: 30,
+    INTERESTS_DAILY: 15,
+    MESSAGES_DAILY: -1,  // Unlimited
+    DAILY_MATCHES: 20,
+    PROTECTED_PHOTOS: false,
+    ADVANCED_FILTERS: false,
+    UNLIMITED_CHAT: true
+  },
+  PREMIUM: {
+    PROFILE_VIEWS_DAILY: -1,  // Unlimited
+    CONTACT_VIEWS_MONTHLY: 75,
+    INTERESTS_DAILY: 50,
+    MESSAGES_DAILY: -1,  // Unlimited
+    DAILY_MATCHES: 50,
+    PROTECTED_PHOTOS: true,
+    ADVANCED_FILTERS: true,
+    UNLIMITED_CHAT: true
+  },
+  GOLD: {
+    PROFILE_VIEWS_DAILY: -1,  // Unlimited
+    CONTACT_VIEWS_MONTHLY: -1,  // Unlimited
+    INTERESTS_DAILY: -1,  // Unlimited
+    MESSAGES_DAILY: -1,  // Unlimited
+    DAILY_MATCHES: -1,  // Unlimited
+    PROTECTED_PHOTOS: true,
+    ADVANCED_FILTERS: true,
+    UNLIMITED_CHAT: true
+  }
+};
+
 // Subscription Plan Validators
 export const isValidBillingCycle = (value) => Object.values(BillingCycle).includes(value);
 export const isValidFeatureType = (value) => Object.values(FeatureType).includes(value);
@@ -574,3 +664,5 @@ export const isValidResetPeriod = (value) => Object.values(ResetPeriod).includes
 export const isValidSubscriptionStatus = (value) => Object.values(SubscriptionStatus).includes(value);
 export const isValidPlanCode = (value) => Object.values(PlanCode).includes(value);
 export const isValidFeatureCode = (value) => Object.values(FeatureCode).includes(value);
+export const isValidFeatureFlag = (value) => Object.values(FeatureFlag).includes(value);
+export const isValidFeatureGatingError = (value) => Object.values(FeatureGatingError).includes(value);

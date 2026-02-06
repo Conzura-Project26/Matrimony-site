@@ -18,6 +18,7 @@ import messageRoutes from './src/routes/messageRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import planRoutes from './src/routes/plans.js';
 import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
+import contactRoutes from './src/routes/contactRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
@@ -85,6 +86,7 @@ app.use('/', interestRoutes); // Interest system (Task 4.1): POST /interests/:re
 app.use('/blocks', blockRoutes); // Blocking system (Task 4.x): POST /blocks/:userId, DELETE /blocks/:userId, GET /blocks
 app.use('/messages', messageRoutes); // Messaging system (Task 4.3): POST /messages/:userId, GET /messages/:userId, GET /messages/conversations
 app.use('/notifications', notificationRoutes); // Notification system (Task 4.6): GET /notifications, PUT /notifications/:id/read, etc.
+app.use('/contacts', contactRoutes); // Contact views (Task 6.2): GET /contacts/:userId, GET /contacts/history
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)
@@ -112,7 +114,13 @@ app.use(errorHandler);
 export default app;
 
 // Start server only if this file is run directly
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+// Simplified check that works reliably on Windows with nodemon
+const isMainModule = process.argv[1] && (
+  process.argv[1].endsWith('index.js') || 
+  process.argv[1].includes('index.js')
+);
+
+if (isMainModule || !process.env.TESTING) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, async () => {
     logger.info(`Server started on port ${PORT}`, {

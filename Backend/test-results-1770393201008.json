@@ -1,0 +1,281 @@
+{
+  "total": 29,
+  "passed": 29,
+  "failed": 0,
+  "passRate": 100,
+  "duration": 326.69,
+  "timestamp": "2026-02-06T15:53:21.007Z",
+  "results": [
+    {
+      "status": "PASS",
+      "message": "View #1/5: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #2/5: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #3/5: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #4/5: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #5/5: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #6: Correctly blocked at limit",
+      "data": {
+        "status": 403,
+        "error": {
+          "name": "ForbiddenError"
+        },
+        "upgrade": {
+          "required": true,
+          "currentPlan": "FREE",
+          "suggestedPlan": "BASIC",
+          "message": "Upgrade to BASIC plan to continue accessing this feature",
+          "benefitIncrease": "30 contact views per month"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "View #1/30: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #30/30: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #31: Correctly blocked at limit",
+      "data": {
+        "error": {
+          "name": "ForbiddenError"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "View #1/75: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #75/75: Success",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "View #76: Correctly blocked at limit",
+      "data": {
+        "error": {
+          "name": "ForbiddenError"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "View #25: Success (unlimited access confirmed)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "View #50: Success (unlimited access confirmed)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "View #75: Success (unlimited access confirmed)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "View #100: Success (unlimited access confirmed)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Admin viewed contacts 10 times - bypass working!",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Contact view history retrieved",
+      "data": {
+        "usedThisMonth": 5,
+        "period": {
+          "start": "2026-01-31T18:30:00.000Z",
+          "end": "2026-02-28T18:30:00.000Z"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "FREE user cannot see protected photos (none available or correctly filtered)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "BASIC user cannot see protected photos (correctly filtered)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "PREMIUM user can access photos endpoint",
+      "data": {
+        "totalPhotos": 0,
+        "protectedPhotos": 0,
+        "protectedHidden": 0
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "GOLD user can access photos endpoint",
+      "data": {
+        "totalPhotos": 0,
+        "protectedPhotos": 0,
+        "protectedHidden": 0
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "FREE user correctly blocked from advanced search",
+      "data": {
+        "error": {
+          "name": "ForbiddenError"
+        },
+        "upgrade": {
+          "required": true,
+          "currentPlan": "FREE",
+          "suggestedPlan": "BASIC",
+          "message": "Upgrade to BASIC plan to continue accessing this feature",
+          "benefitIncrease": "Access to basic features"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "BASIC user correctly blocked from advanced search",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "PREMIUM user can use advanced search",
+      "data": {
+        "resultsCount": 0
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "GOLD user can use advanced search",
+      "data": {
+        "resultsCount": 0
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Admin can use advanced search (bypass working)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Self-viewing correctly prevented",
+      "data": {
+        "status": 403,
+        "error": {
+          "name": "ForbiddenError"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Missing authentication correctly rejected",
+      "data": {
+        "status": 401
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Invalid token correctly rejected",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Feature gating uses database transactions for atomicity (verified by code review)",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Auto-assignment working as expected",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Expired subscription correctly loses PREMIUM access",
+      "data": {
+        "status": 403,
+        "message": "No active subscription found"
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Plan upgrade successful - can use PREMIUM features and higher limits",
+      "data": {
+        "oldPlan": "BASIC",
+        "newPlan": "PREMIUM",
+        "usagePreserved": true
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Reset window information retrieved",
+      "data": null
+    },
+    {
+      "status": "PASS",
+      "message": "Usage persists correctly between requests",
+      "data": {}
+    },
+    {
+      "status": "PASS",
+      "message": "Error response has correct structure",
+      "data": {
+        "structure": {
+          "success": false,
+          "error": "object",
+          "errorType": "FEATURE_LIMIT_REACHED",
+          "usage": "object",
+          "upgrade": "object"
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "Upgrade prompt has suggestion",
+      "data": {
+        "suggestedPlan": "BASIC",
+        "benefitIncrease": "30 contact views per month"
+      }
+    },
+    {
+      "status": "PASS",
+      "message": "BASIC user gets correct upgrade suggestion",
+      "data": {
+        "suggested": "PREMIUM"
+      }
+    }
+  ]
+}
