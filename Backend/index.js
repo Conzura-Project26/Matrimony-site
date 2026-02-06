@@ -16,12 +16,14 @@ import interestRoutes from './src/routes/interestRoutes.js';
 import blockRoutes from './src/routes/blockRoutes.js';
 import messageRoutes from './src/routes/messageRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import reportRoutes from './src/routes/reportRoutes.js';
 import planRoutes from './src/routes/plans.js';
 import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import contactRoutes from './src/routes/contactRoutes.js';
 import prisma from './src/config/prisma.js';
 import { errorHandler, notFoundHandler } from './src/middleware/errorHandler.js';
 import requestLogger from './src/middleware/requestLogger.js';
+import { captureAuditContext } from './src/middleware/auditContext.js';
 import logger from './src/config/logger.js';
 import corsOptions from './src/config/corsConfig.js';
 import helmetConfig from './src/config/helmetConfig.js';
@@ -57,6 +59,9 @@ app.use(sanitizeInput);
 // 6. Request Logging
 app.use(requestLogger);
 
+// 7. Audit Context - Capture IP and User Agent for audit logging (Phase 5 - Task 5.6)
+app.use(captureAuditContext);
+
 // ============================
 // Swagger Documentation (only in development/staging)
 if (process.env.NODE_ENV !== 'production') {
@@ -87,6 +92,7 @@ app.use('/blocks', blockRoutes); // Blocking system (Task 4.x): POST /blocks/:us
 app.use('/messages', messageRoutes); // Messaging system (Task 4.3): POST /messages/:userId, GET /messages/:userId, GET /messages/conversations
 app.use('/notifications', notificationRoutes); // Notification system (Task 4.6): GET /notifications, PUT /notifications/:id/read, etc.
 app.use('/contacts', contactRoutes); // Contact views (Task 6.2): GET /contacts/:userId, GET /contacts/history
+app.use('/reports', reportRoutes); // User reporting system (Task 5.5): POST /reports/:userId, GET /reports/reasons, GET /reports/my-reports
 app.use('/admin', adminRoutes);
 
 // Test routes (only in development)
@@ -123,6 +129,7 @@ const isMainModule = process.argv[1] && (
 if (isMainModule || !process.env.TESTING) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, async () => {
+    console.log(`✓ Server listening on http://localhost:${PORT}`);
     logger.info(`Server started on port ${PORT}`, {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',

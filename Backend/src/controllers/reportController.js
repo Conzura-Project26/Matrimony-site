@@ -1,17 +1,24 @@
 /**
  * Report Controller
- * Phase 5 - Task 5.4: Report Management
+ * Phase 5 - Task 5.4: Report Management (Admin)
+ * Phase 5 - Task 5.5: User Reporting
  * 
- * Handles HTTP requests for admin report management operations
+ * Handles HTTP requests for:
+ * - Admin report management operations (Task 5.4)
+ * - User report submissions (Task 5.5)
  */
 
 import reportService from '../services/reportService.js';
 import {
   adminGetReportsSchema,
   adminUpdateReportStatusSchema,
-  adminTakeReportActionSchema
+  adminTakeReportActionSchema,
+  userCreateReportSchema,
+  userGetMyReportsSchema
 } from '../utils/validation.js';
 import logger from '../config/logger.js';
+import AuditService from '../services/auditService.js';
+import { AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 
 class ReportController {
   /**
@@ -100,6 +107,23 @@ class ReportController {
       status: validatedData.status
     });
 
+    // Audit log for report status update
+    await AuditService.log({
+      action: AuditAction.ADMIN_REPORT_STATUS_UPDATED,
+      actionType: AuditActionType.ADMIN_ACTION,
+      actorId: currentAdminId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: reportId.toString(),
+      metadata: {
+        new_status: validatedData.status,
+        admin_notes: validatedData.admin_notes,
+        admin_role: currentAdminRole
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
+
     res.status(200).json({
       success: true,
       message: `Report status updated to ${validatedData.status} successfully`,
@@ -138,6 +162,23 @@ class ReportController {
       action: validatedData.action
     });
 
+    // Audit log for report action
+    await AuditService.log({
+      action: AuditAction.ADMIN_REPORT_ACTION_TAKEN,
+      actionType: AuditActionType.ADMIN_ACTION,
+      actorId: currentAdminId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: reportId.toString(),
+      metadata: {
+        action_type: validatedData.action,
+        admin_notes: validatedData.admin_notes,
+        action_metadata: validatedData.metadata
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
+
     res.status(200).json({
       success: true,
       message: `Action ${validatedData.action} executed successfully`,
@@ -163,6 +204,97 @@ class ReportController {
       success: true,
       message: 'Report statistics retrieved successfully',
       data: stats
+    });
+  }
+
+  // ==========================================
+  // USER REPORTING METHODS (Task 5.5)
+  // ==========================================
+
+  /**
+   * Create a user report
+   * POST /reports/:userId
+   * Access: Authenticated users
+   */
+  async createUserReport(req, res) {
+    const reportedUserId = req.params.userId;
+    const reporterId = req.user.userId;
+    const validatedData = userCreateReportSchema.parse(req.body);
+
+    const result = await reportService.createUserReport(
+      reporterId,
+      reportedUserId,
+      validatedData.category,
+      validatedData.reason
+    );
+
+    logger.info('User submitted report', {
+      reporterId,
+      reportedUserId,
+      category: validatedData.category,
+      reportId: result.report_id
+    });
+
+    // Audit log for user report submission
+    await AuditService.log({
+      action: AuditAction.USER_REPORTED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: reporterId,
+      targetUserId: reportedUserId,
+      resourceType: AuditResourceType.REPORT,
+      resourceId: result.report_id.toString(),
+      metadata: {
+        category: validatedData.category,
+        reason_length: validatedData.reason.length
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Report submitted successfully',
+      data: result
+    });
+  }
+
+  /**
+   * Get report reasons/categories
+   * GET /reports/reasons
+   * Access: Authenticated users
+   */
+  async getReportReasons(req, res) {
+    const reasons = await reportService.getReportReasons();
+
+    res.status(200).json({
+      success: true,
+      message: 'Report reasons retrieved successfully',
+      data: reasons
+    });
+  }
+
+  /**
+   * Get my reports (made by me and against me)
+   * GET /reports/my-reports
+   * Access: Authenticated users
+   */
+  async getMyReports(req, res) {
+    const userId = req.user.userId;
+    const filters = userGetMyReportsSchema.parse(req.query);
+
+    const result = await reportService.getMyReports(userId, filters);
+
+    logger.info('User retrieved their reports', {
+      userId,
+      type: filters.type,
+      page: filters.page
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Reports retrieved successfully',
+      data: result
     });
   }
 }

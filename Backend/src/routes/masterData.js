@@ -1,6 +1,6 @@
 /**
  * Master Data Routes
- * Routes for accessing all master data (enums, religions, castes, etc.)
+ * Routes for accessing all master data (enums, religions, castes, report reasons, etc.)
  */
 
 import express from 'express';
@@ -13,7 +13,8 @@ import {
   getAllMasterData,
   getReligionHierarchy,
   getStates,
-  getCities
+  getCities,
+  getReportReasons
 } from '../controllers/masterDataController.js';
 
 const router = express.Router();
@@ -359,5 +360,53 @@ router.get('/states', authenticateToken, getStates);
  *         description: Server error
  */
 router.get('/cities', authenticateToken, getCities);
+
+/**
+ * @swagger
+ * /master/report-reasons:
+ *   get:
+ *     tags:
+ *       - Master Data
+ *     summary: Get report reasons/categories
+ *     description: Retrieve list of available report categories with descriptions (Phase 5 - Task 5.5)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Report reasons retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: 'FAKE_PROFILE'
+ *                           label:
+ *                             type: string
+ *                             example: 'Fake Profile'
+ *                           description:
+ *                             type: string
+ *                             example: 'Report profiles with fake information or photos'
+ *                 message:
+ *                   type: string
+ *                   example: 'Report reasons retrieved successfully'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/report-reasons', authenticateToken, getReportReasons);
 
 export default router;

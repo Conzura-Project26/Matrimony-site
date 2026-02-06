@@ -246,3 +246,65 @@ export const reportUserActionRateLimiter = createRateLimiter(
   60 * 60 * 1000, // 1 hour
   'report-user-action'
 );
+
+// ============================================
+// USER REPORTING RATE LIMITER (Phase 5 - Task 5.5)
+// ============================================
+
+/**
+ * User Report Submission Rate Limiter
+ * Applied to user report creation endpoint
+ * PRODUCTION: 5 requests per 24 hours
+ * 
+ * FOR TESTING: Temporarily change to:
+ *   - maxRequests: 1000
+ *   - windowMs: 60 * 60 * 1000 (1 hour)
+ * 
+ * Note: This is a stricter rate limit to prevent abuse
+ * Additional validation in service layer checks for 5 reports per 24h per user
+ */
+export const userReportRateLimiter = createRateLimiter(
+  5,                    // PRODUCTION: 5 reports | TESTING: 1000
+  24 * 60 * 60 * 1000, // PRODUCTION: 24 hours | TESTING: 60 * 60 * 1000 (1 hour)
+  'user-report',
+  'You have exceeded the maximum number of reports. Please try again later.'
+);
+
+// ============================================
+// AUDIT LOG RATE LIMITERS (Phase 5 - Task 5.6)
+// ============================================
+
+/**
+ * Audit Log Read Operations Rate Limiter
+ * Applied to GET /admin/audit-logs
+ * 200 requests per hour (admin only)
+ */
+export const auditLogReadRateLimiter = createRateLimiter(
+  200,
+  60 * 60 * 1000, // 1 hour
+  'audit-log-read'
+);
+
+/**
+ * Audit Log Export Rate Limiter
+ * Applied to GET /admin/audit-logs/export
+ * 10 requests per hour (export is resource-intensive)
+ */
+export const auditLogExportRateLimiter = createRateLimiter(
+  10,
+  60 * 60 * 1000, // 1 hour
+  'audit-log-export'
+);
+
+/**
+ * Audit Log Cleanup Rate Limiter
+ * Applied to DELETE /admin/audit-logs/cleanup
+ * 5 requests per day (manual cleanup should be rare)
+ */
+export const auditLogCleanupRateLimiter = createRateLimiter(
+  5,
+  24 * 60 * 60 * 1000, // 24 hours
+  'audit-log-cleanup',
+  'Audit log cleanup can only be performed 5 times per day.'
+);
+

@@ -408,13 +408,25 @@ model ReportActionLog {
 }
 
 model AuditLog {
-  id         Int      @id @default(autoincrement())
-  actor_id   String?  @db.Uuid
-  action     String?
-  ip_address String?  @db.VarChar(45)
-  created_at DateTime @default(now())
-  actor      User?    @relation(fields: [actor_id], references: [id])
+  id              Int      @id @default(autoincrement())
+  actor_id        String?  @db.Uuid
+  target_user_id  String?  @db.Uuid
+  action_type     String   @db.VarChar(50)  // ADMIN_ACTION, USER_ACTION, SYSTEM_ACTION, AUTH_EVENT
+  action          String   @db.VarChar(255) // Detailed action description
+  resource_type   String?  @db.VarChar(50)  // USER, PHOTO, REPORT, SUBSCRIPTION, etc.
+  resource_id     String?  @db.VarChar(100) // ID of affected resource
+  metadata        Json?    // Additional context (reason, old/new values, etc.) - PII masked
+  ip_address      String?  @db.VarChar(45)
+  user_agent      String?  @db.VarChar(500)
+  status          String   @default("SUCCESS") @db.VarChar(20) // SUCCESS, FAILURE, PARTIAL
+  created_at      DateTime @default(now())
+  actor           User?    @relation(fields: [actor_id], references: [id])
 
+  @@index([actor_id, created_at])
+  @@index([target_user_id, created_at])
+  @@index([action_type, created_at])
+  @@index([resource_type, resource_id])
+  @@index([created_at])
   @@map("audit_logs")
 }
 
@@ -651,6 +663,7 @@ enum NotificationType {
   MESSAGE_RECEIVED
   PROFILE_VIEW
   MATCH_FOUND
+  NEW_REPORT
 }
 
 enum ReportStatus {

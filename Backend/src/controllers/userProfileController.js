@@ -23,6 +23,8 @@ import {
   updateProfileCompletionCache as updateCache, 
   getProfileCompletionPercentage 
 } from '../utils/profileCompletion.js';
+import AuditService from '../services/auditService.js';
+import { AuditAction, AuditActionType, AuditResourceType, AuditStatus } from '../types/enums.js';
 
 /**
  * User Profile Controller
@@ -155,12 +157,20 @@ class UserProfileController {
     });
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Created personal details for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.PERSONAL_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        fields_created: Object.keys(validation.data)
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     // Update profile completion cache
     await this.updateProfileCompletionCache(userId);
@@ -241,12 +251,20 @@ class UserProfileController {
     });
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Updated personal details for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.PERSONAL_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        fields_updated: Object.keys(validation.data)
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     // Update profile completion cache
     await this.updateProfileCompletionCache(userId);
@@ -694,12 +712,20 @@ class UserProfileController {
     });
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Updated caste details for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.CASTE_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        fields_updated: Object.keys(updateData)
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     // Update profile completion cache
     await this.updateProfileCompletionCache(userId);
@@ -1123,12 +1149,21 @@ class UserProfileController {
     await this.updateProfileCompletionCache(userId);
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Created education entry (ID: ${education.id}) for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.EDUCATION_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        education_id: education.id,
+        qualification: qualification
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     logger.info('Education entry created', {
       userId: userId,
@@ -1234,12 +1269,21 @@ class UserProfileController {
     await this.updateProfileCompletionCache(userId);
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Updated education entry (ID: ${eduId}) for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.EDUCATION_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        education_id: eduId,
+        fields_updated: Object.keys(validation.data)
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     logger.info('Education entry updated', {
       userId: userId,
@@ -1302,12 +1346,20 @@ class UserProfileController {
     await this.updateProfileCompletionCache(userId);
 
     // Create audit log
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    await this.createAuditLog(
-      req.user.userId,
-      `Deleted education entry (ID: ${eduId}) for user ${userId}`,
-      ipAddress
-    );
+    await AuditService.log({
+      action: AuditAction.EDUCATION_DETAILS_UPDATED,
+      actionType: AuditActionType.USER_ACTION,
+      actorId: req.user.userId,
+      targetUserId: userId,
+      resourceType: AuditResourceType.PROFILE,
+      resourceId: userId,
+      metadata: {
+        education_id: eduId
+      },
+      ipAddress: req.auditContext?.ipAddress,
+      userAgent: req.auditContext?.userAgent,
+      status: AuditStatus.SUCCESS
+    });
 
     logger.info('Education entry deleted', {
       userId: userId,

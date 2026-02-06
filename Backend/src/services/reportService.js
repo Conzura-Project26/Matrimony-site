@@ -1,15 +1,19 @@
 /**
  * Report Service
- * Phase 5 - Task 5.4: Report Management
+ * Phase 5 - Task 5.4: Report Management (Admin)
+ * Phase 5 - Task 5.5: User Reporting
  * 
- * Business logic for admin report management operations
- * Handles report listing, status updates, action execution, and resolution workflow
+ * Business logic for:
+ * - Admin report management operations (listing, status updates, action execution)
+ * - User report submissions and viewing (Task 5.5)
+ * - Pattern detection and auto-flagging
  */
 
 import prisma from '../config/prisma.js';
 import logger from '../config/logger.js';
 import { NotFoundError, ForbiddenError, BadRequestError } from '../utils/errors.js';
 import { ReportStatus, ReportSeverity, ReportAction, ReportCategory } from '../types/enums.js';
+import notificationService from './notificationService.js';
 
 class ReportService {
   /**
@@ -988,6 +992,490 @@ class ReportService {
         acc[item.category] = item._count;
         return acc;
       }, {})
+    };
+  }
+
+  // ==========================================
+  // USER REPORTING METHODS (Task 5.5)
+  // ==========================================
+
+  /**
+   * Determine severity based on report category
+   * @private
+   * @param {String} category - Report category
+   * @returns {String} Severity level
+   */
+  determineSeverityFromCategory(category) {
+    const severityMap = {
+      // CRITICAL severity
+      [ReportCategory.UNDERAGE]: ReportSeverity.CRITICAL,
+      [ReportCategory.SCAM]: ReportSeverity.CRITICAL,
+      
+      // HIGH severity
+      [ReportCategory.HARASSMENT]: ReportSeverity.HIGH,
+      [ReportCategory.FAKE_PROFILE]: ReportSeverity.HIGH,
+      [ReportCategory.MARRIED]: ReportSeverity.HIGH,
+      
+      // MEDIUM severity
+      [ReportCategory.INAPPROPRIATE_PHOTO]: ReportSeverity.MEDIUM,
+      [ReportCategory.INAPPROPRIATE_CONTENT]: ReportSeverity.MEDIUM,
+      [ReportCategory.DUPLICATE_PROFILE]: ReportSeverity.MEDIUM,
+      [ReportCategory.OFFENSIVE_BEHAVIOR]: ReportSeverity.MEDIUM,
+      
+      // LOW severity
+      [ReportCategory.SPAM]: ReportSeverity.LOW,
+      [ReportCategory.OTHER]: ReportSeverity.LOW
+    };
+
+    return severityMap[category] || ReportSeverity.MEDIUM;
+  }
+
+  /**
+   * Check for duplicate reports
+   * @private
+   */
+  async checkDuplicateReport(reporterId, reportedUserId, category) {
+    const existingReport = await prisma.userReport.findFirst({
+      where: {
+        reported_by: reporterId,
+        reported_user: reportedUserId,
+        category: category,
+        status: {
+          in: [ReportStatus.OPEN, ReportStatus.IN_REVIEW, ReportStatus.ESCALATED]
+        }
+      }
+    });
+
+    return existingReport;
+  }
+
+  /**
+   * Check if user has exceeded report rate limit (5 per 24h)
+   * FOR TESTING: Change >= 5 to >= 1000 temporarily
+   * @private
+   */
+  async checkReportRateLimit(reporterId) {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    const recentReportsCount = await prisma.userReport.count({
+      where: {
+        reported_by: reporterId,
+        created_at: {
+          gte: twentyFourHoursAgo
+        }
+      }
+    });
+
+    return recentReportsCount >= 5; // PRODUCTION: >= 5 | TESTING: >= 1000
+  }
+
+  /**
+   * Detect report patterns and auto-flag user if threshold hit
+   * Pattern: 3+ reports in 7 days triggers auto-flag
+   * @private
+   */
+  async detectReportPatternsAndFlag(reportedUserId) {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    
+    // Count recent reports against this user
+    const recentReportsCount = await prisma.userReport.count({
+      where: {
+        reported_user: reportedUserId,
+        created_at: {
+          gte: sevenDaysAgo
+        },
+        status: {
+          not: ReportStatus.DISMISSED
+        }
+      }
+    });
+
+    // Pattern threshold: 3+ reports in 7 days
+    if (recentReportsCount >= 3) {
+      // Auto-flag user and apply soft restrictions
+      await prisma.$transaction(async (tx) => {
+        // Flag the user
+        await tx.user.update({
+          where: { id: reportedUserId },
+          data: {
+            is_flagged: true,
+            moderation_flags: {
+              auto_flagged: true,
+              reason: 'Multiple reports received',
+              flagged_at: new Date(),
+              report_count: recentReportsCount
+            }
+          }
+        });
+
+        // Apply soft feature restrictions (CHAT and INTEREST)
+        const restrictedFeatures = ['CHAT', 'INTEREST'];
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+        for (const feature of restrictedFeatures) {
+          await tx.userFeatureRestriction.upsert({
+            where: {
+              user_id_feature_is_active: {
+                user_id: reportedUserId,
+                feature: feature,
+                is_active: true
+              }
+            },
+            create: {
+              user_id: reportedUserId,
+              feature: feature,
+              restricted_by: 'SYSTEM',
+              reason: 'Auto-flagged due to multiple reports',
+              expires_at: expiresAt,
+              is_active: true
+            },
+            update: {
+              expires_at: expiresAt,
+              reason: 'Auto-flagged due to multiple reports',
+              updated_at: new Date()
+            }
+          });
+        }
+      });
+
+      logger.warn('User auto-flagged due to report pattern', {
+        userId: reportedUserId,
+        reportCount: recentReportsCount,
+        period: '7 days'
+      });
+
+      return {
+        auto_flagged: true,
+        report_count: recentReportsCount
+      };
+    }
+
+    return {
+      auto_flagged: false,
+      report_count: recentReportsCount
+    };
+  }
+
+  /**
+   * Create a user report
+   * @param {String} reporterId - ID of user making the report
+   * @param {String} reportedUserId - ID of user being reported
+   * @param {String} category - Report category
+   * @param {String} reason - Detailed reason
+   * @returns {Object} Created report summary
+   */
+  async createUserReport(reporterId, reportedUserId, category, reason) {
+    // Validation 1: Prevent self-reporting
+    if (reporterId === reportedUserId) {
+      throw new BadRequestError('You cannot report yourself');
+    }
+
+    // Validation 2: Check if reported user exists
+    const reportedUser = await prisma.user.findUnique({
+      where: { id: reportedUserId },
+      select: {
+        id: true,
+        full_name: true,
+        profile_id: true,
+        is_active: true
+      }
+    });
+
+    if (!reportedUser) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Validation 3: Check for duplicate report (same category)
+    const duplicateReport = await this.checkDuplicateReport(reporterId, reportedUserId, category);
+    if (duplicateReport) {
+      throw new BadRequestError(
+        `You have already reported this user for ${category}. Your previous report is being reviewed.`,
+        { conflictType: 'duplicate_report', existingReportId: duplicateReport.id }
+      );
+    }
+
+    // Validation 4: Rate limit check (5 per 24h)
+    const rateLimitExceeded = await this.checkReportRateLimit(reporterId);
+    if (rateLimitExceeded) {
+      throw new BadRequestError(
+        'You have exceeded the maximum number of reports (5) in 24 hours. Please try again later.',
+        { error_code: 'RATE_LIMIT_EXCEEDED' }
+      );
+    }
+
+    // Determine severity from category
+    const severity = this.determineSeverityFromCategory(category);
+
+    // Create the report
+    const report = await prisma.userReport.create({
+      data: {
+        reported_by: reporterId,
+        reported_user: reportedUserId,
+        category: category,
+        reason: reason,
+        severity: severity,
+        status: ReportStatus.OPEN
+      },
+      select: {
+        id: true,
+        status: true,
+        severity: true,
+        created_at: true
+      }
+    });
+
+    // Pattern detection and auto-flagging
+    const patternResult = await this.detectReportPatternsAndFlag(reportedUserId);
+
+    // Send notification to moderators
+    await this.notifyModeratorsOfNewReport(report.id, category, severity, reportedUser);
+
+    logger.info('User report created', {
+      reportId: report.id,
+      reporterId,
+      reportedUserId,
+      category,
+      severity,
+      autoFlagged: patternResult.auto_flagged
+    });
+
+    return {
+      report_id: report.id,
+      status: report.status,
+      created_at: report.created_at
+    };
+  }
+
+  /**
+   * Notify moderators about new report
+   * @private
+   */
+  async notifyModeratorsOfNewReport(reportId, category, severity, reportedUser) {
+    try {
+      // Get all users with MODERATOR role
+      const moderators = await prisma.user.findMany({
+        where: {
+          role: {
+            role_name: 'MODERATOR'
+          },
+          is_active: true
+        },
+        select: {
+          id: true
+        }
+      });
+
+      // Create in-app notifications for all moderators
+      const notifications = moderators.map(moderator => ({
+        user_id: moderator.id,
+        type: 'NEW_REPORT',
+        title: `New ${severity} Report: ${category}`,
+        message: `A new report has been submitted against user ${reportedUser.profile_id || reportedUser.full_name}`,
+        related_user_id: reportedUser.id,
+        related_id: parseInt(reportId) // Store report ID in related_id field
+      }));
+
+      if (notifications.length > 0) {
+        await prisma.notification.createMany({
+          data: notifications
+        });
+
+        logger.info('Moderators notified of new report', {
+          reportId,
+          moderatorCount: moderators.length
+        });
+      }
+    } catch (error) {
+      // Don't fail report creation if notification fails
+      logger.error('Failed to notify moderators of new report', {
+        reportId,
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get report reasons/categories with descriptions
+   * @returns {Object} Categories with labels and descriptions
+   */
+  async getReportReasons() {
+    const categories = [
+      {
+        value: ReportCategory.FAKE_PROFILE,
+        label: 'Fake Profile',
+        description: 'Report profiles with fake information, stolen photos, or impersonation'
+      },
+      {
+        value: ReportCategory.HARASSMENT,
+        label: 'Harassment',
+        description: 'Report users engaging in harassment, bullying, or threatening behavior'
+      },
+      {
+        value: ReportCategory.INAPPROPRIATE_PHOTO,
+        label: 'Inappropriate Photo',
+        description: 'Report profiles with inappropriate, explicit, or offensive photos'
+      },
+      {
+        value: ReportCategory.INAPPROPRIATE_CONTENT,
+        label: 'Inappropriate Content',
+        description: 'Report inappropriate messages, profile content, or offensive material'
+      },
+      {
+        value: ReportCategory.SPAM,
+        label: 'Spam',
+        description: 'Report users sending spam messages or promotional content'
+      },
+      {
+        value: ReportCategory.SCAM,
+        label: 'Scam/Fraud',
+        description: 'Report users attempting scams, fraud, or requesting money'
+      },
+      {
+        value: ReportCategory.UNDERAGE,
+        label: 'Underage User',
+        description: 'Report profiles of users who appear to be under 18 years old'
+      },
+      {
+        value: ReportCategory.MARRIED,
+        label: 'Married/In Relationship',
+        description: 'Report users who are already married or in a committed relationship'
+      },
+      {
+        value: ReportCategory.DUPLICATE_PROFILE,
+        label: 'Duplicate Profile',
+        description: 'Report duplicate accounts or multiple profiles of the same person'
+      },
+      {
+        value: ReportCategory.OFFENSIVE_BEHAVIOR,
+        label: 'Offensive Behavior',
+        description: 'Report offensive, disrespectful, or inappropriate behavior'
+      },
+      {
+        value: ReportCategory.OTHER,
+        label: 'Other',
+        description: 'Report other policy violations or concerns not covered above'
+      }
+    ];
+
+    return { categories };
+  }
+
+  /**
+   * Get reports for a user (made by them and against them)
+   * @param {String} userId - Current user ID
+   * @param {Object} filters - Filter criteria
+   * @returns {Object} Reports with pagination
+   */
+  async getMyReports(userId, filters) {
+    const where = {};
+
+    // Type filter: made, received, or all
+    if (filters.type === 'made') {
+      where.reported_by = userId;
+    } else if (filters.type === 'received') {
+      where.reported_user = userId;
+    } else {
+      // All: reports made by me OR against me
+      where.OR = [
+        { reported_by: userId },
+        { reported_user: userId }
+      ];
+    }
+
+    // Status filter
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    // Category filter
+    if (filters.category) {
+      where.category = filters.category;
+    }
+
+    // Date filters
+    if (filters.created_from || filters.created_to) {
+      where.created_at = {};
+      if (filters.created_from) {
+        where.created_at.gte = new Date(filters.created_from);
+      }
+      if (filters.created_to) {
+        where.created_at.lte = new Date(filters.created_to);
+      }
+    }
+
+    // Build order by
+    const orderBy = { [filters.sort_by]: filters.sort_order };
+
+    // Calculate offset
+    const skip = (filters.page - 1) * filters.limit;
+
+    // Execute query
+    const [reports, total] = await Promise.all([
+      prisma.userReport.findMany({
+        where,
+        orderBy,
+        skip,
+        take: filters.limit,
+        select: {
+          id: true,
+          category: true,
+          severity: true,
+          status: true,
+          reason: true,
+          created_at: true,
+          updated_at: true,
+          resolved_at: true,
+          reported_by: true,  // Need this to determine report_type
+          reported_user: true, // Need this to determine report_type
+          // Show limited info about other party
+          reporter: {
+            select: {
+              id: true,
+              full_name: true,
+              profile_id: true
+            }
+          },
+          reported: {
+            select: {
+              id: true,
+              full_name: true,
+              profile_id: true
+            }
+          },
+          // Don't expose admin_notes, action_taken, or resolver details to users
+          // These are admin-only fields
+        }
+      }),
+      prisma.userReport.count({ where })
+    ]);
+
+    // Add context field to indicate if report was made by user or against them
+    const reportsWithContext = reports.map(report => ({
+      ...report,
+      report_type: report.reported_by === userId ? 'made' : 'received',
+      // Remove the other party's info based on report type for privacy
+      other_party: report.reported_by === userId ? report.reported : report.reporter
+    }));
+
+    // Remove reporter, reported, reported_by, and reported_user fields 
+    const cleanedReports = reportsWithContext.map(({ reporter, reported, reported_by, reported_user, ...rest }) => rest);
+
+    const totalPages = Math.ceil(total / filters.limit);
+
+    return {
+      reports: cleanedReports,
+      pagination: {
+        total,
+        page: filters.page,
+        limit: filters.limit,
+        totalPages,
+        hasMore: filters.page < totalPages
+      },
+      filters: {
+        type: filters.type,
+        status: filters.status,
+        category: filters.category
+      }
     };
   }
 }
